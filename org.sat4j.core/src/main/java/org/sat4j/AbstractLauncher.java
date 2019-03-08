@@ -36,6 +36,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.UncheckedIOException;
 import java.net.URL;
 import java.util.Properties;
 
@@ -49,6 +50,7 @@ import org.sat4j.specs.ISolver;
 import org.sat4j.specs.ISolverService;
 import org.sat4j.specs.SearchListener;
 import org.sat4j.specs.TimeoutException;
+import org.sat4j.tools.CdclTraceListener;
 import org.sat4j.tools.DotSearchTracing;
 import org.sat4j.tools.ModelIteratorToSATAdapter;
 import org.sat4j.tools.RupSearchListener;
@@ -291,6 +293,20 @@ public abstract class AbstractLauncher implements Serializable, ILogAble {
             SearchMinOneListener minone = new SearchMinOneListener(
                     launcherMode);
             this.solver.setSearchListener(minone);
+        }
+
+        String dump = System.getProperty("dump");
+        if (dump != null) {
+            if (dump.isEmpty()) {
+                this.solver.setSearchListener(new CdclTraceListener<>());
+            } else {
+                try {
+                    this.solver
+                            .setSearchListener(new CdclTraceListener<>(dump));
+                } catch (FileNotFoundException e) {
+                    throw new UncheckedIOException(e);
+                }
+            }
         }
     }
 

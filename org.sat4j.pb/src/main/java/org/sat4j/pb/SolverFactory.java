@@ -151,6 +151,10 @@ public final class SolverFactory extends ASolverFactory<IPBSolver> {
         return new OPBStringSolver();
     }
 
+    public static IPBSolver newDetectIrrelevant() {
+        return new DetectIrrelevantSolver();
+    }
+
     /**
      * @return MiniSAT with Counter-based pseudo boolean constraints and
      *         constraint learning. Clauses and cardinalities with watched

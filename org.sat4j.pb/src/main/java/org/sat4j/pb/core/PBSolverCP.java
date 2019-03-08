@@ -197,6 +197,7 @@ public class PBSolverCP extends PBSolver {
         // (which is less than current level)
         int backtrackLevel = confl.getBacktrackLevel(currentLevel);
         results.setBacktrackLevel(backtrackLevel);
+
         // }
     }
 
@@ -212,8 +213,8 @@ public class PBSolverCP extends PBSolver {
                 + this.getClass().getName() + ")\n"
                 + (this.noRemove ? ""
                         : prefix + " - Removing satisfied literals at a higher level before CP \n")
-                + (this.skipAllow
-                        ? prefix + " - Skipping as much as possible cutting planes during analysis conflict- Jan Elffers's algorithm \n"
+                + (this.skipAllow ? prefix
+                        + " - Skipping as much as possible cutting planes during analysis conflict- Jan Elffers's algorithm \n"
                         : "")
                 + prefix + " - " + autoDivisionStrategy + "\n" + prefix + " - "
                 + postprocess + "\n" + prefix + " - " + conflictFactory + "\n"
