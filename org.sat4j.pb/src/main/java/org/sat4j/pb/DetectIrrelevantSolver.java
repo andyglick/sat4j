@@ -9,15 +9,13 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import org.sat4j.core.Vec;
-import org.sat4j.core.VecInt;
-import org.sat4j.pb.constraints.pb.SubsetSum;
+import org.sat4j.pb.constraints.pb.IrrelevantLiteralDetectionStrategy;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.FakeConstr;
 import org.sat4j.specs.IConstr;
 import org.sat4j.specs.IVec;
 import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.IteratorInt;
-import org.sat4j.specs.TimeoutException;
 import org.sat4j.tools.AbstractOutputSolver;
 
 public class DetectIrrelevantSolver extends AbstractOutputSolver
@@ -27,7 +25,8 @@ public class DetectIrrelevantSolver extends AbstractOutputSolver
 
     private int nVars = 0;
 
-    private final SubsetSum subsetSum = new SubsetSum(500005, 1005);
+    private final IrrelevantLiteralDetectionStrategy irrelevantDetector = IrrelevantLiteralDetectionStrategy
+            .defaultStrategy();
 
     @Override
     public int newVar() {
@@ -182,7 +181,7 @@ public class DetectIrrelevantSolver extends AbstractOutputSolver
                     .add(i);
             maxCoeff = maxCoeff.max(c);
         }
-        if (maxCoeff.compareTo(BigInteger.valueOf(500000)) >= 0
+        if (maxCoeff.compareTo(BigInteger.valueOf(20000)) >= 0
                 || realDegree.signum() == 0) {
             return FakeConstr.instance();
         }
@@ -199,55 +198,10 @@ public class DetectIrrelevantSolver extends AbstractOutputSolver
 
     }
 
-    private boolean dependsOnSum(IVecInt literals, IVec<BigInteger> coeffs,
-            BigInteger degree, BigInteger coef, int lit) {
-        int[] elts = new int[literals.size() - 1];
-        for (int i = 0, index = 0; i < literals.size(); i++) {
-            if (i != lit) {
-                elts[index] = coeffs.get(i).intValue();
-                index++;
-            }
-        }
-
-        int intDegree = degree.intValue();
-        int minSum = Math.max(0, intDegree - coef.intValue());
-        subsetSum.setElements(elts);
-        for (int i = intDegree - 1; i >= minSum; i--) {
-            if (subsetSum.sumExists(i)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     private boolean dependsOn(IVecInt literals, IVec<BigInteger> coeffs,
             BigInteger degree, BigInteger coef, int lit) {
-        try {
-            IPBSolver solver = SolverFactory.newCuttingPlanes();
-            solver.setTimeout(5);
-            solver.newVar(nVars);
-            IVecInt lits = new VecInt();
-            IVec<BigInteger> newCoeffs = new Vec<>();
-            for (int i = 0; i < literals.size(); i++) {
-                if (i != lit) {
-                    lits.push(literals.get(i));
-                    newCoeffs.push(coeffs.get(i));
-                }
-
-            }
-            solver.addAtMost(lits, newCoeffs, degree.subtract(BigInteger.ONE));
-
-            solver.addAtLeast(lits, newCoeffs, degree.subtract(coef));
-            return solver.isSatisfiable();
-
-        } catch (ContradictionException e) {
-            return false;
-
-        } catch (TimeoutException e) {
-            return true;
-        }
-
+        return irrelevantDetector.dependsOn(nVars, literals, coeffs, degree,
+                lit, coef);
     }
 
     @Override

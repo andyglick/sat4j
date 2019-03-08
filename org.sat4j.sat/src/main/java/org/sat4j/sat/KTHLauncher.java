@@ -22,7 +22,7 @@ import org.sat4j.pb.PseudoOptDecorator;
 import org.sat4j.pb.SolverFactory;
 import org.sat4j.pb.constraints.PBMaxClauseCardConstrDataStructure;
 import org.sat4j.pb.constraints.pb.AutoDivisionStrategy;
-import org.sat4j.pb.constraints.pb.ChowPostProcess;
+import org.sat4j.pb.constraints.pb.RemoveIrrelevantPostProcess;
 import org.sat4j.pb.constraints.pb.ConflictMapReduceByGCD;
 import org.sat4j.pb.constraints.pb.ConflictMapReduceByPowersOf2;
 import org.sat4j.pb.constraints.pb.ConflictMapReduceToCard;
@@ -65,7 +65,7 @@ public class KTHLauncher {
         options.addOption("rwp", "rounding-weaken-priority", true,
                 "Which literals are removed to ensure conflicting constraints. Legal values are any, satisfied, unassigned");
         options.addOption("tlc", "type-of-learned-constraint", true,
-                "Type of constraints learned. Legal values are general-linear, cardinality, clause, chow");
+                "Type of constraints learned. Legal values are general-linear, cardinality, clause, no-irrelevant");
         options.addOption("wni", "weaken-nonimplied", true,
                 "Remove literals that are not implied/propagated by the assignment at the backjump level. Legal values are true or false.");
         options.addOption("division", "division-strategy", true,
@@ -197,8 +197,8 @@ public class KTHLauncher {
                     cpsolver.setPostprocess(PostProcessToCard.instance());
                 } else if ("clause".equals(value)) {
                     cpsolver.setPostprocess(PostProcessToClause.instance());
-                } else if ("chow".equals(value)) {
-                    cpsolver.setPostprocess(ChowPostProcess.instance());
+                } else if ("no-irrelevant".equals(value)) {
+                    cpsolver.setPostprocess(RemoveIrrelevantPostProcess.instance());
                 } else {
                     log(value
                             + " is not a supported value for option type-of-learned-constraint");

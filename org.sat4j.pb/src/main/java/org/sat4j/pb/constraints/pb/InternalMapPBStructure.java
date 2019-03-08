@@ -173,4 +173,12 @@ public class InternalMapPBStructure {
     void copyLits(int[] dest) {
         this.lits.copyTo(dest);
     }
+
+    public IVecInt getLits() {
+        return lits;
+    }
+
+    public IVec<BigInteger> getCoefs() {
+        return coefs;
+    }
 }

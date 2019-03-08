@@ -9,18 +9,12 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.sat4j.core.Vec;
 import org.sat4j.core.VecInt;
-import org.sat4j.pb.IPBSolver;
-import org.sat4j.pb.SolverFactory;
-import org.sat4j.specs.ContradictionException;
-import org.sat4j.specs.IVec;
 import org.sat4j.specs.IVecInt;
-import org.sat4j.specs.TimeoutException;
 
-public class ChowPostProcess implements IPostProcess {
+public class RemoveIrrelevantPostProcess implements IPostProcess {
 
-    private static final IPostProcess INSTANCE = new ChowPostProcess();
+    private static final IPostProcess INSTANCE = new RemoveIrrelevantPostProcess();
 
     /**
      * The default value for the maximum number of literals for the constraints
@@ -40,10 +34,10 @@ public class ChowPostProcess implements IPostProcess {
     private static final BigInteger DEFAULT_MAX = BigInteger
             .valueOf(500_000_000l);
 
-    private final SubsetSum subsetSum;
+    private final IrrelevantLiteralDetectionStrategy irrelevantDetector = IrrelevantLiteralDetectionStrategy
+            .defaultStrategy();
 
-    private ChowPostProcess() {
-        this.subsetSum = new SubsetSum(20000, 1000);
+    private RemoveIrrelevantPostProcess() {
     }
 
     @Override
@@ -137,57 +131,12 @@ public class ChowPostProcess implements IPostProcess {
 
     }
 
-    private boolean dependsOnSum(ConflictMap conflictMap, BigInteger coef,
-            int litIndex) {
-        int[] elts = new int[conflictMap.size() - 1];
-        for (int i = 0, index = 0; i < conflictMap.size(); i++) {
-            if (i != litIndex) {
-                elts[index] = conflictMap.weightedLits.getCoef(i).intValue();
-                index++;
-            }
-        }
-
-        int degree = conflictMap.degree.intValue();
-        int minSum = degree - coef.intValue();
-        subsetSum.setElements(elts);
-
-        for (int i = degree - 1; i >= minSum; i--) {
-            if (subsetSum.sumExists(i)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     private boolean dependsOn(ConflictMap conflictMap, BigInteger coef,
             int litIndex) {
-        try {
-            IPBSolver solver = SolverFactory.newCuttingPlanes();
-            solver.setTimeout(5);
-            solver.newVar(conflictMap.voc.nVars());
-            IVecInt lits = new VecInt();
-            IVec<BigInteger> coeffs = new Vec<>();
-            for (int i = 0; i < conflictMap.size(); i++) {
-                if (i != litIndex) {
-                    lits.push(conflictMap.weightedLits.getLit(i));
-                    coeffs.push(conflictMap.weightedLits.getCoef(i));
-                }
-
-            }
-            solver.addAtMost(lits, coeffs,
-                    conflictMap.degree.subtract(BigInteger.ONE));
-
-            solver.addAtLeast(lits, coeffs, conflictMap.degree.subtract(coef));
-            return solver.isSatisfiable();
-
-        } catch (ContradictionException e) {
-            return false;
-
-        } catch (TimeoutException e) {
-            return true;
-        }
-
+        return irrelevantDetector.dependsOn(conflictMap.voc.nVars(),
+                conflictMap.weightedLits.getLits(),
+                conflictMap.weightedLits.getCoefs(), conflictMap.degree,
+                litIndex, coef);
     }
 
     public static IPostProcess instance() {
@@ -198,4 +147,5 @@ public class ChowPostProcess implements IPostProcess {
     public String toString() {
         return "Irrelevant literals are removed from learnt constraints";
     }
+
 }
