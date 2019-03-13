@@ -655,4 +655,16 @@ public final class VecInt implements IVecInt {
         this.copyTo(cloned);
         return cloned;
     }
+
+    /**
+     * Alternative way to create a vector, the Java 9+ way.
+     * 
+     * @param values
+     *            an arbitrary number of values
+     * @return a new vector with those values
+     * @since 2.3.6
+     */
+    public static VecInt of(int... values) {
+        return new VecInt(values);
+    }
 }

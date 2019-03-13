@@ -544,4 +544,17 @@ public final class Vec<T> implements IVec<T> {
         this.copyTo(cloned);
         return cloned;
     }
+
+    /**
+     * Alternative way to create a vector, the Java 9+ way.
+     * 
+     * @param values
+     *            an arbitrary number of values
+     * @return a new vector with those values
+     * @since 2.3.6
+     */
+    @SafeVarargs
+    public static <U> Vec<U> of(U... values) {
+        return new Vec<>(values);
+    }
 }
