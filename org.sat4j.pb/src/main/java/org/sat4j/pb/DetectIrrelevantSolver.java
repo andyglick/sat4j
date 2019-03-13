@@ -181,7 +181,7 @@ public class DetectIrrelevantSolver extends AbstractOutputSolver
                     .add(i);
             maxCoeff = maxCoeff.max(c);
         }
-        if (maxCoeff.compareTo(BigInteger.valueOf(20000)) >= 0
+        if (realDegree.compareTo(BigInteger.valueOf(20000)) >= 0
                 || realDegree.signum() == 0) {
             return FakeConstr.instance();
         }
