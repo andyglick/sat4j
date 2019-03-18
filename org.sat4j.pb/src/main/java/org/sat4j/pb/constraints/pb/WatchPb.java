@@ -361,7 +361,7 @@ public abstract class WatchPb
             for (j = i + 1; j < to; j++) {
                 if (this.coefs[j].compareTo(this.coefs[bestIndex]) > 0
                         || this.coefs[j].equals(this.coefs[bestIndex])
-                                && this.lits[j] > this.lits[bestIndex]) {
+                                && this.lits[j] < this.lits[bestIndex]) {
                     bestIndex = j;
                 }
             }
@@ -447,12 +447,12 @@ public abstract class WatchPb
                     i++;
                 } while (this.coefs[i].compareTo(pivot) > 0
                         || this.coefs[i].equals(pivot)
-                                && this.lits[i] > litPivot);
+                                && this.lits[i] < litPivot);
                 do {
                     j--;
                 } while (pivot.compareTo(this.coefs[j]) > 0
                         || this.coefs[j].equals(pivot)
-                                && this.lits[j] < litPivot);
+                                && this.lits[j] > litPivot);
 
                 if (i >= j) {
                     break;

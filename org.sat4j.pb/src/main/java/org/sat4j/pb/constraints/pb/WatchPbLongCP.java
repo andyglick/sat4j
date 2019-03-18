@@ -388,7 +388,7 @@ public abstract class WatchPbLongCP
             for (j = i + 1; j < to; j++) {
                 if (this.coefs[j] > this.coefs[bestIndex]
                         || this.coefs[j] == this.coefs[bestIndex]
-                                && this.lits[j] > this.lits[bestIndex]) {
+                                && this.lits[j] < this.lits[bestIndex]) {
                     bestIndex = j;
                 }
             }
@@ -474,11 +474,11 @@ public abstract class WatchPbLongCP
                 do {
                     i++;
                 } while (this.coefs[i] > pivot
-                        || this.coefs[i] == pivot && this.lits[i] > litPivot);
+                        || this.coefs[i] == pivot && this.lits[i] < litPivot);
                 do {
                     j--;
                 } while (pivot > this.coefs[j]
-                        || this.coefs[j] == pivot && this.lits[j] < litPivot);
+                        || this.coefs[j] == pivot && this.lits[j] > litPivot);
 
                 if (i >= j) {
                     break;
