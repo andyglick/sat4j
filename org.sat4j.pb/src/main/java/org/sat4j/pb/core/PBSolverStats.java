@@ -96,6 +96,8 @@ public class PBSolverStats extends SolverStats {
 
     public int numberOfTriggeredSaturations;
 
+    public long timeSpentDetectingIrrelevant;
+
     @Override
     public void reset() {
         super.reset();
@@ -128,6 +130,7 @@ public class PBSolverStats extends SolverStats {
         this.numberOfConstraintsWhichAreCard = 0;
 
         this.numberOfTriggeredSaturations = 0;
+        this.timeSpentDetectingIrrelevant = 0;
     }
 
     @Override
@@ -198,6 +201,8 @@ public class PBSolverStats extends SolverStats {
                 + this.numberOfConstraintsWhichAreCard);
         out.println(prefix + "number of saturation after Chow \t: "
                 + this.numberOfTriggeredSaturations);
+        out.println(prefix + "time spent detecting irrelevant literals \t: "
+                + (this.timeSpentDetectingIrrelevant * 1E-9));
     }
 
     public long getNumberOfReductions() {
