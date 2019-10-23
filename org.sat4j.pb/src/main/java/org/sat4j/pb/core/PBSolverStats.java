@@ -185,8 +185,8 @@ public class PBSolverStats extends SolverStats {
                 + this.numberOfConstraintsChangedByChow);
         out.println(prefix + "number of constraints not changed by Chow \t: "
                 + this.numberOfConstraintsNotChangedByChow);
-        out.println(prefix + "max degree changed by Chow \t: "
-                + this.maxDegreeDiff);
+        out.println(
+                prefix + "max degree diff by Chow \t: " + this.maxDegreeDiff);
         out.println(prefix + "max degree modified by Chow \t: "
                 + this.maxDegreeModifiedByChow);
         out.println(prefix + "max size of constraints changed by Chow \t: "

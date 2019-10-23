@@ -78,6 +78,8 @@ public class KTHLauncher {
                 "Use a static order for decisions, using the natural order of the variables, from 1 to n.");
         options.addOption("autodiv", "auto-division", false,
                 "Apply division automatically when a common factor is identified.");
+        options.addOption("t", "timeout", true,
+                "time limit for the solver");
         Option op = options.getOption("coeflim");
         op.setArgName("limit");
         op = options.getOption("coeflim-small");
@@ -98,6 +100,8 @@ public class KTHLauncher {
         op.setArgName("filename");
         op = options.getOption("detect-cards");
         op.setArgName("strategy");
+        op = options.getOption("timeout");
+        op.setArgName("seconds");
         return options;
     }
 
@@ -280,6 +284,9 @@ public class KTHLauncher {
                             + " is not a supported value for option weaken-nonimplied");
                     return;
                 }
+            }
+            if (line.hasOption("timeout")) {
+                cpsolver.setTimeout(Integer.parseInt(line.getOptionValue("timeout")));
             }
             if (line.hasOption("natural")) {
                 cpsolver.setOrder(new NaturalStaticOrder());

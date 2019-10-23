@@ -20,19 +20,7 @@ public class RemoveIrrelevantPostProcess implements IPostProcess {
      * The default value for the maximum number of literals for the constraints
      * to process.
      */
-    private static final int DEFAULT_MAX_LITERALS_TO_PROCESS = 500;
-
-    /**
-     * The default value for the maximum degree for the constraints to process.
-     */
-    private static final BigInteger DEFAULT_MAX_DEGREE_TO_PROCESS = BigInteger
-            .valueOf(20_000);
-
-    /**
-     * The default value for the maximum degree for the constraints to process.
-     */
-    private static final BigInteger DEFAULT_MAX = BigInteger
-            .valueOf(500_000_000l);
+    static final int MAX_LITERALS = 500;
 
     private final IrrelevantLiteralDetectionStrategy irrelevantDetector = IrrelevantLiteralDetectionStrategy
             .defaultStrategy();
@@ -42,8 +30,7 @@ public class RemoveIrrelevantPostProcess implements IPostProcess {
 
     @Override
     public void postProcess(int dl, ConflictMap conflictMap) {
-        if (conflictMap.weightedLits.size() > 1000 || conflictMap.getDegree()
-                .compareTo(DEFAULT_MAX_DEGREE_TO_PROCESS) > 0) {
+        if (conflictMap.weightedLits.size() > MAX_LITERALS) {
             conflictMap.stats.numberOfConstraintsIgnoredByChow++;
             return;
         }
@@ -51,9 +38,11 @@ public class RemoveIrrelevantPostProcess implements IPostProcess {
         long timeBefore = System.nanoTime();
 
         try {
-            int alit = conflictMap.weightedLits
-                    .getLit(conflictMap.assertiveLiteral);
-
+            int alit = -1;
+            if (conflictMap.assertiveLiteral >= 0) {
+                alit = conflictMap.weightedLits
+                        .getLit(conflictMap.assertiveLiteral);
+            }
             conflictMap.stats.maxDegreeForChow = Math.max(
                     conflictMap.stats.maxDegreeForChow,
                     conflictMap.degree.longValue());
@@ -103,7 +92,6 @@ public class RemoveIrrelevantPostProcess implements IPostProcess {
                 conflictMap.removeCoef(toRemove.get(i));
 
             conflictMap.degree = conflictMap.degree.subtract(newDegree);
-
             if (smallestRelevant.compareTo(conflictMap.degree) >= 0) {
                 conflictMap.stats.numberOfConstraintsWhichAreClauses++;
 
@@ -118,15 +106,16 @@ public class RemoveIrrelevantPostProcess implements IPostProcess {
                 conflictMap.stats.numberOfTriggeredSaturations++;
             }
 
-            conflictMap.assertiveLiteral = conflictMap.weightedLits
-                    .getFromAllLits(alit);
-
+            if (alit >= 0) {
+                conflictMap.assertiveLiteral = conflictMap.weightedLits
+                        .getFromAllLits(alit);
+            }
             conflictMap.stats.numberOfConstraintsChangedByChow++;
             conflictMap.stats.numberOfRemovedIrrelevantLiterals += toRemove
                     .size();
             conflictMap.stats.maxDegreeModifiedByChow = Math.max(
                     conflictMap.stats.maxDegreeModifiedByChow,
-                    conflictMap.degree.longValue());
+                    conflictMap.degree.add(newDegree).longValue());
             conflictMap.stats.maxSizeModifiedByChow = Math.max(
                     conflictMap.stats.maxSizeModifiedByChow,
                     conflictMap.size());
