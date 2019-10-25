@@ -80,8 +80,13 @@ public final class Knapsack {
             for (int x = 0; x <= max; x++) {
                 BigInteger newWeight = weights[i - 1];
                 if (values[i - 1] < x) {
-                    newWeight = newWeight
-                            .add(computedWeights[i - 1][x - values[i - 1]]);
+                    BigInteger added = computedWeights[i - 1][x
+                            - values[i - 1]];
+                    if (added == null) {
+                        newWeight = null;
+                    } else {
+                        newWeight = newWeight.add(added);
+                    }
                 }
                 computedWeights[i][x] = min(computedWeights[i - 1][x],
                         newWeight);
@@ -93,11 +98,16 @@ public final class Knapsack {
         for (int x = 0; x <= max; x++) {
             BigInteger newWeight = weights[i - 1];
             if (values[i - 1] < x) {
-                newWeight = newWeight
-                        .add(computedWeights[i - 1][x - values[i - 1]]);
+                BigInteger added = computedWeights[i - 1][x - values[i - 1]];
+                if (added == null) {
+                    newWeight = null;
+                } else {
+                    newWeight = newWeight.add(added);
+                }
             }
             computedWeights[i][x] = min(computedWeights[i - 1][x], newWeight);
-            if (computedWeights[i][x].compareTo(capacity) <= 0) {
+            if (computedWeights[i][x] != null
+                    && computedWeights[i][x].compareTo(capacity) <= 0) {
                 best = x;
             }
         }

@@ -8,7 +8,7 @@ import org.sat4j.specs.IVecInt;
 public class KnapsackApproximationIrrelevantLiteralDetectionStrategy
         implements IrrelevantLiteralDetectionStrategy {
 
-    private static final int MAX_VALUE = 4547;
+    private static final int MAX_VALUE = 547;
 
     private static final BigInteger MAX_VALUE_BIGINT = BigInteger
             .valueOf(MAX_VALUE);
@@ -31,7 +31,9 @@ public class KnapsackApproximationIrrelevantLiteralDetectionStrategy
                 size++;
             }
         }
-
+        if (size == 0) {
+            return coefficients.get(literalIndex).compareTo(degree) >= 0;
+        }
         // Reducing the sizes.
         BigInteger n = BigInteger.valueOf(size);
         int[] values = new int[size];
@@ -39,12 +41,13 @@ public class KnapsackApproximationIrrelevantLiteralDetectionStrategy
         for (int i = 0, index = 0; i < literals.size(); i++) {
             if (i != literalIndex && !coefficients.get(i).equals(degree)) {
                 BigInteger vHat = EPSILON_INV.multiply(n)
-                        .multiply(coefficients.get(index)).divide(max);
+                        .multiply(coefficients.get(i)).divide(max);
                 if (vHat.compareTo(MAX_VALUE_BIGINT) > 0) {
                     // Value too big to be treated.
                     return true;
                 }
                 values[index] = vHat.intValue();
+                weights[index] = coefficients.get(i);
                 index++;
             }
         }

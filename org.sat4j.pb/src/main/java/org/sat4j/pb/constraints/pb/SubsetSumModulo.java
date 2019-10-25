@@ -10,6 +10,9 @@
 
 package org.sat4j.pb.constraints.pb;
 
+import java.util.BitSet;
+import java.util.HashSet;
+
 /**
  * The SubsetSum is a method object used to solve instances of the subset-sum
  * problem.
@@ -34,7 +37,7 @@ public final class SubsetSumModulo {
      * The last sum that has been checked. All the preceding sums have
      * necessarily been checked.
      */
-    private int lastCheckedSum;
+    private boolean computed = false;
 
     /**
      * The matrix used to compute all the subset-sums in a bottom-up manner
@@ -42,7 +45,7 @@ public final class SubsetSumModulo {
      * will be {@code true} if there is a subset of at most {@code j} elements
      * with sum equal to {@code i}.
      */
-    private final BitMatrix allSubsetSums;
+    private final BitSet allSubsetSums;
 
     private final int modulo;
 
@@ -54,15 +57,9 @@ public final class SubsetSumModulo {
      * @param maxElements
      *            The maximum number of elements.
      */
-    public SubsetSumModulo(int maxSum, int maxElements, int modulo) {
-        this.allSubsetSums = new BitMatrix(maxSum, maxElements);
+    public SubsetSumModulo(int modulo) {
+        this.allSubsetSums = new BitSet(modulo);
         this.modulo = modulo;
-
-        // Initializing the matrix.
-        // If sum is 0, taking no element is a solution.
-        for (int i = 0; i < maxElements; i++) {
-            allSubsetSums.set(0, i, true);
-        }
     }
 
     /**
@@ -73,7 +70,10 @@ public final class SubsetSumModulo {
      */
     public void setElements(int[] elements) {
         this.elements = elements;
-        this.lastCheckedSum = 0;
+        if (computed) {
+            computed = false;
+            allSubsetSums.clear();
+        }
     }
 
     /**
@@ -87,17 +87,24 @@ public final class SubsetSumModulo {
      */
     public boolean sumExists(int sum) {
         // Checking all the missing sums.
-        for (int i = lastCheckedSum + 1; i <= sum; i++) {
-            for (int j = 1; j <= elements.length; j++) {
-                allSubsetSums.set(i, j, allSubsetSums.get(i, j - 1)
-                        || allSubsetSums.get(mod(i - elements[j - 1]), j - 1));
-
+        if (!computed) {
+            HashSet<Integer> sums = new HashSet<>();
+            for (int e : elements) {
+                HashSet<Integer> tmp = new HashSet<>();
+                int s = mod(e);
+                allSubsetSums.set(s);
+                tmp.add(s);
+                for (int i : sums) {
+                    int is = mod(i + e);
+                    allSubsetSums.set(is);
+                    tmp.add(is);
+                }
+                sums.addAll(tmp);
             }
+            computed = true;
         }
 
-        // Updating the last checked sum before returning.
-        lastCheckedSum = Math.max(lastCheckedSum, sum);
-        return allSubsetSums.get(sum, elements.length);
+        return allSubsetSums.get(sum);
     }
 
     private int mod(int n) {

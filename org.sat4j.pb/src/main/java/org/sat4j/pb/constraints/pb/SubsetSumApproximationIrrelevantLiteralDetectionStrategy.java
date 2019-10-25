@@ -13,9 +13,7 @@ public class SubsetSumApproximationIrrelevantLiteralDetectionStrategy
     private static final BigInteger MAX_DEGREE_BIGINT = BigInteger
             .valueOf(MAX_DEGREE);
 
-    private final SubsetSumModulo subsetSum = new SubsetSumModulo(
-            RemoveIrrelevantPostProcess.MAX_LITERALS + 5, MAX_DEGREE + 5,
-            MAX_DEGREE);
+    private final SubsetSumModulo subsetSum = new SubsetSumModulo(MAX_DEGREE);
 
     @Override
     public boolean dependsOn(int nVars, IVecInt literals,
