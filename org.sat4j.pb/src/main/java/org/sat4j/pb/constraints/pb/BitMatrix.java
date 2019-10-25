@@ -93,7 +93,7 @@ public final class BitMatrix {
      * @param column
      *            The column of the bit.
      * 
-     * @return The index of the bit in {@link #matrix}.
+     * @return The index of the bit in {@link #matrix}.
      * 
      * @throws IndexOutOfBoundsException
      *             If either {@code row} or {@code column} is out of the bounds
