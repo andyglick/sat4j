@@ -68,6 +68,36 @@ public class PBSolverStats extends SolverStats {
 
     private long numberOfRemainingAssigned;
 
+    public long numberOfRemovedIrrelevantLiterals;
+
+    public long maxDegreeForChow;
+
+    public long maxSizeForChow;
+
+    public long maxDegreeModifiedByChow;
+
+    public long maxSizeModifiedByChow;
+
+    public long maxRemovedChow;
+
+    public long numberOfConstraintsChangedByChow;
+
+    public long numberOfConstraintsNotChangedByChow;
+
+    public long maxDegreeDiff;
+
+    public long numberOfConstraintsIgnoredByChow;
+
+    public long numberOfNonPbConstraints;
+
+    public long numberOfConstraintsWhichAreClauses;
+
+    public int numberOfConstraintsWhichAreCard;
+
+    public int numberOfTriggeredSaturations;
+
+    public long timeSpentDetectingIrrelevant;
+
     @Override
     public void reset() {
         super.reset();
@@ -84,6 +114,23 @@ public class PBSolverStats extends SolverStats {
         this.numberOfDerivationSteps = 0;
         this.numberOfRemainingUnassigned = 0;
         this.numberOfRemainingAssigned = 0;
+
+        this.numberOfRemovedIrrelevantLiterals = 0;
+        this.maxDegreeForChow = 0;
+        this.maxSizeForChow = 0;
+        this.maxDegreeModifiedByChow = 0;
+        this.maxSizeModifiedByChow = 0;
+        this.maxRemovedChow = 0;
+        this.numberOfConstraintsChangedByChow = 0;
+        this.numberOfConstraintsNotChangedByChow = 0;
+        this.maxDegreeDiff = 0;
+        this.numberOfConstraintsIgnoredByChow = 0;
+        this.numberOfNonPbConstraints = 0;
+        this.numberOfConstraintsWhichAreClauses = 0;
+        this.numberOfConstraintsWhichAreCard = 0;
+
+        this.numberOfTriggeredSaturations = 0;
+        this.timeSpentDetectingIrrelevant = 0;
     }
 
     @Override
@@ -126,6 +173,36 @@ public class PBSolverStats extends SolverStats {
                 + this.numberOfRemainingUnassigned);
         out.println(prefix + "number of remaining assigned \t: "
                 + this.numberOfRemainingAssigned);
+
+        out.println(prefix + "number of irrelevant literals \t: "
+                + this.numberOfRemovedIrrelevantLiterals);
+        out.println(
+                prefix + "max degree for Chow \t: " + this.maxDegreeForChow);
+        out.println(prefix + "max size for Chow \t: " + this.maxSizeForChow);
+        out.println(prefix + "max removed literals for Chow \t: "
+                + this.maxRemovedChow);
+        out.println(prefix + "number of constraints changed by Chow \t: "
+                + this.numberOfConstraintsChangedByChow);
+        out.println(prefix + "number of constraints not changed by Chow \t: "
+                + this.numberOfConstraintsNotChangedByChow);
+        out.println(
+                prefix + "max degree diff by Chow \t: " + this.maxDegreeDiff);
+        out.println(prefix + "max degree modified by Chow \t: "
+                + this.maxDegreeModifiedByChow);
+        out.println(prefix + "max size of constraints changed by Chow \t: "
+                + this.maxSizeModifiedByChow);
+        out.println(prefix + "number of ignored constraints by Chow \t: "
+                + this.numberOfConstraintsIgnoredByChow);
+        out.println(prefix + "number of non-pb constraints \t: "
+                + this.numberOfNonPbConstraints);
+        out.println(prefix + "number of clauses constraints \t: "
+                + this.numberOfConstraintsWhichAreClauses);
+        out.println(prefix + "number of cardinality constraints \t: "
+                + this.numberOfConstraintsWhichAreCard);
+        out.println(prefix + "number of saturation after Chow \t: "
+                + this.numberOfTriggeredSaturations);
+        out.println(prefix + "time spent detecting irrelevant literals \t: "
+                + (this.timeSpentDetectingIrrelevant * 1E-9));
     }
 
     public long getNumberOfReductions() {

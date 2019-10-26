@@ -417,6 +417,7 @@ public class ConflictMap extends MapPb implements IConflict {
         this.degree = saturation();
         assert slackConflict().signum() < 0;
         divideCoefs();
+        postProcess(currentLevel);
         return this.degree;
     }
 
