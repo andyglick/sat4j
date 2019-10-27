@@ -103,7 +103,6 @@ public final class SubsetSumModulo {
             }
             computed = true;
         }
-
         return allSubsetSums.get(sum);
     }
 

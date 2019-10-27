@@ -22,14 +22,17 @@ public class SubsetSumApproximationIrrelevantLiteralDetectionStrategy
         int[] elts = new int[literals.size() - 1];
         int index = 0;
         for (int i = 0; i < literals.size(); i++) {
-            if (i != literalIndex && !coefficients.get(i).equals(degree)) {
-                elts[index] = mod(coefficients.get(i));
+            if (i != literalIndex
+                    && coefficients.get(i).compareTo(degree) < 0) {
+                elts[index] = mod(coefficients.get(i).min(degree));
                 index++;
             }
         }
-
+        if (index == 0) {
+            return coefficient.compareTo(degree) >= 0;
+        }
         subsetSum.setElements(Arrays.copyOf(elts, index));
-        BigInteger minSum = degree.subtract(coefficient);
+        BigInteger minSum = degree.subtract(coefficient.min(degree));
 
         for (BigInteger i = degree.subtract(BigInteger.ONE); i
                 .compareTo(minSum) >= 0; i = i.subtract(BigInteger.ONE)) {

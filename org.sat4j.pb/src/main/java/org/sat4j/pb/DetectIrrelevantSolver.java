@@ -25,6 +25,8 @@ public class DetectIrrelevantSolver extends AbstractOutputSolver
 
     private int nVars = 0;
 
+    private int nConstraints = 0;
+
     private final IrrelevantLiteralDetectionStrategy irrelevantDetector = IrrelevantLiteralDetectionStrategy
             .defaultStrategy();
 
@@ -55,6 +57,7 @@ public class DetectIrrelevantSolver extends AbstractOutputSolver
     @Override
     public IConstr addClause(IVecInt literals) throws ContradictionException {
         // All literals are relevant.
+        nConstraints++;
         return FakeConstr.instance();
     }
 
@@ -62,6 +65,7 @@ public class DetectIrrelevantSolver extends AbstractOutputSolver
     public IConstr addAtMost(IVecInt literals, int degree)
             throws ContradictionException {
         // All literals are relevant.
+        nConstraints++;
         return FakeConstr.instance();
     }
 
@@ -69,6 +73,7 @@ public class DetectIrrelevantSolver extends AbstractOutputSolver
     public IConstr addAtLeast(IVecInt literals, int degree)
             throws ContradictionException {
         // All literals are relevant.
+        nConstraints++;
         return FakeConstr.instance();
     }
 
@@ -76,12 +81,14 @@ public class DetectIrrelevantSolver extends AbstractOutputSolver
     public IConstr addExactly(IVecInt literals, int n)
             throws ContradictionException {
         // All literals are relevant.
+        nConstraints++;
         return FakeConstr.instance();
     }
 
     @Override
     public IConstr addParity(IVecInt literals, boolean even) {
         // All literals are relevant.
+        nConstraints++;
         return FakeConstr.instance();
     }
 
@@ -92,6 +99,8 @@ public class DetectIrrelevantSolver extends AbstractOutputSolver
 
     @Override
     public void printStat(PrintWriter out) {
+        out.println("c number of variables:\t" + nVars);
+        out.println("c number of constraints:\t" + nConstraints);
         out.println("c number of irrelevant literals:\t" + nbIrrelevant);
     }
 
@@ -162,10 +171,10 @@ public class DetectIrrelevantSolver extends AbstractOutputSolver
     @Override
     public IConstr addAtLeast(IVecInt literals, IVec<BigInteger> coeffs,
             BigInteger degree) throws ContradictionException {
-        if (literals.size() >= 1000 || literals.size() == 1) {
+        nConstraints++;
+        if (literals.size() >= 500 || literals.size() == 1) {
             return FakeConstr.instance();
         }
-
         NavigableMap<BigInteger, List<Integer>> sortedCoeffs = new TreeMap<>();
         BigInteger maxCoeff = BigInteger.ZERO;
         BigInteger realDegree = degree;
@@ -181,19 +190,15 @@ public class DetectIrrelevantSolver extends AbstractOutputSolver
                     .add(i);
             maxCoeff = maxCoeff.max(c);
         }
-        if (realDegree.compareTo(BigInteger.valueOf(20000)) >= 0
-                || realDegree.signum() == 0) {
-            return FakeConstr.instance();
-        }
-
+        int irr = 0;
         for (Entry<BigInteger, List<Integer>> e : sortedCoeffs.entrySet()) {
             if (dependsOn(literals, coeffs, realDegree, e.getKey(),
                     e.getValue().get(0))) {
                 break;
             }
-            nbIrrelevant += e.getValue().size();
+            irr += e.getValue().size();
         }
-
+        nbIrrelevant += irr;
         return FakeConstr.instance();
 
     }
@@ -215,6 +220,8 @@ public class DetectIrrelevantSolver extends AbstractOutputSolver
     @Override
     public IConstr addExactly(IVecInt literals, IVec<BigInteger> coeffs,
             BigInteger weight) throws ContradictionException {
+        addAtMost(literals, coeffs, weight);
+        addAtLeast(literals, coeffs, weight);
         return FakeConstr.instance();
     }
 

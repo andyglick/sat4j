@@ -39,9 +39,14 @@ public class RemoveIrrelevantPostProcess implements IPostProcess {
 
         try {
             int alit = -1;
+            int lvl = dl;
+            BigInteger coeff = null;
             if (conflictMap.assertiveLiteral >= 0) {
                 alit = conflictMap.weightedLits
                         .getLit(conflictMap.assertiveLiteral);
+                lvl = conflictMap.getBacktrackLevel(dl);
+                coeff = conflictMap.weightedLits
+                        .getCoef(conflictMap.assertiveLiteral);
             }
             conflictMap.stats.maxDegreeForChow = Math.max(
                     conflictMap.stats.maxDegreeForChow,
@@ -62,7 +67,7 @@ public class RemoveIrrelevantPostProcess implements IPostProcess {
                 conflictMap.stats.numberOfNonPbConstraints++;
                 return;
             }
-            BigInteger slack = conflictMap.slackConflict();
+            BigInteger slack = conflictMap.computeSlack(lvl);
             Set<BigInteger> irrelevant = new HashSet<>();
             BigInteger smallestRelevant = BigInteger.ZERO;
             for (Entry<BigInteger, List<Integer>> e : coefs.entrySet()) {
@@ -84,8 +89,10 @@ public class RemoveIrrelevantPostProcess implements IPostProcess {
                 BigInteger allRemoved = c
                         .multiply(BigInteger.valueOf(coefs.get(c).size()));
                 BigInteger newSlack = slack.add(allRemoved);
-                if (newSlack.signum() >= 0) {
-                    // The conflict will not be preserved if we weaken here.
+                if (newSlack.signum() >= 0
+                        || (coeff != null && coeff.compareTo(newSlack) <= 0)) {
+                    // The conflict or assertion will not be preserved if we
+                    // weaken here.
                     continue;
                 }
                 slack = newSlack;
