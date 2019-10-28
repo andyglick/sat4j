@@ -10,6 +10,7 @@ import java.util.TreeMap;
 
 import org.sat4j.core.Vec;
 import org.sat4j.pb.constraints.pb.IrrelevantLiteralDetectionStrategy;
+import org.sat4j.pb.constraints.pb.IrrelevantLiteralDetectionStrategyFactory;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.FakeConstr;
 import org.sat4j.specs.IConstr;
@@ -27,7 +28,7 @@ public class DetectIrrelevantSolver extends AbstractOutputSolver
 
     private int nConstraints = 0;
 
-    private final IrrelevantLiteralDetectionStrategy irrelevantDetector = IrrelevantLiteralDetectionStrategy
+    private final IrrelevantLiteralDetectionStrategy irrelevantDetector = IrrelevantLiteralDetectionStrategyFactory
             .defaultStrategy();
 
     @Override
@@ -186,8 +187,12 @@ public class DetectIrrelevantSolver extends AbstractOutputSolver
                 literals.set(i, -literals.get(i));
                 realDegree = realDegree.add(c);
             }
-            sortedCoeffs.computeIfAbsent(c, k -> new LinkedList<Integer>())
-                    .add(i);
+            List<Integer> l = sortedCoeffs.get(c);
+            if (l == null) {
+                l = new LinkedList<>();
+                sortedCoeffs.put(c, l);
+            }
+            l.add(i);
             maxCoeff = maxCoeff.max(c);
         }
         int irr = 0;

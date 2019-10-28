@@ -22,7 +22,7 @@ public class RemoveIrrelevantPostProcess implements IPostProcess {
      */
     static final int MAX_LITERALS = 500;
 
-    private final IrrelevantLiteralDetectionStrategy irrelevantDetector = IrrelevantLiteralDetectionStrategy
+    private final IrrelevantLiteralDetectionStrategy irrelevantDetector = IrrelevantLiteralDetectionStrategyFactory
             .defaultStrategy();
 
     private RemoveIrrelevantPostProcess() {
@@ -59,7 +59,12 @@ public class RemoveIrrelevantPostProcess implements IPostProcess {
             for (int i = 0; i < conflictMap.size(); i++) {
                 BigInteger c = conflictMap.weightedLits.getCoef(i)
                         .min(conflictMap.degree);
-                coefs.computeIfAbsent(c, k -> new LinkedList<Integer>()).add(i);
+                List<Integer> l = coefs.get(c);
+                if (l == null) {
+                    l = new LinkedList<Integer>();
+                    coefs.put(c, l);
+                }
+                l.add(i);
                 maxCoeff = maxCoeff.max(c);
             }
 

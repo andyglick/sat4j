@@ -7,10 +7,6 @@ import org.sat4j.specs.IVecInt;
 
 public interface IrrelevantLiteralDetectionStrategy {
 
-    static IrrelevantLiteralDetectionStrategy defaultStrategy() {
-        return new KnapsackApproximationIrrelevantLiteralDetectionStrategy();
-    }
-
     boolean dependsOn(int nVars, IVecInt literals,
             IVec<BigInteger> coefficients, BigInteger degree, int literalIndex,
             BigInteger coefficient);
