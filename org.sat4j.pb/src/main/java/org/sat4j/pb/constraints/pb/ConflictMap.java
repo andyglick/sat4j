@@ -423,7 +423,7 @@ public class ConflictMap extends MapPb implements IConflict {
             }
         }
         assert slackConflict().signum() < 0;
-        //assert slackConflict().equals(currentSlack.subtract(degree));
+        // assert slackConflict().equals(currentSlack.subtract(degree));
 
         // cutting plane
         this.degree = cuttingPlane(cpb, degreeCons, coefsCons,
@@ -436,7 +436,7 @@ public class ConflictMap extends MapPb implements IConflict {
         assert getLevelByLevel(nLitImplied) == -1;
         assert this.degree.signum() > 0;
         assert slackConflict().signum() < 0;
-        //assert slackConflict().equals(currentSlack.subtract(degree));
+        // assert slackConflict().equals(currentSlack.subtract(degree));
 
         // saturation
         this.degree = saturation();
@@ -809,6 +809,10 @@ public class ConflictMap extends MapPb implements IConflict {
             return value;
         }
 
+        @Override
+        public String toString() {
+            return value.toString();
+        }
     }
 
     /**
@@ -859,8 +863,7 @@ public class ConflictMap extends MapPb implements IConflict {
         int at = 0;
         for (Integer lvl : levels) {
             s = s.subtract(bylvl.get(lvl).getValue());
-            for (;; at++) {
-                assert at < vv_indices.size();
+            for (; at < vv_indices.size(); at++) {
                 int i = vv_indices.get(at);
                 int l = weightedLits.getLit(i);
                 BigInteger coef = weightedLits.getCoef(i);
@@ -873,7 +876,6 @@ public class ConflictMap extends MapPb implements IConflict {
                 }
             }
         }
-        assert false;
         return 0;
     }
 
