@@ -800,6 +800,10 @@ public class ConflictMap extends MapPb implements IConflict {
             return value;
         }
 
+        @Override
+        public String toString() {
+            return value.toString();
+        }
     }
 
     /**
@@ -850,8 +854,7 @@ public class ConflictMap extends MapPb implements IConflict {
         int at = 0;
         for (Integer lvl : levels) {
             s = s.subtract(bylvl.get(lvl).getValue());
-            for (;; at++) {
-                assert at < vv_indices.size();
+            for (; at < vv_indices.size(); at++) {
                 int i = vv_indices.get(at);
                 int l = weightedLits.getLit(i);
                 BigInteger coef = weightedLits.getCoef(i);
@@ -864,7 +867,6 @@ public class ConflictMap extends MapPb implements IConflict {
                 }
             }
         }
-        assert false;
         return 0;
     }
 
