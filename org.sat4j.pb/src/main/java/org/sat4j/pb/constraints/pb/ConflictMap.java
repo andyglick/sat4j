@@ -406,7 +406,7 @@ public class ConflictMap extends MapPb implements IConflict {
             }
         }
         assert slackConflict().signum() < 0;
-        //assert slackConflict().equals(currentSlack.subtract(degree));
+        // assert slackConflict().equals(currentSlack.subtract(degree));
 
         // cutting plane
         this.degree = cuttingPlane(cpb, degreeCons, coefsCons,
@@ -419,13 +419,13 @@ public class ConflictMap extends MapPb implements IConflict {
         assert getLevelByLevel(nLitImplied) == -1;
         assert this.degree.signum() > 0;
         assert slackConflict().signum() < 0;
-        //assert slackConflict().equals(currentSlack.subtract(degree));
+        // assert slackConflict().equals(currentSlack.subtract(degree));
 
         // saturation
         this.degree = saturation();
         assert slackConflict().signum() < 0;
         divideCoefs();
-        postProcess(currentLevel);
+        // postProcess(currentLevel);
         return this.degree;
     }
 
