@@ -138,18 +138,34 @@ public class MapPb implements IDataStructurePB {
         }
 
         if (newcase) {
+<<<<<<< HEAD
             if (autoDivisionStrategy.isCardinality(this.weightedLits)) {
                 this.cpCardsReduction++;
                 BigInteger[] division = degree
                         .divideAndRemainder(this.weightedLits.getCoef(0));
                 if (!division[1].equals(BigInteger.ZERO)) {
                     division[0] = division[0].add(BigInteger.ONE);
+=======
+            return false;
+            /*BigInteger value = this.weightedLits.getCoef(0);
+            for (int i = 1; i < size(); i++) {
+                if (!this.weightedLits.getCoef(i).equals(value)) {
+                    return false;
+>>>>>>> JAN_FIX
                 }
                 this.cardDegree = division[0];
 
             } else {
                 return false;
             }
+<<<<<<< HEAD
+=======
+            this.cpCardsReduction++;
+            BigInteger[] division = degree.divideAndRemainder(value);
+            if (!division[1].equals(BigInteger.ZERO))
+                division[0] = division[0].add(BigInteger.ONE);
+            this.cardDegree = division[0];*/
+>>>>>>> JAN_FIX
         } else
             this.cardDegree = degree;
         return true;

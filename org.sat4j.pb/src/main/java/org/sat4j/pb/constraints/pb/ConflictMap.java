@@ -30,6 +30,14 @@
 package org.sat4j.pb.constraints.pb;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.constraints.cnf.Lits;
@@ -298,7 +306,6 @@ public class ConflictMap extends MapPb implements IConflict {
             }
             return this.degree;
         }
-
         if (this.allowSkipping) {
             if (this.weightedLits.get(nLitImplied).negate()
                     .compareTo(slackConflict()) > 0) {
@@ -319,7 +326,6 @@ public class ConflictMap extends MapPb implements IConflict {
                 return this.degree;
             } else
                 this.endingSkipping = false;
-
         }
 
         stats.incNumberOfDerivationSteps();
@@ -400,6 +406,7 @@ public class ConflictMap extends MapPb implements IConflict {
             }
         }
         assert slackConflict().signum() < 0;
+        //assert slackConflict().equals(currentSlack.subtract(degree));
 
         // cutting plane
         this.degree = cuttingPlane(cpb, degreeCons, coefsCons,
@@ -412,6 +419,7 @@ public class ConflictMap extends MapPb implements IConflict {
         assert getLevelByLevel(nLitImplied) == -1;
         assert this.degree.signum() > 0;
         assert slackConflict().signum() < 0;
+        //assert slackConflict().equals(currentSlack.subtract(degree));
 
         // saturation
         this.degree = saturation();
@@ -772,6 +780,28 @@ public class ConflictMap extends MapPb implements IConflict {
         return true;
     }
 
+    private static final class Counter {
+
+        private BigInteger value;
+
+        public Counter() {
+            value = BigInteger.ZERO;
+        }
+
+        public Counter(BigInteger initialValue) {
+            value = initialValue;
+        }
+
+        public void inc(BigInteger amount) {
+            value = value.add(amount);
+        }
+
+        public BigInteger getValue() {
+            return value;
+        }
+
+    }
+
     /**
      * computes the level for the backtrack : the highest decision level for
      * which the conflict is assertive.
@@ -782,46 +812,60 @@ public class ConflictMap extends MapPb implements IConflict {
      *         assertive.
      */
     public int getBacktrackLevel(int maxLevel) {
-        if (this.backtrackLevel == NOTCOMPUTED) {
-            // we are looking for a level higher than maxLevel
-            // where the constraint is still assertive
-            VecInt lits;
-            int level;
-            int indStop = levelToIndex(maxLevel) - 1;
-            int indStart = levelToIndex(0);
-            BigInteger slack = computeSlack(0)
-                    .subtract(ConflictMap.this.degree);
-            int previous = 0;
-            for (int indLevel = indStart; indLevel <= indStop; indLevel++) {
-                if (ConflictMap.this.byLevel[indLevel] != null) {
-                    level = indexToLevel(indLevel);
-                    assert ConflictMap.this.computeSlack(level)
-                            .subtract(ConflictMap.this.degree).equals(slack);
-                    if (ConflictMap.this.isImplyingLiteralOrdered(level, slack))
-                        break;
-
-                    // updating the new slack
-                    lits = ConflictMap.this.byLevel[indLevel];
-                    int lit;
-                    for (IteratorInt iterator = lits.iterator(); iterator
-                            .hasNext();) {
-                        lit = iterator.next();
-                        if (ConflictMap.this.voc.isFalsified(lit)
-                                && ConflictMap.this.voc.getLevel(
-                                        lit) == indexToLevel(indLevel))
-                            slack = slack.subtract(
-                                    ConflictMap.this.weightedLits.get(lit));
-
-                    }
-                    if (!lits.isEmpty())
-                        previous = level;
-
+        // Code by Jan Elffers from KTH
+        assert weightedLits.size() > 0;
+        Set<Integer> levels = new TreeSet<Integer>();
+        levels.add(0);
+        for (int i = 0; i < weightedLits.size(); i++) {
+            int l = weightedLits.getLit(i);
+            if (voc.isFalsified(l))
+                levels.add(voc.getLevel(l));
+        }
+        Map<Integer, Counter> bylvl = new HashMap<Integer, Counter>();
+        bylvl.put(0, new Counter());
+        List<Integer> vv_indices = new ArrayList<Integer>(weightedLits.size());
+        BigInteger s = degree.negate();
+        for (int i = 0; i < weightedLits.size(); i++) {
+            int l = weightedLits.getLit(i);
+            BigInteger coef = weightedLits.getCoef(i);
+            if (voc.isFalsified(l)) {
+                Counter counter = bylvl.get(voc.getLevel(l));
+                if (counter == null) {
+                    bylvl.put(voc.getLevel(l), new Counter(coef));
+                } else {
+                    counter.inc(coef);
                 }
             }
-            assert previous == oldGetBacktrackLevel(maxLevel);
-            return previous;
-        } else
-            return this.backtrackLevel;
+            vv_indices.add(i);
+            s = s.add(coef);
+        }
+        // sort by coefficient, in descending order
+        Collections.sort(vv_indices, new Comparator<Integer>() {
+            @Override
+            public int compare(Integer i, Integer j) {
+                return weightedLits.getCoef(j)
+                        .compareTo(weightedLits.getCoef(i));
+            }
+        });
+        int at = 0;
+        for (Integer lvl : levels) {
+            s = s.subtract(bylvl.get(lvl).getValue());
+            for (;; at++) {
+                assert at < vv_indices.size();
+                int i = vv_indices.get(at);
+                int l = weightedLits.getLit(i);
+                BigInteger coef = weightedLits.getCoef(i);
+                if (voc.getLevel(l) == -1 || voc.getLevel(l) > lvl) {
+                    if (coef.compareTo(s) > 0) {
+                        assert lvl == oldGetBacktrackLevel(maxLevel);
+                        return lvl;
+                    } else
+                        break;
+                }
+            }
+        }
+        assert false;
+        return 0;
     }
 
     public int oldGetBacktrackLevel(int maxLevel) {
