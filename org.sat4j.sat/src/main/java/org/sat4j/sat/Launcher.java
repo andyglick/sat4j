@@ -127,7 +127,7 @@ public class Launcher extends AbstractLauncher implements ILogAble {
             instance = new InstanceReader(theSolver);
             break;
         }
-
+        instance.setUseMapping(true);
         return instance;
     }
 

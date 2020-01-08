@@ -128,6 +128,7 @@ public class InstanceReader extends Reader {
         }
         if (this.reader == null) {
             this.reader = handleFileName(fname, prefix);
+            this.reader.setUseMapping(this.isUsingMapping());
         }
         return this.reader.parseInstance(filename);
     }

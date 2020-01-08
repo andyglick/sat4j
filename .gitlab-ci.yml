@@ -8,12 +8,25 @@ variables:
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
 
 
-java8:
+java8-sonar:
     image: maven:3.5.4-jdk-8-alpine
     stage: build
+    only:
+      - master
     script:
       - mvn $MAVEN_CLI_OPTS clean org.jacoco:jacoco-maven-plugin:prepare-agent --settings settings.xml deploy
       - mvn $MAVEN_CLI_OPTS sonar:sonar
+    cache:
+       paths:
+        - .m2/repository
+
+java8:
+    image: maven:3.5.4-jdk-8-alpine
+    stage: build
+    except:
+      - master
+    script:
+      - mvn $MAVEN_CLI_OPTS clean org.jacoco:jacoco-maven-plugin:prepare-agent --settings settings.xml deploy
     cache:
        paths:
         - .m2/repository
@@ -44,6 +57,13 @@ maven36-java8:
 
 maven36-java11:
     image: maven:3.6.2-jdk-11-slim
+    stage: test
+    script:
+      - mvn $MAVEN_CLI_OPTS clean package -Dmaven.javadoc.skip=true -Djacoco.skip=true
+    allow_failure: true
+
+maven36-java13:
+    image: maven:3.6.2-jdk-13
     stage: test
     script:
       - mvn $MAVEN_CLI_OPTS clean package -Dmaven.javadoc.skip=true -Djacoco.skip=true

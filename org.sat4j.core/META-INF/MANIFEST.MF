@@ -29,4 +29,5 @@ Specification-Vendor: Daniel Le Berre
 Implementation-Title: SAT4J
 Implementation-Version: 9.9.9.token 
 Implementation-Vendor: CRIL CNRS UMR 8188 - Universite d'Artois
+Automatic-Module-Name: org.ow2.sat4j.core
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

@@ -55,8 +55,6 @@ import org.sat4j.tools.SolutionFoundListener;
 /**
  * @author leberre
  * 
- *         To change the template for this generated type comment go to
- *         Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 public class ModelIteratorTest {
 
@@ -224,63 +222,6 @@ public class ModelIteratorTest {
             fail();
         }
     }
-
-    // Is not Implemented Yet. We need a Backup/Restore solution to do so.
-    // public void testIncMinModel() {
-    // try {
-    // ISolver solver = new ModelIterator(new
-    // Minimal4InclusionModel(SolverFactory.newMiniLearning()));
-    // solver.newVar(3);
-    // VecInt clause = new VecInt();
-    // clause.push(1);
-    // clause.push(2);
-    // clause.push(3);
-    // solver.addClause(clause);
-    // clause.clear();
-    // clause.push(-1);
-    // clause.push(-2);
-    // clause.push(-3);
-    // solver.addClause(clause);
-    // int counter = 0;
-    // while (solver.isSatisfiable()) {
-    // int[] model = solver.model();
-    // counter++;
-    // }
-    // assertEquals(3, counter);
-    // } catch (ContradictionException e) {
-    // fail();
-    // } catch (TimeoutException e) {
-    // fail();
-    // }
-    // }
-    //
-    // public void testCardMinModel() {
-    // try {
-    // ISolver solver = new ModelIterator(new
-    // Minimal4CardinalityModel(SolverFactory.newMiniLearning()));
-    // solver.newVar(3);
-    // VecInt clause = new VecInt();
-    // clause.push(1);
-    // clause.push(2);
-    // clause.push(3);
-    // solver.addClause(clause);
-    // clause.clear();
-    // clause.push(-1);
-    // clause.push(-2);
-    // clause.push(-3);
-    // solver.addClause(clause);
-    // int counter = 0;
-    // while (solver.isSatisfiable()) {
-    // int[] model = solver.model();
-    // counter++;
-    // }
-    // assertEquals(3, counter);
-    // } catch (ContradictionException e) {
-    // fail();
-    // } catch (TimeoutException e) {
-    // fail();
-    // }
-    // }
 
     @Test
     public void testCardModel() {
@@ -460,7 +401,7 @@ public class ModelIteratorTest {
     }
 
     @Test
-    public void testInternalEnumerationOnExampleForRomain() {
+    public void testInternalEnumerationOnExampleFromRomain() {
         try {
             ISolver solver = SolverFactory.newDefault();
             SolutionFoundListener sfl = new SolutionFoundListener() {
@@ -518,7 +459,7 @@ public class ModelIteratorTest {
     }
 
     @Test
-    public void testExternalEnumerationOnExampleForRomain() {
+    public void testExternalEnumerationOnExampleFromRomain() {
         try {
             ISolver solver = SolverFactory.newDefault();
             ModelIterator iterator = new ModelIterator(solver);
@@ -557,5 +498,25 @@ public class ModelIteratorTest {
         } catch (TimeoutException e) {
             fail();
         }
+    }
+
+    @Test
+    public void testCleaningBlockingClausesForRomain()
+            throws ContradictionException, TimeoutException {
+        ISolver solver = SolverFactory.newDefault();
+        ModelIterator iterator = new ModelIterator(solver);
+        solver.newVar(4);
+        solver.addClause(VecInt.of(1, 2, 3, 4));
+        while (iterator.isSatisfiable()) {
+            iterator.model();
+        }
+        assertEquals(15, iterator.numberOfModelsFoundSoFar());
+        assertFalse(iterator.isSatisfiable());
+        iterator.clearBlockingClauses();
+        assertEquals(0, iterator.numberOfModelsFoundSoFar());
+        while (iterator.isSatisfiable()) {
+            iterator.model();
+        }
+        assertEquals(15, iterator.numberOfModelsFoundSoFar());
     }
 }

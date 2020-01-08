@@ -116,12 +116,12 @@ public class DotSearchTracing<T> extends SearchListenerAdapter<ISolverService>
             newName = Integer.toString(absP);
             this.stack.push(newName);
             saveLine(lineTab("\"" + newName + "\"" + "[label=\"" + map(p)
-                    + "\", shape=circle, color=blue, style=filled]"));
+                    + "\", shape=circle, color=blue, fontcolor=white, style=filled]"));
         } else {
             newName = this.currentNodeName;
             this.stack.push(newName);
             saveLine(lineTab("\"" + newName + "\"" + "[label=\"" + map(p)
-                    + "\", shape=circle, color=blue, style=filled]"));
+                    + "\", shape=circle, color=blue, fontcolor=white, style=filled]"));
         }
         this.currentNodeName = newName;
     }
@@ -206,7 +206,7 @@ public class DotSearchTracing<T> extends SearchListenerAdapter<ISolverService>
     public final void conflictFound(IConstr confl, int dlevel, int trailLevel) {
         saveLine(lineTab("\"" + this.currentNodeName + "\" [label=\""
                 + confl.toString(this)
-                + "\", shape=box, color=\"red\", style=filled]"));
+                + "\", shape=box, color=\"red\", fontcolor=white, style=filled]"));
     }
 
     /**

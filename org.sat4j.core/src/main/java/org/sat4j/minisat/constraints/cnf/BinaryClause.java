@@ -128,10 +128,10 @@ public abstract class BinaryClause
         this.voc.watch(p, this);
         if (this.head == neg(p)) {
             m.isMandatory(this.tail);
-            return true;
+        } else {
+            assert this.tail == neg(p);
+            m.isMandatory(this.head);
         }
-        assert this.tail == neg(p);
-        m.isMandatory(this.head);
         return true;
     }
 

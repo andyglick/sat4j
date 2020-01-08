@@ -147,14 +147,17 @@ public class Xor implements Constr, Propagatable {
 
     @Override
     public void calcReason(int p, IVecInt outReason) {
-        for (int i = p == ILits.UNDEFINED ? 0 : 1; i < lits.length; i++) {
+        int nbUnassigned = 0;
+        for (int i = 0; i < lits.length; i++) {
             if (this.voc.isFalsified(lits[i])) {
                 outReason.push(lits[i] ^ 1);
-            } else {
-                assert this.voc.isSatisfied(lits[i]);
+            } else if (this.voc.isSatisfied(lits[i])) {
                 outReason.push(lits[i]);
+            } else {
+                nbUnassigned++;
             }
         }
+        assert nbUnassigned == (p == ILits.UNDEFINED ? 0 : 1);
     }
 
     @Override
@@ -233,6 +236,35 @@ public class Xor implements Constr, Propagatable {
     @Override
     public String dump() {
         throw new UnsupportedOperationException("Not implemented yet!");
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stb = new StringBuilder();
+        for (int l : lits) {
+            stb.append(LiteralsUtils.toDimacs(l));
+            stb.append(" ");
+            stb.append(voc.isUnassigned(l) ? "U"
+                    : (voc.isFalsified(l) ? "F" : "T"));
+            stb.append(" x ");
+        }
+        stb.append(parity);
+        return stb.toString();
+    }
+
+    /**
+     * Activates this Xor constraint.
+     */
+    public void activate() {
+        this.register();
+    }
+
+    /**
+     * Deactivates (i.e., forgets) a constraint, as there is no easy way to use
+     * selectors with parity constraints.
+     */
+    public void deactivate() {
+        this.remove(null);
     }
 
 }

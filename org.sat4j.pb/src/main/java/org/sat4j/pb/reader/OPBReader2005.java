@@ -288,7 +288,7 @@ public class OPBReader2005 extends Reader implements Serializable {
     }
 
     /**
-     * skip white spaces
+     * skip white spaces, including newlines
      * 
      * @throws IOException
      */

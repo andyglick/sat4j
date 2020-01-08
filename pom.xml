@@ -38,8 +38,8 @@ Sat4j is a full featured boolean reasoning library designed to bring state-of-th
 		<url>http://www.cril.univ-artois.fr/</url>
 	</organization>
 	<issueManagement>
-		<system>OW2 Jira</system>
-		<url>http://jira.ow2.org/browse/SAT</url>
+		<system>OW2 Gitlab</system>
+		<url>https://gitlab.ow2.org/sat4j/sat4j/issues</url>
 	</issueManagement>
 	<mailingLists>
 		<mailingList>
@@ -99,7 +99,6 @@ Sat4j is a full featured boolean reasoning library designed to bring state-of-th
 		<module>org.sat4j.pb</module>
 		<module>org.sat4j.maxsat</module>
 		<module>org.sat4j.sat</module>
-		<module>org.sat4j.csp.xmlparser</module>
 	</modules>
 
 	<dependencies>

@@ -30,6 +30,7 @@
 package org.sat4j.core;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -666,5 +667,22 @@ public final class VecInt implements IVecInt {
      */
     public static VecInt of(int... values) {
         return new VecInt(values);
+    }
+
+    /**
+     * Alternative way to create a vector, the Java 9+ way, from a standard Java
+     * collection.
+     * 
+     * @param values
+     *            a collection with an arbitrary number of values
+     * @return a new vector with those values
+     * @since 2.3.6
+     */
+    public static VecInt of(Collection<Integer> values) {
+        VecInt v = new VecInt(values.size());
+        for (Integer i : values) {
+            v.push(i);
+        }
+        return v;
     }
 }

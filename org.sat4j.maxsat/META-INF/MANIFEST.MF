@@ -7,4 +7,5 @@ Specification-Vendor: Daniel Le Berre
 Implementation-Title: SAT4J
 Implementation-Version: 2.0 
 Implementation-Vendor: CRIL CNRS UMR 8188 - Universite d'Artois
+Automatic-Module-Name: org.ow2.sat4j.maxsat
 Class-Path: org.sat4j.pb.jar lib/commons-cli.jar

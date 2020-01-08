@@ -29,6 +29,7 @@
  *******************************************************************************/
 package org.sat4j.tools;
 
+import org.sat4j.core.ConstrGroup;
 import org.sat4j.core.VecInt;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.ISolver;
@@ -67,8 +68,10 @@ public class ModelIterator extends SolverDecorator<ISolver> {
     private static final long serialVersionUID = 1L;
 
     protected boolean trivialfalsity = false;
-    private final long bound;
+    private long bound;
     protected long nbModelFound = 0;
+
+    private final ConstrGroup blockingClauses = new ConstrGroup();
 
     /**
      * Create an iterator over the solutions available in <code>solver</code>.
@@ -118,9 +121,9 @@ public class ModelIterator extends SolverDecorator<ISolver> {
     @Override
     public int[] model() {
         int[] last = super.model();
-        this.nbModelFound++;
+        this.nbModelFound += 1 << (nVars() - last.length);
         try {
-            discardCurrentModel();
+            blockingClauses.add(discardCurrentModel());
         } catch (ContradictionException e) {
             this.trivialfalsity = true;
         }
@@ -182,7 +185,7 @@ public class ModelIterator extends SolverDecorator<ISolver> {
             clause.push(-q);
         }
         try {
-            addBlockingClause(clause);
+            blockingClauses.add(addBlockingClause(clause));
         } catch (ContradictionException e) {
             this.trivialfalsity = true;
         }
@@ -197,5 +200,38 @@ public class ModelIterator extends SolverDecorator<ISolver> {
      */
     public long numberOfModelsFoundSoFar() {
         return this.nbModelFound;
+    }
+
+    /**
+     * Clear blocking clauses
+     * 
+     * @since 2.3.6
+     */
+    public void clearBlockingClauses() {
+        this.trivialfalsity = false;
+        this.nbModelFound = 0;
+        blockingClauses.removeFrom(this);
+        blockingClauses.clear();
+    }
+
+    /**
+     * Return the maximum number of models to enumerate.
+     * 
+     * @return the current bound
+     * @since 2.3.6
+     */
+    public long getBound() {
+        return bound;
+    }
+
+    /**
+     * Change the maximum number of models to enumerate.
+     * 
+     * @param bound
+     *            the new bound.
+     * @since 2.3.6
+     */
+    public void setBound(long bound) {
+        this.bound = bound;
     }
 }

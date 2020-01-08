@@ -30,6 +30,7 @@
 package org.sat4j.core;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -556,5 +557,22 @@ public final class Vec<T> implements IVec<T> {
     @SafeVarargs
     public static <U> Vec<U> of(U... values) {
         return new Vec<>(values);
+    }
+
+    /**
+     * Alternative way to create a vector, the Java 9+ way, from a standard Java
+     * collection.
+     * 
+     * @param values
+     *            a collection with an arbitrary number of values
+     * @return a new vector with those values
+     * @since 2.3.6
+     */
+    public static <U> Vec<U> of(Collection<U> values) {
+        Vec<U> v = new Vec<>(values.size());
+        for (U u : values) {
+            v.push(u);
+        }
+        return v;
     }
 }

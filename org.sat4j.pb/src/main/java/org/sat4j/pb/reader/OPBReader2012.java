@@ -66,7 +66,12 @@ public class OPBReader2012 extends OPBReader2010 {
             putback(c);
             return;
         }
-        skipSpaces();
+        skipWhiteSpacesButNewline();
+        c = get();
+        if (c == '\n') {
+            return;
+        }
+        putback(c);
         String s = readWord();
         if ("#aggregation=".equals(s)) {
             s = readWord();
@@ -84,6 +89,16 @@ public class OPBReader2012 extends OPBReader2010 {
             }
             get(); // remove trailing \n
         }
+    }
+
+    private void skipWhiteSpacesButNewline() throws IOException {
+        char c;
+
+        do {
+            c = get();
+        } while (c == ' ');
+
+        putback(c);
     }
 
     @Override

@@ -140,7 +140,8 @@ final class DecisionMode implements ILauncherMode {
         this.out.printf("c Found solution #%d  (%.2f)s%n", nbSolutionFound,
                 (System.currentTimeMillis() - beginTime) / 1000.0);
         if (System.getProperty("printallmodels") != null) {
-            this.out.println(SOLUTION_PREFIX + new VecInt(solution));
+            this.out.println(SOLUTION_PREFIX
+                    + new VecInt(solution).toString().replace(",", " ") + " 0");
         }
     }
 

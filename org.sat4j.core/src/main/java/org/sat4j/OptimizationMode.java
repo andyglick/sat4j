@@ -165,7 +165,8 @@ final class OptimizationMode implements ILauncherMode {
         this.out.println("c Value of objective function : "
                 + problem.getObjectiveValue());
         if (System.getProperty("printallmodels") != null) {
-            this.out.println(new VecInt(solution));
+            this.out.println(
+                    new VecInt(solution).toString().replace(",", " ") + " 0");
         }
     }
 

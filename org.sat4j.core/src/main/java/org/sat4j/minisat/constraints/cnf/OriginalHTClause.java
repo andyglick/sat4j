@@ -113,28 +113,28 @@ public class OriginalHTClause extends HTClause {
             assert savedindexhead <= mylits.length;
             if (savedindexhead == mylits.length) {
                 l.isMandatory(this.tail);
-                return true;
+            } else {
+                this.head = mylits[savedindexhead];
+                mylits[savedindexhead] = neg(p);
+                this.voc.watch(neg(this.head), this);
             }
-            this.head = mylits[savedindexhead];
-            mylits[savedindexhead] = neg(p);
-            this.voc.watch(neg(this.head), this);
-            return true;
+        } else {
+            assert this.tail == neg(p);
+            final int[] mylits = this.middleLits;
+            // moving tail on the left
+            while (savedindextail >= 0
+                    && this.voc.isFalsified(mylits[savedindextail])) {
+                savedindextail--;
+            }
+            assert -1 <= savedindextail;
+            if (-1 == savedindextail) {
+                l.isMandatory(this.head);
+            } else {
+                this.tail = mylits[savedindextail];
+                mylits[savedindextail] = neg(p);
+                this.voc.watch(neg(this.tail), this);
+            }
         }
-        assert this.tail == neg(p);
-        final int[] mylits = this.middleLits;
-        // moving tail on the left
-        while (savedindextail >= 0
-                && this.voc.isFalsified(mylits[savedindextail])) {
-            savedindextail--;
-        }
-        assert -1 <= savedindextail;
-        if (-1 == savedindextail) {
-            l.isMandatory(this.head);
-            return true;
-        }
-        this.tail = mylits[savedindextail];
-        mylits[savedindextail] = neg(p);
-        this.voc.watch(neg(this.tail), this);
         return true;
     }
 
