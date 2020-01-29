@@ -7,7 +7,7 @@ public final class IrrelevantLiteralDetectionStrategyFactory {
     }
 
     public static IrrelevantLiteralDetectionStrategy defaultStrategy() {
-        return new KnapsackApproximationIrrelevantLiteralDetectionStrategy();
+        return new SubsetSumApproximationIrrelevantLiteralDetectionStrategy();
     }
 
 }

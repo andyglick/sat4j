@@ -72,7 +72,8 @@ public class RemoveIrrelevantPostProcess implements IPostProcess {
                 conflictMap.stats.numberOfNonPbConstraints++;
                 return;
             }
-            BigInteger slack = conflictMap.computeSlack(lvl);
+            BigInteger slack = conflictMap.computeSlack(lvl + 1)
+                    .subtract(conflictMap.degree);
             Set<BigInteger> irrelevant = new HashSet<>();
             BigInteger smallestRelevant = BigInteger.ZERO;
             for (Entry<BigInteger, List<Integer>> e : coefs.entrySet()) {
@@ -111,7 +112,22 @@ public class RemoveIrrelevantPostProcess implements IPostProcess {
             for (int i = 0; i < toRemove.size(); i++)
                 conflictMap.removeCoef(toRemove.get(i));
 
-            conflictMap.degree = conflictMap.degree.subtract(newDegree);
+            BigInteger reducedDegree = conflictMap.degree.subtract(newDegree);
+            BigInteger sumAllCoef = BigInteger.ZERO;
+            BigInteger sumAllCoefSaturated = BigInteger.ZERO;
+
+            for (int i = 0; i < conflictMap.size(); i++) {
+                sumAllCoef = sumAllCoef.add(conflictMap.weightedLits.getCoef(i)
+                        .min(conflictMap.degree));
+                sumAllCoefSaturated = sumAllCoefSaturated.add(
+                        conflictMap.weightedLits.getCoef(i).min(reducedDegree));
+            }
+            if (sumAllCoef.subtract(conflictMap.degree).compareTo(
+                    sumAllCoefSaturated.subtract(reducedDegree)) > 0) {
+                conflictMap.degree = reducedDegree;
+                conflictMap.stats.numberOfTriggeredSaturations++;
+                System.out.println("saturation");
+            }
             if (smallestRelevant.compareTo(conflictMap.degree) >= 0) {
                 conflictMap.stats.numberOfConstraintsWhichAreClauses++;
 
@@ -121,11 +137,6 @@ public class RemoveIrrelevantPostProcess implements IPostProcess {
             }
 
             conflictMap.saturation();
-
-            if (maxCoeff.compareTo(conflictMap.degree) > 0) {
-                conflictMap.stats.numberOfTriggeredSaturations++;
-            }
-
             if (alit >= 0) {
                 conflictMap.assertiveLiteral = conflictMap.weightedLits
                         .getFromAllLits(alit);
