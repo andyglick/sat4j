@@ -23,20 +23,24 @@ import org.sat4j.pb.SolverFactory;
 import org.sat4j.pb.constraints.PBMaxClauseCardConstrDataStructure;
 import org.sat4j.pb.constraints.pb.AutoDivisionStrategy;
 import org.sat4j.pb.constraints.pb.RemoveIrrelevantPostProcess;
+import org.sat4j.pb.constraints.pb.ConflictMapDivideByPivot;
 import org.sat4j.pb.constraints.pb.ConflictMapReduceByGCD;
 import org.sat4j.pb.constraints.pb.ConflictMapReduceByPowersOf2;
 import org.sat4j.pb.constraints.pb.ConflictMapReduceToCard;
 import org.sat4j.pb.constraints.pb.ConflictMapReduceToClause;
 import org.sat4j.pb.constraints.pb.ConflictMapRounding;
+import org.sat4j.pb.constraints.pb.ConflictMapWeakenReason;
+import org.sat4j.pb.constraints.pb.ConflictMapWeakenToClash;
 import org.sat4j.pb.constraints.pb.IWeakeningStrategy;
 import org.sat4j.pb.constraints.pb.PostProcessToCard;
 import org.sat4j.pb.constraints.pb.PostProcessToClause;
+import org.sat4j.pb.constraints.pb.PreProcessReduceConflict;
+import org.sat4j.pb.constraints.pb.SkipStrategy;
 import org.sat4j.pb.core.PBDataStructureFactory;
 import org.sat4j.pb.core.PBSolverCP;
 import org.sat4j.pb.reader.OPBReader2012;
 import org.sat4j.pb.tools.InprocCardConstrLearningSolver;
 import org.sat4j.pb.tools.PreprocCardConstrLearningSolver;
-import org.sat4j.reader.ParseFormatException;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.TimeoutException;
 import org.sat4j.tools.DotSearchTracing;
@@ -44,7 +48,7 @@ import org.sat4j.tools.DotSearchTracing;
 /**
  * A specific launcher for experimenting various settings in the PB solvers with
  * Jakob Nordstrom's group @ KTH.
- * 
+ *
  * @author leberre
  * @since 2.3.6
  */
@@ -59,9 +63,9 @@ public class KTHLauncher {
         options.addOption("fb", "find-best-divisor-when-dividing-for-overflow",
                 true, "rounding coefficient. Legal values are true or false.");
         options.addOption("wr", "when-resolve", true,
-                "behavior when performing conflict analysis. Legal values are skip or always.");
+                "behavior when performing conflict analysis. Legal values are skip, weaken or always.");
         options.addOption("rr", "round-reason", true,
-                "Rounding strategy during conflict analysis. Legal values are divide-v1, divide-unless-equal, divide-unless-divisor, round-to-gcd, or never.");
+                "Rounding strategy during conflict analysis. Legal values are divide-v1, divide-unless-equal, divide-unless-divisor, round-to-gcd, never, weaken-and-divide, weaken, weaken-to-clash, or partial-weaken-and-divide.");
         options.addOption("rwp", "rounding-weaken-priority", true,
                 "Which literals are removed to ensure conflicting constraints. Legal values are any, satisfied, unassigned");
         options.addOption("tlc", "type-of-learned-constraint", true,
@@ -80,6 +84,8 @@ public class KTHLauncher {
                 "Apply division automatically when a common factor is identified.");
         options.addOption("t", "timeout", true,
                 "time limit for the solver");
+        options.addOption("pc", "preprocess-conflict", true,
+                "Preprocessing strategy to apply on the conflict before resolving. Legal values are none, reduce-not-falsified or reduce");
         Option op = options.getOption("coeflim");
         op.setArgName("limit");
         op = options.getOption("coeflim-small");
@@ -102,6 +108,8 @@ public class KTHLauncher {
         op.setArgName("strategy");
         op = options.getOption("timeout");
         op.setArgName("seconds");
+        op = options.getOption("preprocess-conflict");
+        op.setArgName("strategy");
         return options;
     }
 
@@ -146,7 +154,7 @@ public class KTHLauncher {
 
             PBSolverCP cpsolver = SolverFactory.newCuttingPlanes();
             cpsolver.setNoRemove(true);
-            cpsolver.setSkipAllow(false);
+            cpsolver.setSkipAllow(SkipStrategy.NO_SKIP);
             IPBSolver pbsolver = cpsolver;
             if (line.hasOption("detect-cards")) {
                 String value = line.getOptionValue("detect-cards");
@@ -159,14 +167,14 @@ public class KTHLauncher {
                     InprocCardConstrLearningSolver solver = new InprocCardConstrLearningSolver(
                             new MiniSATLearning<PBDataStructureFactory>(),
                             new PBMaxClauseCardConstrDataStructure(),
-                            new VarOrderHeap(), true, false);
+                            new VarOrderHeap(), true, SkipStrategy.NO_SKIP);
                     solver.setDetectCardFromAllConstraintsInCflAnalysis(true);
                     cpsolver = solver;
                 } else if ("lazy".equals(value)) {
                     cpsolver = new InprocCardConstrLearningSolver(
                             new MiniSATLearning<PBDataStructureFactory>(),
                             new PBMaxClauseCardConstrDataStructure(),
-                            new VarOrderHeap(), true, false);
+                            new VarOrderHeap(), true, SkipStrategy.NO_SKIP);
                 } else {
                     log(value
                             + " is not a supported value for option detect-cards");
@@ -209,12 +217,28 @@ public class KTHLauncher {
                     return;
                 }
             }
+
+            if (line.hasOption("preprocess-conflict")) {
+                String value = line.getOptionValue("preprocess-conflict");
+                if ("none".equals(value)) {
+                    // default case, do nothing
+                } else if ("reduce".equals(value)) {
+                    cpsolver.setPreprocess(PreProcessReduceConflict.instanceWithFalsified());
+                } else if ("reduce-not-falsified".equals(value)) {
+                    cpsolver.setPreprocess(PreProcessReduceConflict.instanceWithoutFalsified());
+                } else {
+                    log(value + " is not a supported value for option preprocess-conflict");
+                    return;
+                }
+            }
             if (line.hasOption("when-resolve")) {
                 String value = line.getOptionValue("when-resolve");
                 if ("always".equals(value)) {
-                    cpsolver.setSkipAllow(false);
+                    cpsolver.setSkipAllow(SkipStrategy.NO_SKIP);
                 } else if ("skip".equals(value)) {
-                    cpsolver.setSkipAllow(true);
+                    cpsolver.setSkipAllow(SkipStrategy.SKIP);
+                } else if ("weaken".equals(value)) {
+                    cpsolver.setSkipAllow(SkipStrategy.WEAKEN_AND_SKIP);
                 } else {
                     log(value
                             + " is not a supported value for option when-resolve");
@@ -233,6 +257,22 @@ public class KTHLauncher {
                             ConflictMapReduceToCard.factory());
                 } else if ("divide-v1".equals(value)) {
                     cpsolver.setConflictFactory(ConflictMapRounding.factory());
+                } else if ("weaken".equals(value)) {
+                    cpsolver.setConflictFactory(ConflictMapWeakenReason.factory());
+                } else if ("weaken-to-clash".equals(value)) {
+                    cpsolver.setConflictFactory(ConflictMapWeakenToClash.factory());
+                } else if ("weaken-and-divide".equals(value)) {
+                    cpsolver.setConflictFactory(ConflictMapDivideByPivot.fullWeakeningOnReasonFactory());
+                } else if ("partial-weaken-and-divide".equals(value)) {
+                    cpsolver.setConflictFactory(ConflictMapDivideByPivot.partialWeakeningOnReasonFactory());
+                } else if ("weaken-and-divide-both".equals(value)) {
+                    cpsolver.setConflictFactory(ConflictMapDivideByPivot.fullWeakeningOnBothFactory());
+                } else if ("partial-weaken-and-divide-both".equals(value)) {
+                    cpsolver.setConflictFactory(ConflictMapDivideByPivot.partialWeakeningOnBothFactory());
+                } else if ("weaken-and-divide-conflict".equals(value)) {
+                    cpsolver.setConflictFactory(ConflictMapDivideByPivot.fullWeakeningOnConflictFactory());
+                } else if ("partial-weaken-and-divide-conflict".equals(value)) {
+                    cpsolver.setConflictFactory(ConflictMapDivideByPivot.partialWeakeningOnConflictFactory());
                 } else {
                     // "divide-unless-equal":
                     // "divide-unless-divisor":

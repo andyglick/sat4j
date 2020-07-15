@@ -69,7 +69,7 @@ public class BugSAT155 {
     public void testBasicDump4PB() throws ContradictionException {
         IPBSolver solver = SolverFactory.newDefault();
         IVecInt literals = new VecInt(new int[] { 1, 2, 3 });
-        IVec<BigInteger> coeffs = new Vec<>();
+        IVec<BigInteger> coeffs = new Vec<BigInteger>();
         coeffs.push(BigInteger.valueOf(2)).push(BigInteger.ONE)
                 .push(BigInteger.ONE);
         IConstr c1 = solver.addAtLeast(literals, coeffs, BigInteger.valueOf(2));
@@ -80,7 +80,7 @@ public class BugSAT155 {
     public void testBasicDump4PBNegativeLieral() throws ContradictionException {
         IPBSolver solver = SolverFactory.newDefault();
         IVecInt literals = new VecInt(new int[] { 1, 2, -3 });
-        IVec<BigInteger> coeffs = new Vec<>();
+        IVec<BigInteger> coeffs = new Vec<BigInteger>();
         coeffs.push(BigInteger.valueOf(2)).push(BigInteger.ONE)
                 .push(BigInteger.ONE);
         IConstr c1 = solver.addAtLeast(literals, coeffs, BigInteger.valueOf(2));

@@ -126,7 +126,6 @@ public class RemoveIrrelevantPostProcess implements IPostProcess {
                     sumAllCoefSaturated.subtract(reducedDegree)) > 0) {
                 conflictMap.degree = reducedDegree;
                 conflictMap.stats.numberOfTriggeredSaturations++;
-                System.out.println("saturation");
             }
             if (smallestRelevant.compareTo(conflictMap.degree) >= 0) {
                 conflictMap.stats.numberOfConstraintsWhichAreClauses++;

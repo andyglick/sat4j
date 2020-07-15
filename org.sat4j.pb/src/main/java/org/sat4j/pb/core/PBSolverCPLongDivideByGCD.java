@@ -8,8 +8,10 @@ import org.sat4j.pb.constraints.pb.AutoDivisionStrategy;
 import org.sat4j.pb.constraints.pb.ConflictMap;
 import org.sat4j.pb.constraints.pb.IConflict;
 import org.sat4j.pb.constraints.pb.IWeakeningStrategy;
+import org.sat4j.pb.constraints.pb.NoPreProcess;
 import org.sat4j.pb.constraints.pb.PBConstr;
 import org.sat4j.pb.constraints.pb.PostProcessDivideBy2;
+import org.sat4j.pb.constraints.pb.SkipStrategy;
 
 public class PBSolverCPLongDivideByGCD extends PBSolverCPLong {
 
@@ -43,7 +45,7 @@ public class PBSolverCPLongDivideByGCD extends PBSolverCPLong {
     public PBSolverCPLongDivideByGCD(
             LearningStrategy<PBDataStructureFactory> learner,
             PBDataStructureFactory dsf, IOrder order, boolean noRemove,
-            boolean skipAllow) {
+            SkipStrategy skipAllow) {
         super(learner, dsf, order, noRemove, skipAllow);
         // TODO Auto-generated constructor stub
     }
@@ -51,7 +53,8 @@ public class PBSolverCPLongDivideByGCD extends PBSolverCPLong {
     public PBSolverCPLongDivideByGCD(
             LearningStrategy<PBDataStructureFactory> learner,
             PBDataStructureFactory dsf, SearchParams params, IOrder order,
-            RestartStrategy restarter, boolean noRemove, boolean skipAllow) {
+            RestartStrategy restarter, boolean noRemove,
+            SkipStrategy skipAllow) {
         super(learner, dsf, params, order, restarter, noRemove, skipAllow);
         // TODO Auto-generated constructor stub
     }
@@ -59,7 +62,7 @@ public class PBSolverCPLongDivideByGCD extends PBSolverCPLong {
     public PBSolverCPLongDivideByGCD(
             LearningStrategy<PBDataStructureFactory> learner,
             PBDataStructureFactory dsf, SearchParams params, IOrder order,
-            boolean noRemove, boolean skipAllow) {
+            boolean noRemove, SkipStrategy skipAllow) {
         super(learner, dsf, params, order, noRemove, skipAllow);
         // TODO Auto-generated constructor stub
     }
@@ -67,7 +70,8 @@ public class PBSolverCPLongDivideByGCD extends PBSolverCPLong {
     @Override
     protected IConflict chooseConflict(PBConstr myconfl, int level) {
         return ConflictMap.createConflict(myconfl, level, isNoRemove(),
-                isSkipAllow(), PostProcessDivideBy2.instance(),
+                isSkipAllow(), NoPreProcess.instance(),
+                PostProcessDivideBy2.instance(),
                 IWeakeningStrategy.UNASSIGNED_FIRST,
                 AutoDivisionStrategy.ENABLED, pbStats);
     }

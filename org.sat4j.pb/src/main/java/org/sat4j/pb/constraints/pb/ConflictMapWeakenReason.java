@@ -27,28 +27,36 @@
  * Contributors:
  *   CRIL - initial API and implementation
  *******************************************************************************/
+
 package org.sat4j.pb.constraints.pb;
 
 import java.math.BigInteger;
 
 import org.sat4j.pb.core.PBSolverStats;
 
-public final class ConflictMapReduceToClause extends ConflictMap {
+/**
+ * 
+ * 
+ * @author Romain WALLON
+ * 
+ * @version 0.1.0
+ */
+public class ConflictMapWeakenReason extends ConflictMap {
 
-    public ConflictMapReduceToClause(PBConstr cpb, int level, boolean noRemove,
-            SkipStrategy skip, IPreProcess preprocess, IPostProcess postprocess,
-            IWeakeningStrategy weakeningStrategy,
+    public ConflictMapWeakenReason(PBConstr cpb, int level, boolean noRemove,
+            SkipStrategy skip, IPreProcess preprocess,
+            IPostProcess postProcessing, IWeakeningStrategy weakeningStrategy,
             AutoDivisionStrategy autoDivisionStrategy, PBSolverStats stats) {
-        super(cpb, level, noRemove, skip, preprocess, postprocess,
+        super(cpb, level, noRemove, skip, preprocess, postProcessing,
                 weakeningStrategy, autoDivisionStrategy, stats);
     }
 
     public static IConflict createConflict(PBConstr cpb, int level,
             boolean noRemove, SkipStrategy skip, IPreProcess preprocess,
-            IPostProcess postprocess, IWeakeningStrategy weakeningStrategy,
+            IPostProcess postProcessing, IWeakeningStrategy weakeningStrategy,
             AutoDivisionStrategy autoDivisionStrategy, PBSolverStats stats) {
-        return new ConflictMapReduceToClause(cpb, level, noRemove, skip,
-                preprocess, postprocess, weakeningStrategy,
+        return new ConflictMapWeakenReason(cpb, level, noRemove, skip,
+                preprocess, postProcessing, weakeningStrategy,
                 autoDivisionStrategy, stats);
     }
 
@@ -61,49 +69,62 @@ public final class ConflictMapReduceToClause extends ConflictMap {
                     IWeakeningStrategy weakeningStrategy,
                     AutoDivisionStrategy autoDivisionStrategy,
                     PBSolverStats stats) {
-                return ConflictMapReduceToClause.createConflict(cpb, level,
+                return ConflictMapWeakenReason.createConflict(cpb, level,
                         noRemove, skip, preprocess, postprocess,
                         weakeningStrategy, autoDivisionStrategy, stats);
             }
 
             @Override
             public String toString() {
-                return "Reduce to clause during conflict analysis if necessary";
+                return "Weaken the reasons to as few literals as possible";
             }
         };
     }
 
-    public static final BigInteger MAXVALUE = BigInteger
-            .valueOf(Long.MAX_VALUE);
-
+    /**
+     * Divides the constraint so as to get a coefficient equal to
+     * {@code BigInteger#ONE} for {@code litImplied}.
+     */
     @Override
     protected BigInteger reduceUntilConflict(int litImplied, int ind,
             BigInteger[] reducedCoefs, BigInteger degreeReduced, IWatchPb wpb) {
-        BigInteger coefLitImplied = this.weightedLits.get(litImplied ^ 1);
+        BigInteger degree = degreeReduced;
+        for (int i = 0; i < wpb.size(); i++) {
+            if (i == ind) {
+                // The implied literal is not touched.
+                continue;
+            }
 
-        if ((reducedCoefs[0].multiply(coefLitImplied).compareTo(MAXVALUE) > 0)
-                || (reducedCoefs[ind].multiply(this.weightedLits.getCoef(0))
-                        .compareTo(MAXVALUE) > 0)) {
-            degreeReduced = reduceToClause(ind, wpb, reducedCoefs);
-            this.coefMultCons = this.weightedLits.get(litImplied ^ 1);
-            this.coefMult = BigInteger.ONE;
-            this.numberOfReductions++;
-            return degreeReduced;
-        } else
-            return super.reduceUntilConflict(litImplied, ind, reducedCoefs,
-                    degreeReduced, wpb);
-
-    }
-
-    private BigInteger reduceToClause(int ind, IWatchPb wpb,
-            BigInteger[] reducedCoefs) {
-        for (int i = 0; i < reducedCoefs.length; i++) {
-            if (i == ind || wpb.getVocabulary().isFalsified(wpb.get(i))) {
-                reducedCoefs[i] = BigInteger.ONE;
-            } else {
+            if (!voc.isFalsified(wpb.get(i))) {
+                // Weakening on this literal preserves the propagation.
+                degree = degree.subtract(reducedCoefs[i]);
                 reducedCoefs[i] = BigInteger.ZERO;
             }
         }
-        return BigInteger.ONE;
+
+        // The coefficient of the literal is now at least equal to degree.
+        // Any other coefficient having strictly less than the degree may be
+        // safely weakened: a clause will be derived.
+        // This approach may be use to lazily detect irrelevant literals.
+
+        for (int i = 0; i < wpb.size()
+                && degree.compareTo(BigInteger.ONE) > 0; i++) {
+            if (!voc.isFalsified(wpb.get(i))) {
+                // Satisfied literals have already been considered.
+                continue;
+            }
+
+            if (reducedCoefs[i].compareTo(degree) < 0) {
+                // Weakening on this literal preserves the propagation.
+                degree = degree.subtract(reducedCoefs[i]);
+                reducedCoefs[i] = BigInteger.ZERO;
+                stats.incFalsifiedLiteralsRemovedFromReason();
+            }
+        }
+
+        degree = saturation(reducedCoefs, degree, wpb);
+        return super.reduceUntilConflict(litImplied, ind, reducedCoefs, degree,
+                wpb);
     }
+
 }

@@ -14,6 +14,7 @@ import org.sat4j.pb.IPBSolverService;
 import org.sat4j.pb.SolverFactory;
 import org.sat4j.pb.constraints.pb.IConflict;
 import org.sat4j.pb.constraints.pb.PBConstr;
+import org.sat4j.pb.constraints.pb.SkipStrategy;
 import org.sat4j.pb.core.PBDataStructureFactory;
 import org.sat4j.pb.core.PBSolverCP;
 import org.sat4j.specs.Constr;
@@ -38,7 +39,7 @@ public class InprocCardConstrLearningSolver extends PBSolverCP {
     public InprocCardConstrLearningSolver(
             LearningStrategy<PBDataStructureFactory> learner,
             PBDataStructureFactory dsf, IOrder order, boolean noRemove,
-            boolean skipAllow) {
+            SkipStrategy skipAllow) {
         super(learner, dsf, order, noRemove, skipAllow);
         this.coSolver = SolverFactory.newResolution();
         this.cardFinder = new CardConstrFinder(this.coSolver);
@@ -57,7 +58,7 @@ public class InprocCardConstrLearningSolver extends PBSolverCP {
     public InprocCardConstrLearningSolver(
             LearningStrategy<PBDataStructureFactory> learner,
             PBDataStructureFactory dsf, SearchParams params, IOrder order,
-            boolean noRemove, boolean skipAllow) {
+            boolean noRemove, SkipStrategy skipAllow) {
         super(learner, dsf, params, order, noRemove, skipAllow);
         this.coSolver = SolverFactory.newResolution();
         this.cardFinder = new CardConstrFinder(this.coSolver);
@@ -67,7 +68,8 @@ public class InprocCardConstrLearningSolver extends PBSolverCP {
     public InprocCardConstrLearningSolver(
             LearningStrategy<PBDataStructureFactory> learner,
             PBDataStructureFactory dsf, SearchParams params, IOrder order,
-            RestartStrategy restarter, boolean noRemove, boolean skipAllow) {
+            RestartStrategy restarter, boolean noRemove,
+            SkipStrategy skipAllow) {
         super(learner, dsf, params, order, restarter, noRemove, skipAllow);
         this.coSolver = SolverFactory.newResolution();
         this.cardFinder = new CardConstrFinder(this.coSolver);

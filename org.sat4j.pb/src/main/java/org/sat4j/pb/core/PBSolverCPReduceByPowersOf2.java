@@ -9,7 +9,9 @@ import org.sat4j.pb.constraints.pb.ConflictMapReduceByPowersOf2;
 import org.sat4j.pb.constraints.pb.IConflict;
 import org.sat4j.pb.constraints.pb.IWeakeningStrategy;
 import org.sat4j.pb.constraints.pb.NoPostProcess;
+import org.sat4j.pb.constraints.pb.NoPreProcess;
 import org.sat4j.pb.constraints.pb.PBConstr;
+import org.sat4j.pb.constraints.pb.SkipStrategy;
 
 public class PBSolverCPReduceByPowersOf2 extends PBSolverCP {
 
@@ -43,7 +45,7 @@ public class PBSolverCPReduceByPowersOf2 extends PBSolverCP {
     public PBSolverCPReduceByPowersOf2(
             LearningStrategy<PBDataStructureFactory> learner,
             PBDataStructureFactory dsf, IOrder order, boolean noRemove,
-            boolean skipAllow) {
+            SkipStrategy skipAllow) {
         super(learner, dsf, order, noRemove, skipAllow);
         // TODO Auto-generated constructor stub
     }
@@ -51,7 +53,8 @@ public class PBSolverCPReduceByPowersOf2 extends PBSolverCP {
     public PBSolverCPReduceByPowersOf2(
             LearningStrategy<PBDataStructureFactory> learner,
             PBDataStructureFactory dsf, SearchParams params, IOrder order,
-            RestartStrategy restarter, boolean noRemove, boolean skipAllow) {
+            RestartStrategy restarter, boolean noRemove,
+            SkipStrategy skipAllow) {
         super(learner, dsf, params, order, restarter, noRemove, skipAllow);
         // TODO Auto-generated constructor stub
     }
@@ -59,7 +62,7 @@ public class PBSolverCPReduceByPowersOf2 extends PBSolverCP {
     public PBSolverCPReduceByPowersOf2(
             LearningStrategy<PBDataStructureFactory> learner,
             PBDataStructureFactory dsf, SearchParams params, IOrder order,
-            boolean noRemove, boolean skipAllow) {
+            boolean noRemove, SkipStrategy skipAllow) {
         super(learner, dsf, params, order, noRemove, skipAllow);
         // TODO Auto-generated constructor stub
     }
@@ -67,8 +70,8 @@ public class PBSolverCPReduceByPowersOf2 extends PBSolverCP {
     @Override
     protected IConflict chooseConflict(PBConstr myconfl, int level) {
         return ConflictMapReduceByPowersOf2.createConflict(myconfl, level,
-                isNoRemove(), isSkipAllow(), NoPostProcess.instance(),
-                IWeakeningStrategy.UNASSIGNED_FIRST,
+                isNoRemove(), isSkipAllow(), NoPreProcess.instance(),
+                NoPostProcess.instance(), IWeakeningStrategy.UNASSIGNED_FIRST,
                 AutoDivisionStrategy.ENABLED, pbStats);
     }
 

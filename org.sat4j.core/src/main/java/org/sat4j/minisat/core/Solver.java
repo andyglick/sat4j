@@ -562,6 +562,7 @@ public class Solver<D extends DataStructureFactory>
         // new fact, store it
         this.voc.satisfies(p);
         this.voc.setLevel(p, decisionLevel());
+        this.voc.setTrailPosition(p, this.trail.size());
         this.voc.setReason(p, from);
         this.trail.push(p);
         if (from != null && from.learnt()) {
@@ -1025,6 +1026,7 @@ public class Solver<D extends DataStructureFactory>
         this.voc.unassign(p);
         this.voc.setReason(p, null);
         this.voc.setLevel(p, -1);
+        this.voc.setTrailPosition(p, -1);
         // update heuristics value
         this.order.undo(x);
         // remove literal from the trail
@@ -1350,7 +1352,7 @@ public class Solver<D extends DataStructureFactory>
     private Constr preventTheSameDecisionsToBeMade() {
         IVecInt clause = new VecInt(nVars());
         int p;
-        for (int i = this.trail.size() - 1; i >= this.rootLevel; i--) {
+        for (int i = this.trail.size() - 1; i >= 0; i--) {
             p = this.trail.get(i);
             if (this.voc.getReason(p) == null) {
                 clause.push(p ^ 1);

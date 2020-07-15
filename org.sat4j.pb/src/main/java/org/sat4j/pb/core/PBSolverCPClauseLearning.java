@@ -37,8 +37,10 @@ import org.sat4j.pb.constraints.pb.AutoDivisionStrategy;
 import org.sat4j.pb.constraints.pb.ConflictMapReduceToClause;
 import org.sat4j.pb.constraints.pb.IConflict;
 import org.sat4j.pb.constraints.pb.IWeakeningStrategy;
+import org.sat4j.pb.constraints.pb.NoPreProcess;
 import org.sat4j.pb.constraints.pb.PBConstr;
 import org.sat4j.pb.constraints.pb.PostProcessToClause;
+import org.sat4j.pb.constraints.pb.SkipStrategy;
 
 public class PBSolverCPClauseLearning extends PBSolverCPLong {
 
@@ -74,28 +76,30 @@ public class PBSolverCPClauseLearning extends PBSolverCPLong {
     public PBSolverCPClauseLearning(
             LearningStrategy<PBDataStructureFactory> learner,
             PBDataStructureFactory dsf, IOrder order, boolean noRemove,
-            boolean skipAllow) {
+            SkipStrategy skipAllow) {
         super(learner, dsf, order, noRemove, skipAllow);
     }
 
     public PBSolverCPClauseLearning(
             LearningStrategy<PBDataStructureFactory> learner,
             PBDataStructureFactory dsf, SearchParams params, IOrder order,
-            RestartStrategy restarter, boolean noRemove, boolean skipAllow) {
+            RestartStrategy restarter, boolean noRemove,
+            SkipStrategy skipAllow) {
         super(learner, dsf, params, order, restarter, noRemove, skipAllow);
     }
 
     public PBSolverCPClauseLearning(
             LearningStrategy<PBDataStructureFactory> learner,
             PBDataStructureFactory dsf, SearchParams params, IOrder order,
-            boolean noRemove, boolean skipAllow) {
+            boolean noRemove, SkipStrategy skipAllow) {
         super(learner, dsf, params, order, noRemove, skipAllow);
     }
 
     @Override
     protected IConflict chooseConflict(PBConstr myconfl, int level) {
         return ConflictMapReduceToClause.createConflict(myconfl, level,
-                isNoRemove(), isSkipAllow(), PostProcessToClause.instance(),
+                isNoRemove(), isSkipAllow(), NoPreProcess.instance(),
+                PostProcessToClause.instance(),
                 IWeakeningStrategy.UNASSIGNED_FIRST,
                 AutoDivisionStrategy.ENABLED, pbStats);
     }

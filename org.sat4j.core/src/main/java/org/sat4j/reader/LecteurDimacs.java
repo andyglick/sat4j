@@ -64,7 +64,7 @@ public class LecteurDimacs extends Reader implements Serializable {
 
     private ISolver s;
 
-    private transient BufferedInputStream in;
+    protected transient BufferedInputStream in;
 
     /* nombre de literaux dans le fichier */
     private int nbVars = -1;
@@ -252,7 +252,7 @@ public class LecteurDimacs extends Reader implements Serializable {
 
     private Map<Integer, String> mapping;
 
-    private char manageCommentLine() throws IOException {
+    protected char manageCommentLine() throws IOException {
         char car;
         StringBuilder stb = new StringBuilder();
         do {
@@ -271,9 +271,7 @@ public class LecteurDimacs extends Reader implements Serializable {
         } else if (isUsingMapping()) {
             String[] values = str.split("=");
             if (values.length == 2) {
-                if (mapping == null) {
-                    mapping = new HashMap<Integer, String>();
-                }
+                startsMapping();
                 mapping.put(Integer.valueOf(values[0].trim()),
                         values[1].trim());
             }
@@ -338,5 +336,11 @@ public class LecteurDimacs extends Reader implements Serializable {
     @Override
     public Map<Integer, String> getMapping() {
         return mapping;
+    }
+
+    protected void startsMapping() {
+        if (mapping == null) {
+            mapping = new HashMap<Integer, String>();
+        }
     }
 }

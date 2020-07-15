@@ -84,7 +84,7 @@ public class ManyCore<S extends ISolver>
 
     protected final List<S> solvers;
     protected final int numberOfSolvers;
-    protected int winnerId;
+    private int winnerId = -1;
     private boolean resultFound;
     private AtomicInteger remainingSolvers;
     private volatile int sleepTime;
@@ -212,7 +212,7 @@ public class ManyCore<S extends ISolver>
     }
 
     public Map<String, Number> getStat() {
-        return this.solvers.get(this.winnerId).getStat();
+        return this.solvers.get(this.getWinnerId()).getStat();
     }
 
     public int getTimeout() {
@@ -371,19 +371,19 @@ public class ManyCore<S extends ISolver>
 
     public boolean isSatisfiable(boolean globalTimeout)
             throws TimeoutException {
-        throw new UnsupportedOperationException();
+        return isSatisfiable(VecInt.EMPTY, globalTimeout);
     }
 
     public boolean isSatisfiable(IVecInt assumps) throws TimeoutException {
-        throw new UnsupportedOperationException();
+        return isSatisfiable(assumps, false);
     }
 
     public int[] model() {
-        return this.solvers.get(this.winnerId).model();
+        return this.solvers.get(this.getWinnerId()).model();
     }
 
     public boolean model(int var) {
-        return this.solvers.get(this.winnerId).model(var);
+        return this.solvers.get(this.getWinnerId()).model(var);
     }
 
     public int nConstraints() {
@@ -410,14 +410,14 @@ public class ManyCore<S extends ISolver>
             this.solved = true;
             this.resultFound = result;
             for (int i = 0; i < this.numberOfSolvers; i++) {
-                if (i != this.winnerId) {
+                if (i != this.getWinnerId()) {
                     this.solvers.get(i).expireTimeout();
                 }
             }
             this.sleepTime = FAST_SLEEP;
             if (isVerbose()) {
                 System.out.println(getLogPrefix() + "And the winner is "
-                        + this.availableSolvers[this.winnerId]);
+                        + this.availableSolvers[this.getWinnerId()]);
             }
         }
         this.remainingSolvers.getAndDecrement();
@@ -464,8 +464,14 @@ public class ManyCore<S extends ISolver>
         return group;
     }
 
+    private void checkWinnerId() {
+        if (this.winnerId < 0) {
+            throw new IllegalStateException("No solver solved the problem!");
+        }
+    }
+
     public IVecInt createBlockingClauseForCurrentModel() {
-        return this.solvers.get(this.winnerId)
+        return this.solvers.get(this.getWinnerId())
                 .createBlockingClauseForCurrentModel();
     }
 
@@ -518,18 +524,18 @@ public class ManyCore<S extends ISolver>
     }
 
     public IVecInt unsatExplanation() {
-        return this.solvers.get(this.winnerId).unsatExplanation();
+        return this.solvers.get(this.getWinnerId()).unsatExplanation();
     }
 
     public int[] primeImplicant() {
-        return this.solvers.get(this.winnerId).primeImplicant();
+        return this.solvers.get(this.getWinnerId()).primeImplicant();
     }
 
     /**
      * @since 2.3.2
      */
     public boolean primeImplicant(int p) {
-        return this.solvers.get(this.winnerId).primeImplicant(p);
+        return this.solvers.get(this.getWinnerId()).primeImplicant(p);
     }
 
     public List<S> getSolvers() {
@@ -537,7 +543,8 @@ public class ManyCore<S extends ISolver>
     }
 
     public int[] modelWithInternalVariables() {
-        return this.solvers.get(this.winnerId).modelWithInternalVariables();
+        return this.solvers.get(this.getWinnerId())
+                .modelWithInternalVariables();
     }
 
     public int realNumberOfVariables() {
@@ -620,6 +627,11 @@ public class ManyCore<S extends ISolver>
             group.add(this.solvers.get(i).addParity(literals, even));
         }
         return group;
+    }
+
+    public int getWinnerId() {
+        checkWinnerId();
+        return winnerId;
     }
 }
 

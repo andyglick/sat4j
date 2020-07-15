@@ -175,13 +175,13 @@ public final class MaxWatchPbLongCP extends WatchPbLongCP {
      *            the solver
      * @param p
      *            the propagated literal (it must be falsified)
-     * @return false iff there is a conflict
+     * @return false if a conflict is detected
      */
     public boolean propagate(UnitPropagationListener s, int p) {
         this.voc.watch(p, this);
 
-        assert this.watchCumul >= computeLeftSide() : "" + this.watchCumul
-                + "/" + computeLeftSide() + ":" + this.learnt;
+        assert this.watchCumul >= computeLeftSide() : "" + this.watchCumul + "/"
+                + computeLeftSide() + ":" + this.learnt;
 
         // compute the new value for watchCumul
         long coefP;
@@ -213,24 +213,36 @@ public final class MaxWatchPbLongCP extends WatchPbLongCP {
 
         // propagation
         int ind = 0;
+        // The trail position helps finding conflicts.
+        int trailPosition = this.voc.getTrailPosition(p);
         // limit is the margin between the sum of the coefficients of the
         // satisfied+unassigned literals
         // and the degree of the constraint
         long limit = this.watchCumul - this.degree;
         // for each coefficient greater than limit
         while (ind < this.coefs.length && limit < this.coefs[ind]) {
-            // its corresponding literal is implied
-            if (this.voc.isUnassigned(this.lits[ind])
-                    && !s.enqueue(this.lits[ind], this)) {
-                // if it is not possible then there is a conflict
+            // its corresponding literal may be implied
+            int lit = this.lits[ind];
+            if (this.voc.isFalsified(lit)
+                    && this.voc.getTrailPosition(lit) > trailPosition) {
+                // We are unaware that this literal has been falsified.
+                // As such, we expect it to be propagatable to true.
+                // Since it is not possible, there is a conflict.
                 assert !isSatisfiable();
                 return false;
+            }
+            if (this.voc.isUnassigned(lit)) {
+                // Enqueuing is always possible in this case.
+                boolean enqueued = s.enqueue(lit, this);
+                assert enqueued;
             }
             ind++;
         }
 
         assert this.learnt || this.watchCumul >= computeLeftSide();
         assert this.watchCumul >= computeLeftSide();
+        // No conflict was detected, but this does NOT mean that the constraint
+        // is not conflictual.
         return true;
     }
 
@@ -266,7 +278,8 @@ public final class MaxWatchPbLongCP extends WatchPbLongCP {
         if (this.litToCoeffs == null) {
             // finding the index for p in the array of literals
             int indiceP = 0;
-            while (indiceP < this.lits.length && (this.lits[indiceP] ^ 1) != p) {
+            while (indiceP < this.lits.length
+                    && (this.lits[indiceP] ^ 1) != p) {
                 indiceP++;
             }
             // compute the new value for watchCumul

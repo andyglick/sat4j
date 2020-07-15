@@ -65,7 +65,8 @@ public interface IConflict extends IDataStructurePB {
      * @return mise a jour du degre
      */
     BigInteger reduceInConstraint(IWatchPb wpb, final BigInteger[] coefsBis,
-            final int indLitImplied, final BigInteger degreeBis);
+            final int indLitImplied, final BigInteger degreeBis,
+            final BigInteger slackResolve);
 
     /**
      * retourne le niveau de backtrack : c'est-?-dire le niveau le plus haut

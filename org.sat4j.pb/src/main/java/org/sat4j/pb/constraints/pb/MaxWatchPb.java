@@ -162,9 +162,8 @@ public final class MaxWatchPb extends WatchPb {
             throws ContradictionException {
         // propagate any possible value
         int ind = 0;
-        while (ind < this.coefs.length
-                && this.watchCumul.subtract(this.coefs[ind]).compareTo(
-                        this.degree) < 0) {
+        while (ind < this.coefs.length && this.watchCumul
+                .subtract(this.coefs[ind]).compareTo(this.degree) < 0) {
             if (this.voc.isUnassigned(this.lits[ind])
                     && !s.enqueue(this.lits[ind], this)) {
                 // because this happens during the building of a constraint.
@@ -182,7 +181,7 @@ public final class MaxWatchPb extends WatchPb {
      *            the solver
      * @param p
      *            the propagated literal (it must be falsified)
-     * @return false iff there is a conflict
+     * @return false if a conflict is detected
      */
     public boolean propagate(UnitPropagationListener s, int p) {
         this.voc.watch(p, this);
@@ -221,24 +220,37 @@ public final class MaxWatchPb extends WatchPb {
 
         // propagation
         int ind = 0;
+        // The trail position helps finding conflicts.
+        int trailPosition = this.voc.getTrailPosition(p);
         // limit is the margin between the sum of the coefficients of the
         // satisfied+unassigned literals
         // and the degree of the constraint
         BigInteger limit = this.watchCumul.subtract(this.degree);
         // for each coefficient greater than limit
-        while (ind < this.coefs.length && limit.compareTo(this.coefs[ind]) < 0) {
-            // its corresponding literal is implied
-            if (this.voc.isUnassigned(this.lits[ind])
-                    && !s.enqueue(this.lits[ind], this)) {
-                // if it is not possible then there is a conflict
+        while (ind < this.coefs.length
+                && limit.compareTo(this.coefs[ind]) < 0) {
+            // its corresponding literal may be implied
+            int lit = this.lits[ind];
+            if (this.voc.isFalsified(lit)
+                    && this.voc.getTrailPosition(lit) > trailPosition) {
+                // We are unaware that this literal has been falsified.
+                // As such, we expect it to be propagatable to true.
+                // Since it is not possible, there is a conflict.
                 assert !isSatisfiable();
                 return false;
+            }
+            if (this.voc.isUnassigned(lit)) {
+                // Enqueuing is always possible in this case.
+                boolean enqueued = s.enqueue(lit, this);
+                assert enqueued;
             }
             ind++;
         }
 
         assert this.learnt || this.watchCumul.compareTo(computeLeftSide()) >= 0;
         assert this.watchCumul.compareTo(computeLeftSide()) >= 0;
+        // No conflict was detected, but this does NOT mean that the constraint
+        // is not conflictual.
         return true;
     }
 
@@ -253,9 +265,8 @@ public final class MaxWatchPb extends WatchPb {
         }
         // Unset root propagated literals, see SAT-110
         int ind = 0;
-        while (ind < this.coefs.length
-                && this.watchCumul.subtract(this.coefs[ind]).compareTo(
-                        this.degree) < 0) {
+        while (ind < this.coefs.length && this.watchCumul
+                .subtract(this.coefs[ind]).compareTo(this.degree) < 0) {
             if (!this.voc.isUnassigned(this.lits[ind])) {
                 upl.unset(this.lits[ind]);
             }
@@ -274,7 +285,8 @@ public final class MaxWatchPb extends WatchPb {
         if (this.litToCoeffs == null) {
             // finding the index for p in the array of literals
             int indiceP = 0;
-            while (indiceP < this.lits.length && (this.lits[indiceP] ^ 1) != p) {
+            while (indiceP < this.lits.length
+                    && (this.lits[indiceP] ^ 1) != p) {
                 indiceP++;
             }
             // compute the new value for watchCumul
@@ -338,7 +350,8 @@ public final class MaxWatchPb extends WatchPb {
      * @return a new PB constraint or null if a trivial inconsistency is
      *         detected.
      */
-    public static WatchPb normalizedWatchPbNew(ILits voc, IDataStructurePB mpb) {
+    public static WatchPb normalizedWatchPbNew(ILits voc,
+            IDataStructurePB mpb) {
         return new MaxWatchPb(voc, mpb);
     }
 
@@ -375,7 +388,8 @@ public final class MaxWatchPb extends WatchPb {
         // and the degree of the constraint
         BigInteger limit = this.watchCumul.subtract(this.degree);
         // for each coefficient greater than limit
-        while (ind < this.coefs.length && limit.compareTo(this.coefs[ind]) < 0) {
+        while (ind < this.coefs.length
+                && limit.compareTo(this.coefs[ind]) < 0) {
             // its corresponding literal is implied
             if (this.voc.isSatisfied(this.lits[ind])) {
                 l.isMandatory(this.lits[ind]);

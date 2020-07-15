@@ -36,7 +36,7 @@ import org.sat4j.minisat.core.SolverStats;
 public class PBSolverStats extends SolverStats {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1L;
 
@@ -97,6 +97,10 @@ public class PBSolverStats extends SolverStats {
     public int numberOfTriggeredSaturations;
 
     public long timeSpentDetectingIrrelevant;
+
+    private long falsifiedLiteralsRemovedFromConflict;
+
+    private long falsifiedLiteralsRemovedFromReason;
 
     @Override
     public void reset() {
@@ -173,7 +177,6 @@ public class PBSolverStats extends SolverStats {
                 + this.numberOfRemainingUnassigned);
         out.println(prefix + "number of remaining assigned \t: "
                 + this.numberOfRemainingAssigned);
-
         out.println(prefix + "number of irrelevant literals \t: "
                 + this.numberOfRemovedIrrelevantLiterals);
         out.println(
@@ -203,6 +206,12 @@ public class PBSolverStats extends SolverStats {
                 + this.numberOfTriggeredSaturations);
         out.println(prefix + "time spent detecting irrelevant literals \t: "
                 + (this.timeSpentDetectingIrrelevant * 1E-9));
+        out.println(
+                prefix + "number of falsified literals weakened from reason\t: "
+                        + this.falsifiedLiteralsRemovedFromReason);
+        out.println(prefix
+                + "number of falsified literals weakened from conflict\t: "
+                + this.falsifiedLiteralsRemovedFromConflict);
     }
 
     public long getNumberOfReductions() {
@@ -315,6 +324,16 @@ public class PBSolverStats extends SolverStats {
 
     public void incNumberOfRemainingAssigned() {
         this.numberOfRemainingAssigned++;
+    }
+
+    public void incFalsifiedLiteralsRemovedFromReason() {
+        this.falsifiedLiteralsRemovedFromReason++;
+
+    }
+
+    public void incFalsifiedLiteralsRemovedFromConflict() {
+        this.falsifiedLiteralsRemovedFromConflict++;
+
     }
 
 }

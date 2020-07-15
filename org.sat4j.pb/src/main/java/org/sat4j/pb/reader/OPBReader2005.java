@@ -225,7 +225,7 @@ public class OPBReader2005 extends Reader implements Serializable {
         this.d = val;
     }
 
-    transient BufferedReader in; // the stream we're reading from
+    protected transient BufferedReader in; // the stream we're reading from
 
     char savedChar; // a character read from the file but not yet consumed
 

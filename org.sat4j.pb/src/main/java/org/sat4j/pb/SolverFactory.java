@@ -62,6 +62,8 @@ import org.sat4j.pb.constraints.PBMinDataStructure;
 import org.sat4j.pb.constraints.PuebloPBMinClauseAtLeastConstrDataStructure;
 import org.sat4j.pb.constraints.PuebloPBMinClauseCardConstrDataStructure;
 import org.sat4j.pb.constraints.PuebloPBMinDataStructure;
+import org.sat4j.pb.constraints.pb.ConflictMapDivideByPivot;
+import org.sat4j.pb.constraints.pb.SkipStrategy;
 import org.sat4j.pb.core.PBDataStructureFactory;
 import org.sat4j.pb.core.PBSolver;
 import org.sat4j.pb.core.PBSolverCP;
@@ -193,7 +195,7 @@ public final class SolverFactory extends ASolverFactory<IPBSolver> {
 
     public static PBSolverCP newCompetPBCPRemoveSatisfiedMixedConstraintsLongMaxObjective() {
         PBSolverCP s = newPBCP(new PBLongMaxClauseCardConstrDataStructure(),
-                new VarOrderHeapObjective(), false, false);
+                new VarOrderHeapObjective(), false, SkipStrategy.NO_SKIP);
         return s;
     }
 
@@ -593,7 +595,7 @@ public final class SolverFactory extends ASolverFactory<IPBSolver> {
     }
 
     private static PBSolverCP newPBCP(PBDataStructureFactory dsf, IOrder order,
-            boolean noRemove, boolean skipAllow) {
+            boolean noRemove, SkipStrategy skipAllow) {
         MiniSATLearning<PBDataStructureFactory> learning = new MiniSATLearning<PBDataStructureFactory>();
         PBSolverCP solver = new PBSolverCP(learning, dsf, order, noRemove,
                 skipAllow);
@@ -606,7 +608,7 @@ public final class SolverFactory extends ASolverFactory<IPBSolver> {
 
     private static PBSolverCP newPBCPReduceByPowersOf2(
             PBDataStructureFactory dsf, IOrder order, boolean noRemove,
-            boolean skipAllow) {
+            SkipStrategy skipAllow) {
         MiniSATLearning<PBDataStructureFactory> learning = new MiniSATLearning<PBDataStructureFactory>();
         PBSolverCP solver = new PBSolverCPReduceByPowersOf2(learning, dsf,
                 order, noRemove, skipAllow);
@@ -618,7 +620,7 @@ public final class SolverFactory extends ASolverFactory<IPBSolver> {
     }
 
     private static PBSolverCP newPBCPReduceByGCD(PBDataStructureFactory dsf,
-            IOrder order, boolean noRemove, boolean skipAllow) {
+            IOrder order, boolean noRemove, SkipStrategy skipAllow) {
         MiniSATLearning<PBDataStructureFactory> learning = new MiniSATLearning<PBDataStructureFactory>();
         PBSolverCP solver = new PBSolverCPReduceByGCD(learning, dsf, order,
                 noRemove, skipAllow);
@@ -630,7 +632,7 @@ public final class SolverFactory extends ASolverFactory<IPBSolver> {
     }
 
     private static PBSolverCP newPBCPStar(PBDataStructureFactory dsf,
-            IOrder order, boolean noRemove, boolean skipAllow) {
+            IOrder order, boolean noRemove, SkipStrategy skipAllow) {
         MiniSATLearning<PBDataStructureFactory> learning = new MiniSATLearning<PBDataStructureFactory>();
         PBSolverCP solver = new PBSolverCPLong(learning, dsf, order, noRemove,
                 skipAllow);
@@ -645,7 +647,7 @@ public final class SolverFactory extends ASolverFactory<IPBSolver> {
 
     private static PBSolverCP newPBCPStarClauseLearning(
             PBDataStructureFactory dsf, IOrder order, boolean noRemove,
-            boolean skipAllow) {
+            SkipStrategy skipAllow) {
         MiniSATLearning<PBDataStructureFactory> learning = new MiniSATLearning<PBDataStructureFactory>();
         PBSolverCP solver = new PBSolverCPClauseLearning(learning, dsf, order,
                 noRemove, skipAllow);
@@ -658,7 +660,7 @@ public final class SolverFactory extends ASolverFactory<IPBSolver> {
 
     private static PBSolverCP newPBCPStarCardLearning(
             PBDataStructureFactory dsf, IOrder order, boolean noRemove,
-            boolean skipAllow) {
+            SkipStrategy skipAllow) {
         MiniSATLearning<PBDataStructureFactory> learning = new MiniSATLearning<PBDataStructureFactory>();
         PBSolverCP solver = new PBSolverCPCardLearning(learning, dsf, order,
                 noRemove, skipAllow);
@@ -670,7 +672,7 @@ public final class SolverFactory extends ASolverFactory<IPBSolver> {
     }
 
     private static PBSolverCP newPBCPStarDivideBy2(PBDataStructureFactory dsf,
-            IOrder order, boolean noRemove, boolean skipAllow) {
+            IOrder order, boolean noRemove, SkipStrategy skipAllow) {
         MiniSATLearning<PBDataStructureFactory> learning = new MiniSATLearning<PBDataStructureFactory>();
         PBSolverCP solver = new PBSolverCPLongDivideBy2(learning, dsf, order,
                 noRemove, skipAllow);
@@ -682,7 +684,7 @@ public final class SolverFactory extends ASolverFactory<IPBSolver> {
     }
 
     private static PBSolverCP newPBCPStarDivideByGCD(PBDataStructureFactory dsf,
-            IOrder order, boolean noRemove, boolean skipAllow) {
+            IOrder order, boolean noRemove, SkipStrategy skipAllow) {
         MiniSATLearning<PBDataStructureFactory> learning = new MiniSATLearning<PBDataStructureFactory>();
         PBSolverCP solver = new PBSolverCPLongDivideByGCD(learning, dsf, order,
                 noRemove, skipAllow);
@@ -694,7 +696,7 @@ public final class SolverFactory extends ASolverFactory<IPBSolver> {
     }
 
     private static PBSolverCP newPBCPStarRounding(PBDataStructureFactory dsf,
-            IOrder order, boolean noRemove, boolean skipAllow) {
+            IOrder order, boolean noRemove, SkipStrategy skipAllow) {
         MiniSATLearning<PBDataStructureFactory> learning = new MiniSATLearning<PBDataStructureFactory>();
         PBSolverCP solver = new PBSolverCPLongRounding(learning, dsf, order,
                 noRemove, skipAllow);
@@ -707,7 +709,7 @@ public final class SolverFactory extends ASolverFactory<IPBSolver> {
 
     private static PBSolverCP newPBCPStarReduceToCard(
             PBDataStructureFactory dsf, IOrder order, boolean noRemove,
-            boolean skipAllow) {
+            SkipStrategy skipAllow) {
         MiniSATLearning<PBDataStructureFactory> learning = new MiniSATLearning<PBDataStructureFactory>();
         PBSolverCP solver = new PBSolverCPLongReduceToCard(learning, dsf, order,
                 noRemove, skipAllow);
@@ -719,7 +721,7 @@ public final class SolverFactory extends ASolverFactory<IPBSolver> {
     }
 
     public static PBSolverCP newPBCP(PBDataStructureFactory dsf, IOrder order) {
-        return newPBCP(dsf, order, true, false);
+        return newPBCP(dsf, order, true, SkipStrategy.NO_SKIP);
     }
 
     private static PBSolverCP newPBCP(PBDataStructureFactory dsf) {
@@ -743,48 +745,48 @@ public final class SolverFactory extends ASolverFactory<IPBSolver> {
     public static PBSolverCP newCuttingPlanesReduceByPowersOf2() {
         return newPBCPReduceByPowersOf2(
                 new PBMaxClauseCardConstrDataStructure(),
-                new VarOrderHeapObjective(), true, false);
+                new VarOrderHeapObjective(), true, SkipStrategy.NO_SKIP);
     }
 
     public static PBSolverCP newCuttingPlanesReduceByGCD() {
         return newPBCPReduceByGCD(new PBMaxClauseCardConstrDataStructure(),
-                new VarOrderHeapObjective(), true, false);
+                new VarOrderHeapObjective(), true, SkipStrategy.NO_SKIP);
     }
 
     public static PBSolverCP newCuttingPlanesStar() {
         return newPBCPStar(new PBMaxClauseCardConstrDataStructure(),
-                new VarOrderHeapObjective(), true, false);
+                new VarOrderHeapObjective(), true, SkipStrategy.NO_SKIP);
     }
 
     public static PBSolverCP newCuttingPlanesStarRounding() {
         return newPBCPStarRounding(new PBMaxClauseCardConstrDataStructure(),
-                new VarOrderHeapObjective(), true, false);
+                new VarOrderHeapObjective(), true, SkipStrategy.NO_SKIP);
     }
 
     public static PBSolverCP newCuttingPlanesStarReduceToCard() {
         return newPBCPStarReduceToCard(new PBMaxClauseCardConstrDataStructure(),
-                new VarOrderHeapObjective(), true, false);
+                new VarOrderHeapObjective(), true, SkipStrategy.NO_SKIP);
     }
 
     public static PBSolverCP newCuttingPlanesStarClauseLearning() {
         return newPBCPStarClauseLearning(
                 new PBMaxClauseCardConstrDataStructure(),
-                new VarOrderHeapObjective(), true, false);
+                new VarOrderHeapObjective(), true, SkipStrategy.NO_SKIP);
     }
 
     public static PBSolverCP newCuttingPlanesStarCardLearning() {
         return newPBCPStarCardLearning(new PBMaxClauseCardConstrDataStructure(),
-                new VarOrderHeapObjective(), true, false);
+                new VarOrderHeapObjective(), true, SkipStrategy.NO_SKIP);
     }
 
     public static PBSolverCP newCuttingPlanesStarDivideBy2() {
         return newPBCPStarDivideBy2(new PBMaxClauseCardConstrDataStructure(),
-                new VarOrderHeapObjective(), true, false);
+                new VarOrderHeapObjective(), true, SkipStrategy.NO_SKIP);
     }
 
     public static PBSolverCP newCuttingPlanesStarDivideByGCD() {
         return newPBCPStarDivideByGCD(new PBMaxClauseCardConstrDataStructure(),
-                new VarOrderHeapObjective(), true, false);
+                new VarOrderHeapObjective(), true, SkipStrategy.NO_SKIP);
     }
 
     /**
@@ -796,48 +798,48 @@ public final class SolverFactory extends ASolverFactory<IPBSolver> {
     public static IPBSolver newCuttingPlanesReduceByPowersOf2Skip() {
         return newPBCPReduceByPowersOf2(
                 new PBMaxClauseCardConstrDataStructure(),
-                new VarOrderHeapObjective(), true, true);
+                new VarOrderHeapObjective(), true, SkipStrategy.SKIP);
     }
 
     public static IPBSolver newCuttingPlanesReduceByGCDSkip() {
         return newPBCPReduceByGCD(new PBMaxClauseCardConstrDataStructure(),
-                new VarOrderHeapObjective(), true, true);
+                new VarOrderHeapObjective(), true, SkipStrategy.SKIP);
     }
 
     public static IPBSolver newCuttingPlanesStarSkip() {
         return newPBCPStar(new PBMaxClauseCardConstrDataStructure(),
-                new VarOrderHeapObjective(), true, true);
+                new VarOrderHeapObjective(), true, SkipStrategy.SKIP);
     }
 
     public static IPBSolver newCuttingPlanesStarRoundingSkip() {
         return newPBCPStarRounding(new PBMaxClauseCardConstrDataStructure(),
-                new VarOrderHeapObjective(), true, true);
+                new VarOrderHeapObjective(), true, SkipStrategy.SKIP);
     }
 
     public static IPBSolver newCuttingPlanesStarReduceToCardSkip() {
         return newPBCPStarReduceToCard(new PBMaxClauseCardConstrDataStructure(),
-                new VarOrderHeapObjective(), true, true);
+                new VarOrderHeapObjective(), true, SkipStrategy.SKIP);
     }
 
     public static IPBSolver newCuttingPlanesStarClauseLearningSkip() {
         return newPBCPStarClauseLearning(
                 new PBMaxClauseCardConstrDataStructure(),
-                new VarOrderHeapObjective(), true, true);
+                new VarOrderHeapObjective(), true, SkipStrategy.SKIP);
     }
 
     public static IPBSolver newCuttingPlanesStarCardLearningSkip() {
         return newPBCPStarCardLearning(new PBMaxClauseCardConstrDataStructure(),
-                new VarOrderHeapObjective(), true, true);
+                new VarOrderHeapObjective(), true, SkipStrategy.SKIP);
     }
 
     public static IPBSolver newCuttingPlanesStarDivideBy2Skip() {
         return newPBCPStarDivideBy2(new PBMaxClauseCardConstrDataStructure(),
-                new VarOrderHeapObjective(), true, true);
+                new VarOrderHeapObjective(), true, SkipStrategy.SKIP);
     }
 
     public static IPBSolver newCuttingPlanesStarDivideByGCDSkip() {
         return newPBCPStarDivideByGCD(new PBMaxClauseCardConstrDataStructure(),
-                new VarOrderHeapObjective(), true, true);
+                new VarOrderHeapObjective(), true, SkipStrategy.SKIP);
     }
 
     /**
@@ -1133,14 +1135,28 @@ public final class SolverFactory extends ASolverFactory<IPBSolver> {
         return new InprocCardConstrLearningSolver(
                 new MiniSATLearning<PBDataStructureFactory>(),
                 new PBMaxClauseCardConstrDataStructure(), new VarOrderHeap(),
-                true, false);
+                true, SkipStrategy.NO_SKIP);
     }
 
     public static IPBSolver newLazyInprocDetectCardsSkip() {
         return new InprocCardConstrLearningSolver(
                 new MiniSATLearning<PBDataStructureFactory>(),
                 new PBMaxClauseCardConstrDataStructure(), new VarOrderHeap(),
-                true, true);
+                true, SkipStrategy.SKIP);
+    }
+
+    public static IPBSolver newPartialRoundingSat() {
+        PBSolverCP solver = newCuttingPlanes();
+        solver.setConflictFactory(
+                ConflictMapDivideByPivot.partialWeakeningOnBothFactory());
+        return solver;
+    }
+
+    public static IPBSolver newRoundingSat() {
+        PBSolverCP solver = newCuttingPlanes();
+        solver.setConflictFactory(
+                ConflictMapDivideByPivot.fullWeakeningOnBothFactory());
+        return solver;
     }
 
 }

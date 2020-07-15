@@ -261,4 +261,26 @@ public interface ILits {
      * @return one of T for true, F for False or ? for unassigned.
      */
     String valueToString(int lit);
+
+    /**
+     * set the position in the trail.
+     * 
+     * @param lit
+     *            a literal in internal representation.
+     * @param position
+     *            the position in the trail
+     * @since 2.3.6
+     * 
+     */
+    void setTrailPosition(int lit, int position);
+
+    /**
+     * get the position in the trail
+     * 
+     * @param lit
+     *            a literal in internal representation.
+     * @return a non negative integer if the literal is assigned, else -1.
+     * @since 2.3.6
+     */
+    int getTrailPosition(int lit);
 }

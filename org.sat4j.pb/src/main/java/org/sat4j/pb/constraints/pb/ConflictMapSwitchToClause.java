@@ -31,12 +31,19 @@ package org.sat4j.pb.constraints.pb;
 
 import java.math.BigInteger;
 
+import org.sat4j.pb.core.PBSolverStats;
+
 public final class ConflictMapSwitchToClause extends ConflictMap {
 
     private static int upperBound;
 
     public ConflictMapSwitchToClause(PBConstr cpb, int level) {
         super(cpb, level);
+    }
+
+    public ConflictMapSwitchToClause(PBConstr cpb, int level, boolean noRemove,
+            SkipStrategy skip, PBSolverStats stats) {
+        super(cpb, level, noRemove, skip, stats);
     }
 
     /**

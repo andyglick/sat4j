@@ -36,6 +36,7 @@ import org.sat4j.pb.constraints.pb.ConflictMapClause;
 import org.sat4j.pb.constraints.pb.IConflict;
 import org.sat4j.pb.constraints.pb.IWeakeningStrategy;
 import org.sat4j.pb.constraints.pb.NoPostProcess;
+import org.sat4j.pb.constraints.pb.NoPreProcess;
 import org.sat4j.pb.constraints.pb.PBConstr;
 
 public class PBSolverClause extends PBSolverCP {
@@ -53,8 +54,8 @@ public class PBSolverClause extends PBSolverCP {
     @Override
     protected IConflict chooseConflict(PBConstr myconfl, int level) {
         return ConflictMapClause.createConflict(myconfl, level, isNoRemove(),
-                isSkipAllow(), NoPostProcess.instance(),
-                IWeakeningStrategy.UNASSIGNED_FIRST,
+                isSkipAllow(), NoPreProcess.instance(),
+                NoPostProcess.instance(), IWeakeningStrategy.UNASSIGNED_FIRST,
                 AutoDivisionStrategy.ENABLED, pbStats);
     }
 

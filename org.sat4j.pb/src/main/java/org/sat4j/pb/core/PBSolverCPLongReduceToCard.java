@@ -38,7 +38,9 @@ import org.sat4j.pb.constraints.pb.ConflictMapReduceToCard;
 import org.sat4j.pb.constraints.pb.IConflict;
 import org.sat4j.pb.constraints.pb.IWeakeningStrategy;
 import org.sat4j.pb.constraints.pb.NoPostProcess;
+import org.sat4j.pb.constraints.pb.NoPreProcess;
 import org.sat4j.pb.constraints.pb.PBConstr;
+import org.sat4j.pb.constraints.pb.SkipStrategy;
 
 @SuppressWarnings("serial")
 public class PBSolverCPLongReduceToCard extends PBSolverCPLong {
@@ -68,7 +70,7 @@ public class PBSolverCPLongReduceToCard extends PBSolverCPLong {
     public PBSolverCPLongReduceToCard(
             LearningStrategy<PBDataStructureFactory> learner,
             PBDataStructureFactory dsf, IOrder order, boolean noRemove,
-            boolean skipAllow) {
+            SkipStrategy skipAllow) {
         super(learner, dsf, order, noRemove, skipAllow);
         // TODO Auto-generated constructor stub
     }
@@ -76,7 +78,8 @@ public class PBSolverCPLongReduceToCard extends PBSolverCPLong {
     public PBSolverCPLongReduceToCard(
             LearningStrategy<PBDataStructureFactory> learner,
             PBDataStructureFactory dsf, SearchParams params, IOrder order,
-            RestartStrategy restarter, boolean noRemove, boolean skipAllow) {
+            RestartStrategy restarter, boolean noRemove,
+            SkipStrategy skipAllow) {
         super(learner, dsf, params, order, restarter, noRemove, skipAllow);
         // TODO Auto-generated constructor stub
     }
@@ -84,7 +87,7 @@ public class PBSolverCPLongReduceToCard extends PBSolverCPLong {
     public PBSolverCPLongReduceToCard(
             LearningStrategy<PBDataStructureFactory> learner,
             PBDataStructureFactory dsf, SearchParams params, IOrder order,
-            boolean noRemove, boolean skipAllow) {
+            boolean noRemove, SkipStrategy skipAllow) {
         super(learner, dsf, params, order, noRemove, skipAllow);
         // TODO Auto-generated constructor stub
     }
@@ -92,8 +95,8 @@ public class PBSolverCPLongReduceToCard extends PBSolverCPLong {
     @Override
     protected IConflict chooseConflict(PBConstr myconfl, int level) {
         return ConflictMapReduceToCard.createConflict(myconfl, level,
-                isNoRemove(), isSkipAllow(), NoPostProcess.instance(),
-                IWeakeningStrategy.UNASSIGNED_FIRST,
+                isNoRemove(), isSkipAllow(), NoPreProcess.instance(),
+                NoPostProcess.instance(), IWeakeningStrategy.UNASSIGNED_FIRST,
                 AutoDivisionStrategy.ENABLED, pbStats);
     }
 

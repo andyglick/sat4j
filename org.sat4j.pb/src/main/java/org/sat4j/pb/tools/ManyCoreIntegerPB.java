@@ -181,7 +181,7 @@ public class ManyCoreIntegerPB<S extends IIntegerPBSolver> extends
     }
 
     public BigInteger getIntegerVarValue(IntegerVariable var) {
-        return this.solvers.get(this.winnerId).getIntegerVarValue(var);
+        return this.solvers.get(this.getWinnerId()).getIntegerVarValue(var);
     }
 
 }

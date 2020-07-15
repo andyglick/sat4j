@@ -59,6 +59,8 @@ public final class Lits implements Serializable, ILits {
 
     private int[] level = new int[0];
 
+    private int[] trailPosition = new int[0];
+
     private Constr[] reason = new Constr[0];
 
     private int maxvarid = 0;
@@ -87,6 +89,11 @@ public final class Lits implements Serializable, ILits {
         int[] nlevel = new int[nvars];
         System.arraycopy(this.level, 0, nlevel, 0, this.level.length);
         this.level = nlevel;
+
+        int[] ntrailPosition = new int[nvars];
+        System.arraycopy(this.trailPosition, 0, ntrailPosition, 0,
+                this.trailPosition.length);
+        this.trailPosition = ntrailPosition;
 
         IVec<Propagatable>[] nwatches = new IVec[2 * nvars];
         System.arraycopy(this.watches, 0, nwatches, 0, this.watches.length);
@@ -124,6 +131,7 @@ public final class Lits implements Serializable, ILits {
             this.watches[var << 1 | 1] = new Vec<Propagatable>();
             this.undos[var] = new Vec<Undoable>();
             this.level[var] = -1;
+            this.trailPosition[var] = -1;
             this.falsified[var << 1] = false; // because truthValue[var] is
             // UNDEFINED
             this.falsified[var << 1 | 1] = false; // because truthValue[var] is
@@ -219,6 +227,7 @@ public final class Lits implements Serializable, ILits {
         this.watches[lit].clear();
         this.watches[lit ^ 1].clear();
         this.level[lit >> 1] = -1;
+        this.trailPosition[lit >> 1] = -1;
         this.reason[lit >> 1] = null;
         this.undos[lit >> 1].clear();
         this.falsified[lit] = false;
@@ -288,5 +297,15 @@ public final class Lits implements Serializable, ILits {
             return this.maxvarid;
         }
         return this.maxvarid + 1;
+    }
+
+    @Override
+    public void setTrailPosition(int lit, int position) {
+        this.trailPosition[lit >> 1] = position;
+    }
+
+    @Override
+    public int getTrailPosition(int lit) {
+        return this.trailPosition[lit >> 1];
     }
 }

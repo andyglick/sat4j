@@ -36,18 +36,18 @@ import org.sat4j.pb.core.PBSolverStats;
 public class ConflictMapRounding extends ConflictMap {
 
     public ConflictMapRounding(PBConstr cpb, int level, boolean noRemove,
-            boolean skip, IPostProcess postProcessing,
-            IWeakeningStrategy weakeningStrategy,
+            SkipStrategy skip, IPreProcess preprocess,
+            IPostProcess postProcessing, IWeakeningStrategy weakeningStrategy,
             AutoDivisionStrategy autoDivisionStrategy, PBSolverStats stats) {
-        super(cpb, level, noRemove, skip, postProcessing, weakeningStrategy,
-                autoDivisionStrategy, stats);
+        super(cpb, level, noRemove, skip, preprocess, postProcessing,
+                weakeningStrategy, autoDivisionStrategy, stats);
     }
 
     public static IConflict createConflict(PBConstr cpb, int level,
-            boolean noRemove, boolean skip, IPostProcess postProcessing,
-            IWeakeningStrategy weakeningStrategy,
+            boolean noRemove, SkipStrategy skip, IPreProcess preprocess,
+            IPostProcess postProcessing, IWeakeningStrategy weakeningStrategy,
             AutoDivisionStrategy autoDivisionStrategy, PBSolverStats stats) {
-        return new ConflictMapRounding(cpb, level, noRemove, skip,
+        return new ConflictMapRounding(cpb, level, noRemove, skip, preprocess,
                 postProcessing, weakeningStrategy, autoDivisionStrategy, stats);
     }
 
@@ -55,12 +55,13 @@ public class ConflictMapRounding extends ConflictMap {
         return new IConflictFactory() {
             @Override
             public IConflict createConflict(PBConstr cpb, int level,
-                    boolean noRemove, boolean skip, IPostProcess postprocess,
+                    boolean noRemove, SkipStrategy skip, IPreProcess preprocess,
+                    IPostProcess postprocess,
                     IWeakeningStrategy weakeningStrategy,
                     AutoDivisionStrategy autoDivisionStrategy,
                     PBSolverStats stats) {
                 return ConflictMapRounding.createConflict(cpb, level, noRemove,
-                        skip, postprocess, weakeningStrategy,
+                        skip, preprocess, postprocess, weakeningStrategy,
                         autoDivisionStrategy, stats);
             }
 
