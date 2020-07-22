@@ -72,6 +72,9 @@ public class ConflictMap extends MapPb implements IConflict {
 
     final PBSolverStats stats;
 
+    private final IrrelevantLiteralRemover irrelevantLiteralRemover = IrrelevantLiteralRemover
+            .instance();
+
     protected IPreProcess preProcess = NoPreProcess.instance();
     /**
      * allows to access directly to all variables belonging to a particular
@@ -377,6 +380,9 @@ public class ConflictMap extends MapPb implements IConflict {
                 assert positiveCoefs(coefsCons);
                 degreeCons = reduceUntilConflict(litImplied, ind, coefsCons,
                         degreeCons, wpb);
+                // TODO remove irrelevant literals from reason
+                // TODO remove irrelevant literals from conflict.
+                // TODO recompute multiplying coefficient.
                 postProcess(currentLevel);
                 // updating of the degree of the conflict
                 degreeCons = degreeCons.multiply(this.coefMultCons);

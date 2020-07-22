@@ -13,7 +13,6 @@ package org.sat4j.pb.constraints.pb;
 import java.math.BigInteger;
 import java.util.Arrays;
 
-import org.sat4j.specs.IVec;
 import org.sat4j.specs.IVecInt;
 
 /**
@@ -33,7 +32,7 @@ final class ChowParameters {
 
     private IVecInt literals;
 
-    private IVec<BigInteger> coefficients;
+    private BigInteger[] coefficients;
 
     private BigInteger degree;
 
@@ -204,7 +203,7 @@ final class ChowParameters {
      */
     BigInteger numberOfTruePoints(int assumed) {
         return numberOfTruePoints(assumed, size - 1,
-                degree.subtract(coefficients.get(assumed)).intValue());
+                degree.subtract(coefficients[assumed]).intValue());
     }
 
     /**
@@ -234,12 +233,12 @@ final class ChowParameters {
 
         // Considering the literals before the assumption.
         for (int i = 0; i < assumed; i++) {
-            computeNumberOfFalsePoints(i + 1, coefficients.get(i), degree);
+            computeNumberOfFalsePoints(i + 1, coefficients[i], degree);
         }
 
         // Considering the literals after the assumption.
         for (int i = assumed + 1; i <= constraintSize; i++) {
-            computeNumberOfFalsePoints(i, coefficients.get(i), degree);
+            computeNumberOfFalsePoints(i, coefficients[i], degree);
 
         }
 
@@ -278,7 +277,7 @@ final class ChowParameters {
         }
     }
 
-    public void setConstraint(IVecInt literals, IVec<BigInteger> coefficients,
+    public void setConstraint(IVecInt literals, BigInteger[] coefficients,
             BigInteger degree) {
         this.literals = literals;
         this.coefficients = coefficients;

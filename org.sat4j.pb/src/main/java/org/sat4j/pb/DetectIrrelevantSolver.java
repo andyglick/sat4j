@@ -196,8 +196,9 @@ public class DetectIrrelevantSolver extends AbstractOutputSolver
             maxCoeff = maxCoeff.max(c);
         }
         int irr = 0;
+        BigInteger[] coeffsAsArray = coeffs.toArray();
         for (Entry<BigInteger, List<Integer>> e : sortedCoeffs.entrySet()) {
-            if (dependsOn(literals, coeffs, realDegree, e.getKey(),
+            if (dependsOn(literals, coeffsAsArray, realDegree, e.getKey(),
                     e.getValue().get(0))) {
                 break;
             }
@@ -208,7 +209,7 @@ public class DetectIrrelevantSolver extends AbstractOutputSolver
 
     }
 
-    private boolean dependsOn(IVecInt literals, IVec<BigInteger> coeffs,
+    private boolean dependsOn(IVecInt literals, BigInteger[] coeffs,
             BigInteger degree, BigInteger coef, int lit) {
         return irrelevantDetector.dependsOn(nVars, literals, coeffs, degree,
                 lit, coef);

@@ -12,9 +12,9 @@ import java.util.TreeMap;
 import org.sat4j.core.VecInt;
 import org.sat4j.specs.IVecInt;
 
-public class RemoveIrrelevantPostProcess implements IPostProcess {
+public class IrrelevantLiteralRemover implements IPostProcess {
 
-    private static final IPostProcess INSTANCE = new RemoveIrrelevantPostProcess();
+    private static final IrrelevantLiteralRemover INSTANCE = new IrrelevantLiteralRemover();
 
     /**
      * The default value for the maximum number of literals for the constraints
@@ -25,7 +25,11 @@ public class RemoveIrrelevantPostProcess implements IPostProcess {
     private final IrrelevantLiteralDetectionStrategy irrelevantDetector = IrrelevantLiteralDetectionStrategyFactory
             .defaultStrategy();
 
-    private RemoveIrrelevantPostProcess() {
+    private IrrelevantLiteralRemover() {
+    }
+
+    public static IrrelevantLiteralRemover instance() {
+        return INSTANCE;
     }
 
     @Override
@@ -164,17 +168,18 @@ public class RemoveIrrelevantPostProcess implements IPostProcess {
             int litIndex) {
         return irrelevantDetector.dependsOn(conflictMap.voc.nVars(),
                 conflictMap.weightedLits.getLits(),
-                conflictMap.weightedLits.getCoefs(), conflictMap.degree,
-                litIndex, coef);
+                conflictMap.weightedLits.getCoefs().toArray(),
+                conflictMap.degree, litIndex, coef);
     }
 
-    public static IPostProcess instance() {
-        return INSTANCE;
+    public void removeIn(int nVars, IVecInt literals, BigInteger[] coefficients,
+            BigInteger degree) {
+
     }
 
     @Override
     public String toString() {
-        return "Irrelevant literals are removed from learnt constraints";
+        return "Irrelevant literals are removed from derived constraints";
     }
 
 }

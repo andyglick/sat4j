@@ -22,7 +22,7 @@ import org.sat4j.pb.PseudoOptDecorator;
 import org.sat4j.pb.SolverFactory;
 import org.sat4j.pb.constraints.PBMaxClauseCardConstrDataStructure;
 import org.sat4j.pb.constraints.pb.AutoDivisionStrategy;
-import org.sat4j.pb.constraints.pb.RemoveIrrelevantPostProcess;
+import org.sat4j.pb.constraints.pb.IrrelevantLiteralRemover;
 import org.sat4j.pb.constraints.pb.ConflictMapDivideByPivot;
 import org.sat4j.pb.constraints.pb.ConflictMapReduceByGCD;
 import org.sat4j.pb.constraints.pb.ConflictMapReduceByPowersOf2;
@@ -210,7 +210,7 @@ public class KTHLauncher {
                 } else if ("clause".equals(value)) {
                     cpsolver.setPostprocess(PostProcessToClause.instance());
                 } else if ("no-irrelevant".equals(value)) {
-                    cpsolver.setPostprocess(RemoveIrrelevantPostProcess.instance());
+                    cpsolver.setPostprocess(IrrelevantLiteralRemover.instance());
                 } else {
                     log(value
                             + " is not a supported value for option type-of-learned-constraint");

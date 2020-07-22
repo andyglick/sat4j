@@ -32,7 +32,7 @@ public class SatBasedIrrelevantLiteralDetectionStrategy
 
     @Override
     public boolean dependsOn(int nVars, IVecInt literals,
-            IVec<BigInteger> coefficients, BigInteger degree, int literalIndex,
+            BigInteger[] coefficients, BigInteger degree, int literalIndex,
             BigInteger coefficient) {
         try {
             solver.reset();
@@ -44,7 +44,7 @@ public class SatBasedIrrelevantLiteralDetectionStrategy
             for (int i = 0; i < literals.size(); i++) {
                 if (i != literalIndex) {
                     lits.push(literals.get(i));
-                    coeffs.push(coefficients.get(i));
+                    coeffs.push(coefficients[i]);
                 }
 
             }
