@@ -7,7 +7,8 @@ public final class IrrelevantLiteralDetectionStrategyFactory {
     }
 
     public static IrrelevantLiteralDetectionStrategy defaultStrategy() {
-        return new SubsetSumApproximationIrrelevantLiteralDetectionStrategy();
+        return ChineseRemaindersIrrelevantLiteralDetectionStrategy
+                .forPrimes(401, 307, 199, 101);
     }
 
 }

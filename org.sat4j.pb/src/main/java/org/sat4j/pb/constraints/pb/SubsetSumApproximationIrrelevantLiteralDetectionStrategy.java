@@ -9,11 +9,24 @@ import org.sat4j.specs.IVecInt;
 public class SubsetSumApproximationIrrelevantLiteralDetectionStrategy
         implements IrrelevantLiteralDetectionStrategy {
 
-    private static final int MAX_DEGREE = 4547;
-    private static final BigInteger MAX_DEGREE_BIGINT = BigInteger
-            .valueOf(MAX_DEGREE);
+    private static final int DEFAULT_MAX_DEGREE = 4547;
 
-    private final SubsetSumModulo subsetSum = new SubsetSumModulo(MAX_DEGREE);
+    private final int maxDegree;
+
+    private final BigInteger maxDegreeAsBigInteger;
+
+    private final SubsetSumModulo subsetSum;
+
+    public SubsetSumApproximationIrrelevantLiteralDetectionStrategy() {
+        this(DEFAULT_MAX_DEGREE);
+    }
+
+    public SubsetSumApproximationIrrelevantLiteralDetectionStrategy(
+            int maxDegree) {
+        this.maxDegree = maxDegree;
+        this.maxDegreeAsBigInteger = BigInteger.valueOf(maxDegree);
+        this.subsetSum = new SubsetSumModulo(maxDegree);
+    }
 
     @Override
     public boolean dependsOn(int nVars, IVecInt literals,
@@ -44,14 +57,14 @@ public class SubsetSumApproximationIrrelevantLiteralDetectionStrategy
         return false;
     }
 
-    private static int mod(BigInteger b) {
+    private int mod(BigInteger b) {
         if (b.bitLength() < Long.SIZE) {
             // Safe cast since the result is necessarily less than the modulo.
-            return (int) (b.longValue() % MAX_DEGREE);
+            return (int) (b.longValue() % maxDegree);
         }
 
         // Safe conversion since the result is necessarily less than the modulo.
-        return b.mod(MAX_DEGREE_BIGINT).intValue();
+        return b.mod(maxDegreeAsBigInteger).intValue();
     }
 
 }
