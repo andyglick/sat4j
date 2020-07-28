@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.sat4j.specs.IVec;
 import org.sat4j.specs.IVecInt;
 
 /**
@@ -42,7 +41,7 @@ public class ChineseRemaindersIrrelevantLiteralDetectionStrategy
 
     @Override
     public boolean dependsOn(int nVars, IVecInt literals,
-            IVec<BigInteger> coefficients, BigInteger degree, int literalIndex,
+            BigInteger[] coefficients, BigInteger degree, int literalIndex,
             BigInteger coefficient) {
         for (IrrelevantLiteralDetectionStrategy strategy : strategies) {
             if (!strategy.dependsOn(nVars, literals, coefficients, degree,
