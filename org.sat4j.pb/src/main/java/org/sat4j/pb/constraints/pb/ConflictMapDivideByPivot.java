@@ -252,5 +252,4 @@ public class ConflictMapDivideByPivot extends ConflictMap {
     static BigInteger ceildiv(BigInteger p, BigInteger q) {
         return p.add(q).subtract(BigInteger.ONE).divide(q);
     }
-
 }

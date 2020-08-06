@@ -172,14 +172,18 @@ public class IrrelevantLiteralRemover implements IPostProcess {
                 conflictMap.degree, litIndex, coef);
     }
 
-    public void removeIn(int nVars, IVecInt literals, BigInteger[] coefficients,
-            BigInteger degree) {
-
+    public BigInteger remove(int nVars, int[] literals,
+            BigInteger[] coefficients, BigInteger degree) {
+        return degree;
     }
 
     @Override
     public String toString() {
         return "Irrelevant literals are removed from derived constraints";
+    }
+
+    public void remove(int decisionLevel, ConflictMap conflictMap) {
+        postProcess(decisionLevel, conflictMap);
     }
 
 }

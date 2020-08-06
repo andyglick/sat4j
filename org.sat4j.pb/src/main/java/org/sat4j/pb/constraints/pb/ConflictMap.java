@@ -380,10 +380,6 @@ public class ConflictMap extends MapPb implements IConflict {
                 assert positiveCoefs(coefsCons);
                 degreeCons = reduceUntilConflict(litImplied, ind, coefsCons,
                         degreeCons, wpb);
-                // TODO remove irrelevant literals from reason
-                // TODO remove irrelevant literals from conflict.
-                // TODO recompute multiplying coefficient.
-                postProcess(currentLevel);
                 // updating of the degree of the conflict
                 degreeCons = degreeCons.multiply(this.coefMultCons);
                 this.degree = this.degree.multiply(this.coefMult);
@@ -428,7 +424,7 @@ public class ConflictMap extends MapPb implements IConflict {
         this.degree = saturation();
         assert slackConflict().signum() < 0;
         divideCoefs();
-        postProcess(currentLevel);
+        irrelevantLiteralRemover.postProcess(currentLevel, this);
         return this.degree;
     }
 
