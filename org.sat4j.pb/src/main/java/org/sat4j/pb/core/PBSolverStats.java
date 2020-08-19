@@ -70,6 +70,12 @@ public class PBSolverStats extends SolverStats {
 
     public long numberOfRemovedIrrelevantLiterals;
 
+    public long numberOfRemovedIrrelevantLiteralsAfterWeakeningReason;
+
+    public long numberOfRemovedIrrelevantLiteralsAfterWeakeningConflict;
+
+    public long numberOfRemovedIrrelevantLiteralsAfterCancellation;
+
     public long maxDegreeForChow;
 
     public long maxSizeForChow;
@@ -98,6 +104,8 @@ public class PBSolverStats extends SolverStats {
 
     public long timeSpentDetectingIrrelevant;
 
+    public long abortedCancellations;
+
     private long falsifiedLiteralsRemovedFromConflict;
 
     private long falsifiedLiteralsRemovedFromReason;
@@ -120,6 +128,10 @@ public class PBSolverStats extends SolverStats {
         this.numberOfRemainingAssigned = 0;
 
         this.numberOfRemovedIrrelevantLiterals = 0;
+        this.numberOfRemovedIrrelevantLiteralsAfterCancellation = 0;
+        this.numberOfRemovedIrrelevantLiteralsAfterWeakeningConflict = 0;
+        this.numberOfRemovedIrrelevantLiteralsAfterWeakeningReason = 0;
+
         this.maxDegreeForChow = 0;
         this.maxSizeForChow = 0;
         this.maxDegreeModifiedByChow = 0;
@@ -132,6 +144,7 @@ public class PBSolverStats extends SolverStats {
         this.numberOfNonPbConstraints = 0;
         this.numberOfConstraintsWhichAreClauses = 0;
         this.numberOfConstraintsWhichAreCard = 0;
+        this.abortedCancellations = 0;
 
         this.numberOfTriggeredSaturations = 0;
         this.timeSpentDetectingIrrelevant = 0;
@@ -179,6 +192,15 @@ public class PBSolverStats extends SolverStats {
                 + this.numberOfRemainingAssigned);
         out.println(prefix + "number of irrelevant literals \t: "
                 + this.numberOfRemovedIrrelevantLiterals);
+        out.println(prefix
+                + "number of irrelevant literals after weakening reason\t: "
+                + this.numberOfRemovedIrrelevantLiteralsAfterWeakeningReason);
+        out.println(prefix
+                + "number of irrelevant literals after weakening conflict\t: "
+                + this.numberOfRemovedIrrelevantLiteralsAfterWeakeningConflict);
+        out.println(prefix
+                + "number of irrelevant literals after cancellation \t: "
+                + this.numberOfRemovedIrrelevantLiteralsAfterCancellation);
         out.println(
                 prefix + "max degree for Chow \t: " + this.maxDegreeForChow);
         out.println(prefix + "max size for Chow \t: " + this.maxSizeForChow);
@@ -209,6 +231,8 @@ public class PBSolverStats extends SolverStats {
         out.println(
                 prefix + "number of falsified literals weakened from reason\t: "
                         + this.falsifiedLiteralsRemovedFromReason);
+        out.println(prefix + "number of aborted cancellations\t: "
+                + this.abortedCancellations);
         out.println(prefix
                 + "number of falsified literals weakened from conflict\t: "
                 + this.falsifiedLiteralsRemovedFromConflict);

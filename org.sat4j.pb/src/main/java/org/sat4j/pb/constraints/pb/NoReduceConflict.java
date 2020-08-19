@@ -20,8 +20,9 @@ public class NoReduceConflict implements IReduceConflictStrategy {
     }
 
     @Override
-    public void reduceConflict(ConflictMapDivideByPivot conflict, int literal) {
-        // TODO Auto-generated method stub
+    public boolean reduceConflict(ConflictMapDivideByPivot conflict,
+            int literal) {
+        return true;
     }
 
 }

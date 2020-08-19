@@ -9,10 +9,13 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.sat4j.core.Vec;
 import org.sat4j.core.VecInt;
+import org.sat4j.pb.core.PBSolverStats;
 import org.sat4j.specs.IVecInt;
 
-public class IrrelevantLiteralRemover implements IPostProcess {
+public class IrrelevantLiteralRemover
+        implements IPostProcess, IIrrelevantLiteralRemover {
 
     private static final IrrelevantLiteralRemover INSTANCE = new IrrelevantLiteralRemover();
 
@@ -147,6 +150,8 @@ public class IrrelevantLiteralRemover implements IPostProcess {
             conflictMap.stats.numberOfConstraintsChangedByChow++;
             conflictMap.stats.numberOfRemovedIrrelevantLiterals += toRemove
                     .size();
+            conflictMap.stats.numberOfRemovedIrrelevantLiteralsAfterCancellation += toRemove
+                    .size();
             conflictMap.stats.maxDegreeModifiedByChow = Math.max(
                     conflictMap.stats.maxDegreeModifiedByChow,
                     conflictMap.degree.add(newDegree).longValue());
@@ -168,22 +173,132 @@ public class IrrelevantLiteralRemover implements IPostProcess {
             int litIndex) {
         return irrelevantDetector.dependsOn(conflictMap.voc.nVars(),
                 conflictMap.weightedLits.getLits(),
-                conflictMap.weightedLits.getCoefs().toArray(),
-                conflictMap.degree, litIndex, coef);
+                conflictMap.weightedLits.getCoefs(), conflictMap.degree,
+                litIndex, coef);
     }
 
+    private boolean dependsOn(int nVars, IVecInt literals,
+            BigInteger[] coefficients, BigInteger degree, BigInteger coef,
+            int litIndex) {
+        return irrelevantDetector.dependsOn(nVars, literals,
+                Vec.of(coefficients), degree, litIndex, coef);
+    }
+
+    @Override
     public BigInteger remove(int nVars, int[] literals,
-            BigInteger[] coefficients, BigInteger degree) {
-        return degree;
+            BigInteger[] coefficients, BigInteger degree, PBSolverStats stats,
+            boolean conflict) {
+        if (literals.length > MAX_LITERALS) {
+            stats.numberOfConstraintsIgnoredByChow++;
+            return degree;
+        }
+
+        long timeBefore = System.nanoTime();
+
+        try {
+            stats.maxDegreeForChow = Math.max(stats.maxDegreeForChow,
+                    degree.longValue());
+            stats.maxSizeForChow = Math.max(stats.maxSizeForChow,
+                    literals.length);
+
+            NavigableMap<BigInteger, List<Integer>> coefs = new TreeMap<>();
+            BigInteger maxCoeff = BigInteger.ZERO;
+            for (int i = 0; i < literals.length; i++) {
+                BigInteger c = coefficients[i];
+                if (c.signum() == 0) {
+                    // The literals has been removed.
+                    continue;
+                }
+
+                List<Integer> l = coefs.get(c);
+                if (l == null) {
+                    l = new LinkedList<Integer>();
+                    coefs.put(c, l);
+                }
+                l.add(i);
+                maxCoeff = maxCoeff.max(c);
+            }
+
+            if (coefs.size() == 1) {
+                stats.numberOfNonPbConstraints++;
+                return degree;
+            }
+            int nRemoved = 0;
+            Set<BigInteger> irrelevant = new HashSet<>();
+            BigInteger smallestRelevant = BigInteger.ZERO;
+            for (Entry<BigInteger, List<Integer>> e : coefs.entrySet()) {
+                if (dependsOn(nVars, VecInt.of(literals), coefficients, degree,
+                        e.getKey(), e.getValue().get(0))) {
+                    smallestRelevant = e.getKey();
+                    break;
+                }
+                irrelevant.add(e.getKey());
+            }
+
+            if (irrelevant.isEmpty()) {
+                stats.numberOfConstraintsNotChangedByChow++;
+                return degree;
+            }
+
+            BigInteger newDegree = BigInteger.ZERO;
+            for (BigInteger c : irrelevant) {
+                BigInteger allRemoved = c
+                        .multiply(BigInteger.valueOf(coefs.get(c).size()));
+                newDegree = newDegree.add(allRemoved);
+                for (int i : coefs.get(c)) {
+                    coefficients[i] = BigInteger.ZERO;
+                    nRemoved++;
+                }
+            }
+
+            BigInteger reducedDegree = degree.subtract(newDegree);
+            BigInteger sumAllCoef = BigInteger.ZERO;
+            BigInteger sumAllCoefSaturated = BigInteger.ZERO;
+
+            for (int i = 0; i < coefficients.length; i++) {
+                sumAllCoef = sumAllCoef.add(coefficients[i].min(degree));
+                sumAllCoefSaturated = sumAllCoefSaturated
+                        .add(coefficients[i].min(reducedDegree));
+            }
+            if (sumAllCoef.subtract(degree).compareTo(
+                    sumAllCoefSaturated.subtract(reducedDegree)) > 0) {
+                degree = reducedDegree;
+                stats.numberOfTriggeredSaturations++;
+            }
+            if (smallestRelevant.compareTo(degree) >= 0) {
+                stats.numberOfConstraintsWhichAreClauses++;
+
+            } else if (smallestRelevant.equals(maxCoeff)) {
+                stats.numberOfConstraintsWhichAreCard++;
+
+            }
+
+            stats.numberOfConstraintsChangedByChow++;
+            stats.numberOfRemovedIrrelevantLiterals += nRemoved;
+            if (conflict)
+                stats.numberOfRemovedIrrelevantLiteralsAfterWeakeningConflict += nRemoved;
+            else
+                stats.numberOfRemovedIrrelevantLiteralsAfterWeakeningReason += nRemoved;
+            stats.maxDegreeModifiedByChow = Math.max(
+                    stats.maxDegreeModifiedByChow,
+                    degree.add(newDegree).longValue());
+            stats.maxSizeModifiedByChow = Math.max(stats.maxSizeModifiedByChow,
+                    literals.length);
+            stats.maxDegreeDiff = Math.max(stats.maxDegreeDiff,
+                    newDegree.longValue());
+            stats.maxRemovedChow = Math.max(stats.maxRemovedChow, nRemoved);
+            return degree;
+
+        } finally {
+            stats.timeSpentDetectingIrrelevant += System.nanoTime()
+                    - timeBefore;
+        }
+
     }
 
     @Override
     public String toString() {
         return "Irrelevant literals are removed from derived constraints";
-    }
-
-    public void remove(int decisionLevel, ConflictMap conflictMap) {
-        postProcess(decisionLevel, conflictMap);
     }
 
 }

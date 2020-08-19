@@ -211,7 +211,7 @@ public class DetectIrrelevantSolver extends AbstractOutputSolver
 
     private boolean dependsOn(IVecInt literals, BigInteger[] coeffs,
             BigInteger degree, BigInteger coef, int lit) {
-        return irrelevantDetector.dependsOn(nVars, literals, coeffs, degree,
+        return irrelevantDetector.dependsOn(nVars, literals, Vec.of(coeffs), degree,
                 lit, coef);
     }
 

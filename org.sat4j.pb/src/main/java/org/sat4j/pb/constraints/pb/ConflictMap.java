@@ -72,7 +72,7 @@ public class ConflictMap extends MapPb implements IConflict {
 
     final PBSolverStats stats;
 
-    private final IrrelevantLiteralRemover irrelevantLiteralRemover = IrrelevantLiteralRemover
+    protected final IIrrelevantLiteralRemover irrelevantLiteralRemover = IrrelevantLiteralRemover
             .instance();
 
     protected IPreProcess preProcess = NoPreProcess.instance();
@@ -380,6 +380,18 @@ public class ConflictMap extends MapPb implements IConflict {
                 assert positiveCoefs(coefsCons);
                 degreeCons = reduceUntilConflict(litImplied, ind, coefsCons,
                         degreeCons, wpb);
+                if (degreeCons == null) {
+                    // Aborting the resolution step.
+                    int litLevel = ConflictMap
+                            .levelToIndex(voc.getLevel(litImplied));
+                    byLevel[litLevel].remove(nLitImplied);
+                    if (byLevel[0] == null) {
+                        byLevel[0] = new VecInt();
+                    }
+                    byLevel[0].push(nLitImplied);
+                    stats.abortedCancellations++;
+                    return degree;
+                }
                 // updating of the degree of the conflict
                 degreeCons = degreeCons.multiply(this.coefMultCons);
                 this.degree = this.degree.multiply(this.coefMult);
@@ -495,6 +507,16 @@ public class ConflictMap extends MapPb implements IConflict {
             // estimate of the slack after the cutting plane
             slackResolve = slackThis.add(slackIndex);
         } while ((slackResolve.signum() >= 0) || this.isUnsat());
+
+        // TODO REMOVE THIS IF NO IRRELEVANT
+        reducedDegree = irrelevantLiteralRemover.remove(voc.nVars(),
+                wpb.getLits(), reducedCoefs, reducedDegree, stats, false);
+        reducedDegree = saturation(reducedCoefs, reducedDegree, wpb);
+        ppcm = ppcm(reducedCoefs[ind], coefLitImplied);
+        this.coefMult = ppcm.divide(coefLitImplied);
+        this.coefMultCons = ppcm.divide(reducedCoefs[ind]);
+        // TODO ----------------------------
+
         assert this.coefMult.multiply(this.weightedLits.get(litImplied ^ 1))
                 .equals(this.coefMultCons.multiply(reducedCoefs[ind]));
         return reducedDegree;

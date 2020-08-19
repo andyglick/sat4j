@@ -17,6 +17,6 @@ public interface IReduceConflictStrategy {
      * @param literal
      *            The literal on which the next resolution will be performed.
      */
-    void reduceConflict(ConflictMapDivideByPivot conflict, int literal);
+    boolean reduceConflict(ConflictMapDivideByPivot conflict, int literal);
 
 }

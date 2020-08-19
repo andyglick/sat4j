@@ -26,30 +26,45 @@ public class ReduceConflict implements IReduceConflictStrategy {
     }
 
     @Override
-    public void reduceConflict(ConflictMapDivideByPivot conflict, int literal) {
+    public boolean reduceConflict(ConflictMapDivideByPivot conflict,
+            int literal) {
         BigInteger coef = conflict.weightedLits.get(literal);
         int size = conflict.weightedLits.size();
-        IVecInt toRemove = new VecInt();
-        for (int i = 0; i < size; i++) {
-            int l = conflict.weightedLits.getLit(i);
-            BigInteger coefLit = conflict.weightedLits.getCoef(i);
-            if (conflict.voc.isFalsified(conflict.weightedLits.getLit(i))) {
-                // The coefficient is not rounded up after division.
-                conflict.setCoef(l, ConflictMapDivideByPivot
-                        .ceildiv(conflict.weightedLits.getCoef(i), coef));
+        BigInteger[] coefficients = new BigInteger[size];
+        int[] literals = new int[size];
+        BigInteger degree = conflict.degree;
+        int indLit = -1;
 
-            } else {
-                // Weakening the coefficient to allow its division.
-                // No rounding up here: coefficients are rounded down, and the
-                // remainder is subtracted from the degree.
-                BigInteger[] tmp = conflict.divisionStrategy.divide(coefLit,
-                        coef);
-                if (tmp[0].signum() == 0) {
-                    toRemove.push(l);
-                } else {
-                    conflict.setCoef(l, tmp[0]);
+        // Weakening away the literals that are not divisible.
+        for (int i = 0; i < size; i++) {
+            coefficients[i] = conflict.weightedLits.getCoef(i);
+            literals[i] = conflict.weightedLits.getLit(i);
+            if (literals[i] == literal) {
+                indLit = i;
+            }
+            if (!conflict.voc.isFalsified(conflict.weightedLits.getLit(i))) {
+                if (coefficients[i].mod(coef).signum() != 0) {
+                    degree = degree.subtract(coefficients[i]);
+                    coefficients[i] = BigInteger.ZERO;
                 }
-                conflict.degree = conflict.degree.subtract(tmp[1]);
+            }
+        }
+
+        degree = conflict.irrelevantLiteralRemover.remove(conflict.voc.nVars(),
+                literals, coefficients, degree, conflict.stats, true);
+
+        if (coefficients[indLit].signum() == 0) {
+            return false;
+        }
+
+        IVecInt toRemove = new VecInt();
+        for (int i = 0; i < literals.length; i++) {
+            int l = literals[i];
+            if (coefficients[i].signum() == 0) {
+                toRemove.push(l);
+            } else {
+                conflict.setCoef(l, ConflictMapDivideByPivot
+                        .ceildiv(coefficients[i], coef));
             }
         }
 
@@ -57,11 +72,11 @@ public class ReduceConflict implements IReduceConflictStrategy {
             conflict.removeCoef(it.next());
         }
 
-        conflict.degree = ConflictMapDivideByPivot.ceildiv(conflict.degree,
-                coef);
+        conflict.degree = ConflictMapDivideByPivot.ceildiv(degree, coef);
         conflict.saturation();
         conflict.coefMultCons = BigInteger.ONE;
         conflict.stats.incNumberOfRoundingOperations();
+        return true;
     }
 
 }

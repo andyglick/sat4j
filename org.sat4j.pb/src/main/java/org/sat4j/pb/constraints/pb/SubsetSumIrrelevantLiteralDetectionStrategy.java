@@ -2,6 +2,7 @@ package org.sat4j.pb.constraints.pb;
 
 import java.math.BigInteger;
 
+import org.sat4j.specs.IVec;
 import org.sat4j.specs.IVecInt;
 
 public class SubsetSumIrrelevantLiteralDetectionStrategy
@@ -16,7 +17,7 @@ public class SubsetSumIrrelevantLiteralDetectionStrategy
 
     @Override
     public boolean dependsOn(int nVars, IVecInt literals,
-            BigInteger[] coefficients, BigInteger degree, int literalIndex,
+            IVec<BigInteger> coefficients, BigInteger degree, int literalIndex,
             BigInteger coefficient) {
         if (degree.compareTo(MAX_DEGREE_BIGINTEGER) >= 0) {
             return true;
@@ -25,7 +26,7 @@ public class SubsetSumIrrelevantLiteralDetectionStrategy
         int[] elts = new int[literals.size() - 1];
         for (int i = 0, index = 0; i < literals.size(); i++) {
             if (i != literalIndex) {
-                elts[index] = coefficients[i].intValue();
+                elts[index] = coefficients.get(i).intValue();
                 index++;
             }
         }

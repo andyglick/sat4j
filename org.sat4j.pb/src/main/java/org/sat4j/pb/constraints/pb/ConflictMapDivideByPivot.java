@@ -223,27 +223,33 @@ public class ConflictMapDivideByPivot extends ConflictMap {
         int size = wpb.size();
 
         if (divideReason) {
+            // Weakening away the literals that are not divisible.
             for (int i = 0; i < size; i++) {
-                if (voc.isFalsified(wpb.get(i))) {
-                    // The coefficient is not rounded up after division.
-                    reducedCoefs[i] = ceildiv(reducedCoefs[i], coeffImplied);
-
-                } else {
-                    // Partially weakening the coefficient to allow its
-                    // division.
-                    // No rounding up here: coefficients are rounded down, and
-                    // the remainder is subtracted from the degree.
-                    BigInteger[] tmp = divisionStrategy.divide(reducedCoefs[i],
-                            coeffImplied);
-                    reducedCoefs[i] = tmp[0];
-                    outputDegree = outputDegree.subtract(tmp[1]);
+                if (!voc.isFalsified(wpb.get(i))) {
+                    BigInteger coeff = reducedCoefs[i];
+                    if (coeff.mod(coeffImplied).signum() != 0) {
+                        reducedCoefs[i] = BigInteger.ZERO;
+                        outputDegree = outputDegree.subtract(coeff);
+                    }
                 }
+            }
+
+            outputDegree = irrelevantLiteralRemover.remove(voc.nVars(),
+                    wpb.getLits(), reducedCoefs, outputDegree, stats, false);
+
+            // Applying the division.
+            for (int i = 0; i < size; i++) {
+                // The coefficient is guaranteed to be divisible.
+                reducedCoefs[i] = ceildiv(reducedCoefs[i], coeffImplied);
             }
             outputDegree = saturation(reducedCoefs,
                     ceildiv(outputDegree, coeffImplied), wpb);
         }
+
         this.stats.incNumberOfRoundingOperations();
-        this.reduceConflict.reduceConflict(this, litImplied ^ 1);
+        if (!this.reduceConflict.reduceConflict(this, litImplied ^ 1)) {
+            return null;
+        }
         this.coefMultCons = this.weightedLits.get(litImplied ^ 1);
         this.coefMult = reducedCoefs[ind];
         return outputDegree;
