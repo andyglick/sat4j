@@ -382,6 +382,8 @@ public class ConflictMap extends MapPb implements IConflict {
                         degreeCons, wpb);
                 if (degreeCons == null) {
                     // Aborting the resolution step.
+                    // TODO Remove if irrelevant literal are removed before
+                    // aborting.
                     int litLevel = ConflictMap
                             .levelToIndex(voc.getLevel(litImplied));
                     byLevel[litLevel].remove(nLitImplied);
@@ -389,6 +391,7 @@ public class ConflictMap extends MapPb implements IConflict {
                         byLevel[0] = new VecInt();
                     }
                     byLevel[0].push(nLitImplied);
+                    // TODO ---------
                     stats.abortedCancellations++;
                     return degree;
                 }
@@ -515,6 +518,22 @@ public class ConflictMap extends MapPb implements IConflict {
         ppcm = ppcm(reducedCoefs[ind], coefLitImplied);
         this.coefMult = ppcm.divide(coefLitImplied);
         this.coefMultCons = ppcm.divide(reducedCoefs[ind]);
+        slackThis = possConstraint(wpb, reducedCoefs).subtract(reducedDegree)
+                .multiply(this.coefMultCons);
+        assert slackThis.equals(wpb.slackConstraint(reducedCoefs, reducedDegree)
+                .multiply(this.coefMultCons)) : slackThis + " != "
+                        + wpb.slackConstraint(reducedCoefs, reducedDegree)
+                                .multiply(this.coefMultCons);
+        assert slackConflict.equals(slackConflict());
+        slackIndex = slackConflict.multiply(this.coefMult);
+        assert slackIndex.signum() <= 0;
+        // estimate of the slack after the cutting plane
+        slackResolve = slackThis.add(slackIndex);
+        if (slackResolve.signum() >= 0) {
+            stats.numberOfReReducing++;
+            return reduceUntilConflict(litImplied, ind, reducedCoefs,
+                    reducedDegree, wpb);
+        }
         // TODO ----------------------------
 
         assert this.coefMult.multiply(this.weightedLits.get(litImplied ^ 1))

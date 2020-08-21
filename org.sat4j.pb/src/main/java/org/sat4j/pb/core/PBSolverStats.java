@@ -106,6 +106,8 @@ public class PBSolverStats extends SolverStats {
 
     public long abortedCancellations;
 
+    public long numberOfReReducing;
+
     private long falsifiedLiteralsRemovedFromConflict;
 
     private long falsifiedLiteralsRemovedFromReason;
@@ -145,6 +147,7 @@ public class PBSolverStats extends SolverStats {
         this.numberOfConstraintsWhichAreClauses = 0;
         this.numberOfConstraintsWhichAreCard = 0;
         this.abortedCancellations = 0;
+        this.numberOfReReducing = 0;
 
         this.numberOfTriggeredSaturations = 0;
         this.timeSpentDetectingIrrelevant = 0;
@@ -201,6 +204,8 @@ public class PBSolverStats extends SolverStats {
         out.println(prefix
                 + "number of irrelevant literals after cancellation \t: "
                 + this.numberOfRemovedIrrelevantLiteralsAfterCancellation);
+        out.println(prefix + "number of re-reducing \t: "
+                + this.numberOfReReducing);
         out.println(
                 prefix + "max degree for Chow \t: " + this.maxDegreeForChow);
         out.println(prefix + "max size for Chow \t: " + this.maxSizeForChow);
