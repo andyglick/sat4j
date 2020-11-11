@@ -52,6 +52,7 @@ import org.sat4j.pb.constraints.pb.SkipStrategy;
 import org.sat4j.pb.orders.BumpStrategy;
 import org.sat4j.pb.orders.Bumper;
 import org.sat4j.pb.orders.IBumper;
+import org.sat4j.pb.tools.VoidPBTracing;
 import org.sat4j.specs.Constr;
 import org.sat4j.specs.IVec;
 import org.sat4j.specs.TimeoutException;
@@ -88,6 +89,10 @@ public class PBSolverCP extends PBSolver {
     private BumpStrategy bumpStrategy = BumpStrategy.ALWAYS_ONE;
 
     private IBumper bumper = Bumper.ANY;
+
+    {
+        setSearchListener(new VoidPBTracing());
+    }
 
     /**
      * @param acg
