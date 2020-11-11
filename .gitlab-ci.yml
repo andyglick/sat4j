@@ -26,7 +26,7 @@ java8:
     except: 
       - master
     script: 
-      - mvn $MAVEN_CLI_OPTS clean org.jacoco:jacoco-maven-plugin:prepare-agent --settings settings.xml deploy 
+      - mvn $MAVEN_CLI_OPTS clean package -Dmaven.javadoc.skip=true -Djacoco.skip=true
     cache:
        paths:
         - .m2/repository 
@@ -40,13 +40,6 @@ jars-j8:
        paths:
         - dist/NIGHTLY/*.jar
        expire_in: 4 weeks
-
-java7:
-    image: maven:3.5.4-jdk-7-alpine
-    stage: test
-    script: 
-      - mvn $MAVEN_CLI_OPTS clean package -Dmaven.javadoc.skip=true -Djacoco.skip=true
-    allow_failure: true
 
 maven36-java8:
     image: maven:3.6.2-jdk-8-slim
