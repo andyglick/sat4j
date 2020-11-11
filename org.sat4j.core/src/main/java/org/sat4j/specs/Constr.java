@@ -330,4 +330,16 @@ public interface Constr extends IConstr {
      * @see #canBePropagatedMultipleTimes()
      */
     int getAssertionLevel(IVecInt trail, int decisionLevel);
+
+    /**
+     * Get a unique id for this constraint.
+     * 
+     * @return a unique integral id for the constraint.
+     * @throws UnsupportedOperationException
+     *             if no such identifier is available
+     * @since 2.3.6
+     */
+    default int getId() {
+        throw new UnsupportedOperationException();
+    }
 }
