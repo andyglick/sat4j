@@ -61,7 +61,7 @@ public class ReduceConflict implements IReduceConflictStrategy {
         for (IteratorInt it = toRemove.iterator(); it.hasNext();) {
             conflict.removeCoef(it.next());
         }
-        conflict.listener.divideReason(coef);
+        conflict.listener.divideConflict(coef);
         conflict.degree = ConflictMapDivideByPivot.ceildiv(conflict.degree,
                 coef);
         conflict.saturation();
