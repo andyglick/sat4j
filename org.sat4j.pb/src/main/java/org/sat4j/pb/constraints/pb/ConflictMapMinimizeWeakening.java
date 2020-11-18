@@ -34,6 +34,7 @@ import java.math.BigInteger;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.sat4j.core.LiteralsUtils;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.core.VarActivityListener;
 import org.sat4j.pb.core.PBSolverStats;
@@ -103,6 +104,7 @@ public class ConflictMapMinimizeWeakening extends ConflictMap {
         this.possReducedCoefs = this.possReducedCoefs.subtract(coefsBis[lit]);
         coefsBis[lit] = BigInteger.ZERO;
         assert this.possReducedCoefs.equals(possConstraint(wpb, coefsBis));
+        listener.weakenOnReason(LiteralsUtils.toDimacs(wpb.get(lit)));
 
         // saturation of the constraint
         degUpdate = saturation(coefsBis, degUpdate, wpb);

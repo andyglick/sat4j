@@ -32,8 +32,12 @@ package org.sat4j.pb.constraints.pb;
 import java.math.BigInteger;
 
 import org.sat4j.minisat.core.VarActivityListener;
+import org.sat4j.pb.IPBSolverService;
+import org.sat4j.pb.tools.PBSearchListener;
 
 public interface IConflict extends IDataStructurePB {
+
+    void setListener(PBSearchListener<IPBSolverService> listener);
 
     /**
      * Effectue une resolution avec une contrainte PB. Met a jour le Conflict.

@@ -2,6 +2,7 @@ package org.sat4j.pb.constraints.pb;
 
 import java.math.BigInteger;
 
+import org.sat4j.core.LiteralsUtils;
 import org.sat4j.pb.core.PBSolverStats;
 
 /**
@@ -98,8 +99,16 @@ public class ConflictMapReduceToCard extends ConflictMap {
                 cpt++;
             } else {
                 reducedCoefs[i] = tmpCoefs[i];
+                if (tmpCoefs[i].equals(BigInteger.ZERO)) {
+                    listener.weakenOnReason(LiteralsUtils.toDimacs(wpb.get(i)));
+                }
             }
         }
+
+        // FIXME We must notify the listener that the degree has changed, but
+        // how?
+        // listener.?
+
         return BigInteger.valueOf(cpt + 1L);
     }
 

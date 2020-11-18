@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import org.sat4j.core.LiteralsUtils;
 import org.sat4j.core.VecInt;
 import org.sat4j.pb.core.PBSolverStats;
 import org.sat4j.specs.IVecInt;
@@ -158,6 +159,7 @@ public class ConflictMapWeakenToClash extends ConflictMap {
         // First, applying the multiplication.
         Map<BigInteger, IVecInt> coefsSat = new TreeMap<BigInteger, IVecInt>();
         Map<BigInteger, IVecInt> coefsFals = new TreeMap<BigInteger, IVecInt>();
+        listener.multiplyReason(coefMultCons);
         for (int i = 0; i < reducedCoefs.length; i++) {
             BigInteger coef = reducedCoefs[i].multiply(coefMultCons);
             reducedCoefs[i] = coef;
@@ -205,6 +207,8 @@ public class ConflictMapWeakenToClash extends ConflictMap {
                 int index = it.next();
                 if (coef.compareTo(toWeaken) > 0) {
                     // Partial weakening.
+                    listener.weakenOnReason(toWeaken,
+                            LiteralsUtils.toDimacs(wpb.get(index)));
                     reducedCoefs[index] = coef.subtract(toWeaken);
                     reducedDegree = reducedDegree.subtract(toWeaken);
                     toWeaken = BigInteger.ZERO;
@@ -212,6 +216,7 @@ public class ConflictMapWeakenToClash extends ConflictMap {
                 }
 
                 // Full weakening.
+                listener.weakenOnReason(LiteralsUtils.toDimacs(wpb.get(index)));
                 reducedCoefs[index] = BigInteger.ZERO;
                 toWeaken = toWeaken.subtract(coef);
                 reducedDegree = reducedDegree.subtract(coef);
@@ -235,6 +240,8 @@ public class ConflictMapWeakenToClash extends ConflictMap {
                     stats.incFalsifiedLiteralsRemovedFromReason();
                     if (coef.compareTo(toWeaken) > 0) {
                         // Partial weakening.
+                        listener.weakenOnReason(toWeaken,
+                                LiteralsUtils.toDimacs(wpb.get(index)));
                         reducedCoefs[index] = coef.subtract(toWeaken);
                         reducedDegree = reducedDegree.subtract(toWeaken);
                         toWeaken = BigInteger.ZERO;
@@ -242,6 +249,8 @@ public class ConflictMapWeakenToClash extends ConflictMap {
                     }
 
                     // Full weakening.
+                    listener.weakenOnReason(
+                            LiteralsUtils.toDimacs(wpb.get(index)));
                     reducedCoefs[index] = BigInteger.ZERO;
                     toWeaken = toWeaken.subtract(coef);
                     reducedDegree = reducedDegree.subtract(coef);
@@ -253,6 +262,8 @@ public class ConflictMapWeakenToClash extends ConflictMap {
             // Weakening on the propagated literal.
             toWeaken = toWeaken.min(reducedCoefs[ind].subtract(expected));
             reducedCoefs[ind] = reducedCoefs[ind].subtract(toWeaken);
+            listener.weakenOnReason(toWeaken,
+                    LiteralsUtils.toDimacs(wpb.get(ind)));
             reducedDegree = reducedDegree.subtract(toWeaken);
 
         }

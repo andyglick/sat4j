@@ -39,11 +39,19 @@ public abstract class PBSearchListenerAdapter<S extends ISolverService>
     }
 
     @Override
-    public void multiplyReason(int coeff) {
+    public void multiplyReason(BigInteger coeff) {
     }
 
     @Override
-    public void multiplyConflict(int coeff) {
+    public void divideReason(BigInteger coeff) {
+    }
+
+    @Override
+    public void multiplyConflict(BigInteger coeff) {
+    }
+
+    @Override
+    public void divideConflict(BigInteger coeff) {
     }
 
     @Override

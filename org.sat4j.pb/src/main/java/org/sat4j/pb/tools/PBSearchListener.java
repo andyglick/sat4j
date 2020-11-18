@@ -75,7 +75,15 @@ public interface PBSearchListener<S extends ISolverService>
      * @param coeff
      *            the coefficient to apply of the reason
      */
-    void multiplyReason(int coeff);
+    void multiplyReason(BigInteger coeff);
+
+    /**
+     * Divide the current reason by an integer.
+     * 
+     * @param coeff
+     *            the coefficient to apply of the reason
+     */
+    void divideReason(BigInteger coeff);
 
     /**
      * Multiply the current reason by an integer.
@@ -83,7 +91,15 @@ public interface PBSearchListener<S extends ISolverService>
      * @param coeff
      *            the coefficient to apply of the reason
      */
-    void multiplyConflict(int coeff);
+    void multiplyConflict(BigInteger coeff);
+
+    /**
+     * Divide the current reason by an integer.
+     * 
+     * @param coeff
+     *            the coefficient to apply of the reason
+     */
+    void divideConflict(BigInteger coeff);
 
     /**
      * Apply saturation on the reason side.

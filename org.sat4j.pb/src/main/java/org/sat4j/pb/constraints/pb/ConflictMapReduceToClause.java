@@ -31,6 +31,7 @@ package org.sat4j.pb.constraints.pb;
 
 import java.math.BigInteger;
 
+import org.sat4j.core.LiteralsUtils;
 import org.sat4j.pb.core.PBSolverStats;
 
 public final class ConflictMapReduceToClause extends ConflictMap {
@@ -102,8 +103,14 @@ public final class ConflictMapReduceToClause extends ConflictMap {
                 reducedCoefs[i] = BigInteger.ONE;
             } else {
                 reducedCoefs[i] = BigInteger.ZERO;
+                listener.weakenOnReason(LiteralsUtils.toDimacs(wpb.get(i)));
             }
         }
+
+        // FIXME This is mostly a hack (maybe?)
+        listener.divideReason(degree);
+        listener.saturateReason();
+
         return BigInteger.ONE;
     }
 }

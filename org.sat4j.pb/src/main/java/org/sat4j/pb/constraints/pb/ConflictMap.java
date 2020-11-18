@@ -31,11 +31,14 @@ package org.sat4j.pb.constraints.pb;
 
 import java.math.BigInteger;
 
+import org.sat4j.core.LiteralsUtils;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.constraints.cnf.Lits;
 import org.sat4j.minisat.core.ILits;
 import org.sat4j.minisat.core.VarActivityListener;
+import org.sat4j.pb.IPBSolverService;
 import org.sat4j.pb.core.PBSolverStats;
+import org.sat4j.pb.tools.PBSearchListener;
 import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.IteratorInt;
 
@@ -176,6 +179,11 @@ public class ConflictMap extends MapPb implements IConflict {
         }
     }
 
+    @Override
+    public void setListener(PBSearchListener<IPBSolverService> listener) {
+        this.listener = listener;
+    }
+
     /**
      * convert level into an index in the byLevel structure
      * 
@@ -278,6 +286,7 @@ public class ConflictMap extends MapPb implements IConflict {
     public BigInteger resolve(PBConstr cpb, int litImplied,
             VarActivityListener val) {
         assert litImplied > 1;
+        listener.withReason(cpb);
         preProcess();
         int nLitImplied = litImplied ^ 1;
         if (cpb == null || !this.weightedLits.containsKey(nLitImplied)) {
@@ -388,6 +397,7 @@ public class ConflictMap extends MapPb implements IConflict {
             // coefficients of the conflict must be multiplied by coefMult
             long before = System.nanoTime();
             if (!this.coefMult.equals(BigInteger.ONE)) {
+                listener.multiplyConflict(coefMult);
                 for (int i = 0; i < size(); i++) {
                     changeCoef(i, this.weightedLits.getCoef(i)
                             .multiply(this.coefMult));
@@ -720,6 +730,7 @@ public class ConflictMap extends MapPb implements IConflict {
         this.possReducedCoefs = this.possReducedCoefs.subtract(coefsBis[lit]);
         coefsBis[lit] = BigInteger.ZERO;
         assert this.possReducedCoefs.equals(possConstraint(wpb, coefsBis));
+        listener.weakenOnReason(LiteralsUtils.toDimacs(wpb.get(lit)));
 
         // saturation of the constraint
         degUpdate = saturation(coefsBis, degUpdate, wpb);
@@ -732,6 +743,7 @@ public class ConflictMap extends MapPb implements IConflict {
 
     protected BigInteger saturation(BigInteger[] coefs, BigInteger degree,
             IWatchPb wpb) {
+        listener.saturateReason();
         assert degree.signum() > 0;
         BigInteger degreeResult = degree;
         boolean isMinimumEqualsToDegree = true;

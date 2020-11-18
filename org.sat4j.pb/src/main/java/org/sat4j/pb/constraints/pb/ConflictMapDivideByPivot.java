@@ -32,6 +32,7 @@ package org.sat4j.pb.constraints.pb;
 
 import java.math.BigInteger;
 
+import org.sat4j.core.LiteralsUtils;
 import org.sat4j.pb.core.PBSolverStats;
 
 /**
@@ -236,11 +237,14 @@ public class ConflictMapDivideByPivot extends ConflictMap {
                     BigInteger[] tmp = divisionStrategy.divide(reducedCoefs[i],
                             coeffImplied);
                     reducedCoefs[i] = tmp[0];
+                    listener.weakenOnReason(tmp[1],
+                            LiteralsUtils.toDimacs(weightedLits.getLit(i)));
                     outputDegree = outputDegree.subtract(tmp[1]);
                 }
             }
             outputDegree = saturation(reducedCoefs,
                     ceildiv(outputDegree, coeffImplied), wpb);
+            listener.divideReason(coeffImplied);
         }
         this.stats.incNumberOfRoundingOperations();
         this.reduceConflict.reduceConflict(this, litImplied ^ 1);

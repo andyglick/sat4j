@@ -32,6 +32,7 @@ package org.sat4j.pb.constraints.pb;
 
 import java.math.BigInteger;
 
+import org.sat4j.core.LiteralsUtils;
 import org.sat4j.pb.core.PBSolverStats;
 
 /**
@@ -99,6 +100,7 @@ public class ConflictMapWeakenReason extends ConflictMap {
                 // Weakening on this literal preserves the propagation.
                 degree = degree.subtract(reducedCoefs[i]);
                 reducedCoefs[i] = BigInteger.ZERO;
+                listener.weakenOnReason(LiteralsUtils.toDimacs(wpb.get(i)));
             }
         }
 
@@ -119,6 +121,7 @@ public class ConflictMapWeakenReason extends ConflictMap {
                 degree = degree.subtract(reducedCoefs[i]);
                 reducedCoefs[i] = BigInteger.ZERO;
                 stats.incFalsifiedLiteralsRemovedFromReason();
+                listener.weakenOnReason(LiteralsUtils.toDimacs(wpb.get(i)));
             }
         }
 

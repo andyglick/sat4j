@@ -38,6 +38,7 @@ import org.sat4j.minisat.core.Pair;
 import org.sat4j.minisat.core.RestartStrategy;
 import org.sat4j.minisat.core.SearchParams;
 import org.sat4j.minisat.restarts.MiniSATRestarts;
+import org.sat4j.pb.IPBSolverService;
 import org.sat4j.pb.constraints.pb.AutoDivisionStrategy;
 import org.sat4j.pb.constraints.pb.ConflictMap;
 import org.sat4j.pb.constraints.pb.IConflict;
@@ -52,6 +53,7 @@ import org.sat4j.pb.constraints.pb.SkipStrategy;
 import org.sat4j.pb.orders.BumpStrategy;
 import org.sat4j.pb.orders.Bumper;
 import org.sat4j.pb.orders.IBumper;
+import org.sat4j.pb.tools.PBSearchListener;
 import org.sat4j.pb.tools.VoidPBTracing;
 import org.sat4j.specs.Constr;
 import org.sat4j.specs.IVec;
@@ -147,6 +149,11 @@ public class PBSolverCP extends PBSolver {
         this.skipAllow = skipAllow;
     }
 
+    @SuppressWarnings("unchecked")
+    protected PBSearchListener<IPBSolverService> listener() {
+        return (PBSearchListener<IPBSolverService>) slistener;
+    }
+
     @Override
     public void analyze(Constr myconfl, Pair results) throws TimeoutException {
         if (someCriteria()) {
@@ -158,6 +165,7 @@ public class PBSolverCP extends PBSolver {
 
     public void analyzeCP(Constr myconfl, Pair results)
             throws TimeoutException {
+        listener().onConflict((PBConstr) myconfl);
         int litImplied = this.trail.last();
         int currentLevel = this.voc.getLevel(litImplied);
         IConflict confl = chooseConflict((PBConstr) myconfl, currentLevel);

@@ -31,6 +31,7 @@ package org.sat4j.pb.constraints.pb;
 
 import java.math.BigInteger;
 
+import org.sat4j.core.LiteralsUtils;
 import org.sat4j.pb.core.PBSolverStats;
 
 public class ConflictMapRounding extends ConflictMap {
@@ -79,7 +80,7 @@ public class ConflictMapRounding extends ConflictMap {
     @Override
     protected BigInteger reduceUntilConflict(int x, int xindex,
             BigInteger[] abc, BigInteger t, IWatchPb xyz) {
-        BigInteger a = abc[xindex];
+        final BigInteger a = abc[xindex];
         int n = xyz.size();
         BigInteger sprime = BigInteger.ZERO;
         for (int k = 0; k < n; k++) {
@@ -102,6 +103,7 @@ public class ConflictMapRounding extends ConflictMap {
                         .subtract(tnewprime);
                 tprime = tnewprime;
                 abc[k] = BigInteger.ZERO;
+                listener.weakenOnReason(LiteralsUtils.toDimacs(xyz.get(k)));
                 easyRounding = false;
             } else
                 abc[k] = ceildiv(abc[k], a);
@@ -113,6 +115,7 @@ public class ConflictMapRounding extends ConflictMap {
         if (easyRounding) {
             this.stats.incNumberOfEasyRoundingOperations();
         }
+        listener.divideReason(a);
         return tprime;
     }
 

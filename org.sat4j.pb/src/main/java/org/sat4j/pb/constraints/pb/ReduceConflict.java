@@ -5,6 +5,7 @@ package org.sat4j.pb.constraints.pb;
 
 import java.math.BigInteger;
 
+import org.sat4j.core.LiteralsUtils;
 import org.sat4j.core.VecInt;
 import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.IteratorInt;
@@ -46,8 +47,12 @@ public class ReduceConflict implements IReduceConflictStrategy {
                         coef);
                 if (tmp[0].signum() == 0) {
                     toRemove.push(l);
+                    conflict.listener
+                            .weakenOnConflict(LiteralsUtils.toDimacs(l));
                 } else {
                     conflict.setCoef(l, tmp[0]);
+                    conflict.listener.weakenOnConflict(tmp[1],
+                            LiteralsUtils.toDimacs(l));
                 }
                 conflict.degree = conflict.degree.subtract(tmp[1]);
             }
@@ -56,7 +61,7 @@ public class ReduceConflict implements IReduceConflictStrategy {
         for (IteratorInt it = toRemove.iterator(); it.hasNext();) {
             conflict.removeCoef(it.next());
         }
-
+        conflict.listener.divideReason(coef);
         conflict.degree = ConflictMapDivideByPivot.ceildiv(conflict.degree,
                 coef);
         conflict.saturation();
