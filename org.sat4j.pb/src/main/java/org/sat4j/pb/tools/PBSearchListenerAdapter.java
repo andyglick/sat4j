@@ -1,5 +1,7 @@
 package org.sat4j.pb.tools;
 
+import java.math.BigInteger;
+
 import org.sat4j.pb.constraints.pb.PBConstr;
 import org.sat4j.specs.ISolverService;
 import org.sat4j.specs.SearchListenerAdapter;
@@ -25,7 +27,15 @@ public abstract class PBSearchListenerAdapter<S extends ISolverService>
     }
 
     @Override
+    public void weakenOnReason(BigInteger coeff, int p) {
+    }
+
+    @Override
     public void weakenOnConflict(int p) {
+    }
+
+    @Override
+    public void weakenOnConflict(BigInteger coeff, int p) {
     }
 
     @Override

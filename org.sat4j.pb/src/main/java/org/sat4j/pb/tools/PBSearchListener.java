@@ -1,5 +1,7 @@
 package org.sat4j.pb.tools;
 
+import java.math.BigInteger;
+
 import org.sat4j.annotations.Feature;
 import org.sat4j.pb.constraints.pb.PBConstr;
 import org.sat4j.specs.ISolverService;
@@ -40,12 +42,32 @@ public interface PBSearchListener<S extends ISolverService>
     void weakenOnReason(int p);
 
     /**
+     * Weaken the current reason on a specific literal.
+     * 
+     * @param coeff
+     *            the coefficient by which the literal is weakened
+     * @param p
+     *            a literal in dimacs format
+     */
+    void weakenOnReason(BigInteger coeff, int p);
+
+    /**
      * Weaken the current conflict on a specific literal.
      * 
      * @param p
      *            a literal in dimacs format
      */
     void weakenOnConflict(int p);
+
+    /**
+     * Weaken the current conflict on a specific literal.
+     * 
+     * @param coeff
+     *            the coefficient by which the literal is weakened
+     * @param p
+     *            a literal in dimacs format
+     */
+    void weakenOnConflict(BigInteger coeff, int p);
 
     /**
      * Multiply the current reason by an integer.
