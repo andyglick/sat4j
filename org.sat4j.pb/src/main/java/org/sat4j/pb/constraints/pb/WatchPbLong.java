@@ -49,7 +49,7 @@ import org.sat4j.specs.UnitPropagationListener;
 import org.sat4j.specs.VarMapper;
 
 public abstract class WatchPbLong
-        implements Propagatable, Constr, Undoable, Serializable {
+        implements Propagatable, PBConstr, Undoable, Serializable {
 
     /**
      * 
@@ -732,5 +732,12 @@ public abstract class WatchPbLong
 
     public BigInteger getSumCoefs() {
         return BigInteger.valueOf(sumcoefs);
+    }
+
+    private int id;
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
     }
 }

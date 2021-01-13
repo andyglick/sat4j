@@ -609,5 +609,10 @@ public final class MaxWatchPbLong extends WatchPbLong {
         public BigInteger getSumCoefs() {
             return cstr.getSumCoefs();
         }
+
+        @Override
+        public void setId(int id) {
+            cstr.setId(id);
+        }
     }
 }

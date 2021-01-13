@@ -108,4 +108,11 @@ public final class OriginalHTClausePB extends OriginalHTClause
     public BigInteger getSumCoefs() {
         return BigInteger.valueOf(size());
     }
+
+    private int id;
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
+    }
 }

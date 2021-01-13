@@ -727,4 +727,11 @@ public abstract class WatchPb
     public BigInteger getSumCoefs() {
         return sumcoefs;
     }
+
+    private int id;
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
+    }
 }

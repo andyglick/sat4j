@@ -34,9 +34,12 @@ import org.sat4j.ILauncherMode;
 import org.sat4j.core.ASolverFactory;
 import org.sat4j.pb.reader.OPBReader2012;
 import org.sat4j.pb.tools.OptimalModelIterator;
+import org.sat4j.pb.tools.PBSearchListener;
+import org.sat4j.pb.tools.PBSearchListenerAdapter;
 import org.sat4j.reader.DimacsReader;
 import org.sat4j.reader.Reader;
 import org.sat4j.specs.ISolver;
+import org.sat4j.specs.ISolverService;
 
 /**
  * Launcher for the Pseudo Boolean 2007 competition.
@@ -77,6 +80,12 @@ public class LanceurPseudo2007 extends LanceurPseudo2005 {
             this.solver = new OptimalModelIterator(
                     new OptToPBSATAdapter(this.handle));
             setLauncherMode(ILauncherMode.DECISION);
+        }
+        String veripb = System.getProperty("veripb");
+        if (veripb != null) {
+            PBSearchListener<ISolverService> listener = new PBSearchListenerAdapter<ISolverService>() {
+            };
+            this.solver.setSearchListener(listener);
         }
         super.configureLauncher();
     }

@@ -27,54 +27,59 @@
  * Contributors:
  *   CRIL - initial API and implementation
  *******************************************************************************/
-package org.sat4j.pb.constraints.pb;
+package org.sat4j.minisat.orders;
 
-import java.math.BigInteger;
+import static org.sat4j.core.LiteralsUtils.negLit;
+import static org.sat4j.core.LiteralsUtils.var;
 
-import org.sat4j.minisat.constraints.cnf.UnitClauses;
-import org.sat4j.minisat.core.ILits;
-import org.sat4j.specs.IVecInt;
+import org.sat4j.core.LiteralsUtils;
 
-public class UnitClausesPB extends UnitClauses implements PBConstr {
+/**
+ * Keeps track of the phase of the latest assignment during search, while
+ * preserving the one of the latest solution found (typically for optimization).
+ * 
+ * (implemented after seeing a talk at PoS 18 :
+ * https://easychair.org/smart-program/FLoC2018/POS-2018-07-07.html#talk:72764)
+ * 
+ * @author leberre
+ * 
+ */
+public final class SolutionPhaseSelectionStrategy
+        extends AbstractPhaserecordingSelectionStrategy {
 
-    public UnitClausesPB(IVecInt values) {
-        super(values);
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    public void init(int nlength) {
+        if (this.phase == null || this.phase.length < nlength) {
+            this.phase = new int[nlength];
+            for (int i = 1; i < nlength; i++) {
+                this.phase[i] = negLit(i);
+            }
+        }
     }
 
-    public BigInteger getCoef(int literal) {
-        return BigInteger.ONE;
-    }
-
-    public BigInteger getDegree() {
-        return BigInteger.ONE;
-    }
-
-    public ILits getVocabulary() {
-        throw new UnsupportedOperationException();
-    }
-
-    public int[] getLits() {
-        throw new UnsupportedOperationException();
-    }
-
-    public BigInteger[] getCoefs() {
-        throw new UnsupportedOperationException();
-    }
-
-    public IVecInt computeAnImpliedClause() {
-        throw new UnsupportedOperationException();
+    public void assignLiteral(int p) {
+        this.phase[var(p)] = p;
     }
 
     @Override
-    public BigInteger getSumCoefs() {
-        return BigInteger.ONE;
+    public String toString() {
+        return "lightweight component caching from RSAT plus solution phase";
     }
 
-    private int id;
+    public void updateVar(int p) {
+    }
 
-    @Override
-    public void setId(int id) {
-        throw new UnsupportedOperationException(
-                "This is a set of unit clauses ...");
+    public void updateVarAtDecisionLevel(int p) {
+    }
+
+    public void onModelFound(int[] model) {
+        for (int l : model) {
+            this.phase[Math.abs(l)] = LiteralsUtils.toInternal(l);
+        }
     }
 }

@@ -356,4 +356,11 @@ public final class MaxWatchPbLongCP extends WatchPbLongCP {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("To be done");
     }
+
+    private int id;
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
+    }
 }

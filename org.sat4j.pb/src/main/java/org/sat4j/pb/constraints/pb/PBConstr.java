@@ -54,4 +54,10 @@ public interface PBConstr extends Constr {
     IVecInt computeAnImpliedClause();
 
     BigInteger getSumCoefs();
+
+    /**
+     * @since 3.0.0
+     */
+
+    void setId(int id);
 }
