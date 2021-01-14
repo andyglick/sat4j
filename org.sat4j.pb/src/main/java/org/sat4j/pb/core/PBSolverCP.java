@@ -234,9 +234,11 @@ public class PBSolverCP extends PBSolver {
     }
 
     protected IConflict chooseConflict(PBConstr myconfl, int level) {
-        return conflictFactory.createConflict(myconfl, level, noRemove,
-                skipAllow, preprocess, postprocess, weakeningStrategy,
+        IConflict conflict = conflictFactory.createConflict(myconfl, level,
+                noRemove, skipAllow, preprocess, postprocess, weakeningStrategy,
                 autoDivisionStrategy, pbStats);
+        conflict.setListener(listener());
+        return conflict;
     }
 
     @Override
