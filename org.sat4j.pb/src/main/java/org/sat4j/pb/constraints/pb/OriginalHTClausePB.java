@@ -115,4 +115,9 @@ public final class OriginalHTClausePB extends OriginalHTClause
     public void setId(int id) {
         this.id = id;
     }
+
+    @Override
+    public int getId() {
+        return id;
+    }
 }

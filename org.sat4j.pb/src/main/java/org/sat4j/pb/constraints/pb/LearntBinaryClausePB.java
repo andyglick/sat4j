@@ -90,4 +90,9 @@ public final class LearntBinaryClausePB extends LearntBinaryClause
     public void setId(int id) {
         this.id = id;
     }
+
+    @Override
+    public int getId() {
+        return id;
+    }
 }

@@ -110,4 +110,9 @@ public final class LearntHTClausePB extends LearntHTClause implements PBConstr {
     public void setId(int id) {
         this.id = id;
     }
+
+    @Override
+    public int getId() {
+        return id;
+    }
 }

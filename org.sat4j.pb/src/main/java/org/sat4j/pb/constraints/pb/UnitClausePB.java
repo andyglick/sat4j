@@ -99,4 +99,9 @@ public final class UnitClausePB extends UnitClause implements PBConstr {
     public void setId(int id) {
         this.id = id;
     }
+
+    @Override
+    public int getId() {
+        return id;
+    }
 }

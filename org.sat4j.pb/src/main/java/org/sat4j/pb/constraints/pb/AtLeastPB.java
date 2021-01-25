@@ -162,4 +162,8 @@ public final class AtLeastPB extends AtLeast implements PBConstr {
         this.id = id;
     }
 
+    @Override
+    public int getId() {
+        return id;
+    }
 }

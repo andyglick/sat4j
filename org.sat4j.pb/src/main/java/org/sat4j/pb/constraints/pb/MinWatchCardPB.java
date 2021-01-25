@@ -229,4 +229,9 @@ public final class MinWatchCardPB extends MinWatchCard implements PBConstr {
     public void setId(int id) {
         this.id = id;
     }
+
+    @Override
+    public int getId() {
+        return id;
+    }
 }

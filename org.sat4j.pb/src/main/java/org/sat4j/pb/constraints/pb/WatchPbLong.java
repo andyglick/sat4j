@@ -740,4 +740,9 @@ public abstract class WatchPbLong
     public void setId(int id) {
         this.id = id;
     }
+
+    @Override
+    public int getId() {
+        return id;
+    }
 }
