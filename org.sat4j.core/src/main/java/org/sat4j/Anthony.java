@@ -51,27 +51,32 @@ public class Anthony {
         return propagated;
     }
 
+    private static int decide(IVecInt implied, ILits lits, IOrder order) {
+        for (IteratorInt it = implied.iterator(); it.hasNext();) {
+            int l = it.next();
+            lits.satisfies(LiteralsUtils.toInternal(l));
+        }
+        return LiteralsUtils.toDimacs(order.select());
+    }
+
     public static void main(String[] args) throws TimeoutException,
             ParseFormatException, IOException, ContradictionException {
         if (args.length == 1) {
             String filename = args[0];
             ISolver solver = SolverFactory.newDefault();
+            ILits lits = ((Solver) solver).getVocabulary();
+            IOrder order = ((ICDCL<?>) solver).getOrder();
+
             Reader reader = new DimacsReader(solver);
             reader.parseInstance(filename);
             IVecInt implied = Backbone.instance().compute(solver);
-            ICDCL<?> cdcl = (ICDCL<?>) solver;
-            ILits lits = ((Solver) solver).getVocabulary();
-            IOrder order = cdcl.getOrder();
+
             IVecInt assumptions = new VecInt();
             Collection<Decision> decisions = new ArrayList<>();
             IVecInt propagated = findPropagated(implied, assumptions);
             decisions.add(new Decision(null, propagated));
             do {
-                for (IteratorInt it = implied.iterator(); it.hasNext();) {
-                    int l = it.next();
-                    lits.satisfies(LiteralsUtils.toInternal(l));
-                }
-                int d = LiteralsUtils.toDimacs(order.select());
+                int d = decide(implied, lits, order);
                 assumptions.push(d);
                 implied = Backbone.instance().compute(solver, assumptions);
                 propagated = findPropagated(implied, assumptions);
