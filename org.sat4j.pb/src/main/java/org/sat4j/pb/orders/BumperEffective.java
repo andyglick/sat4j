@@ -25,7 +25,7 @@ public class BumperEffective implements IBumper {
 
     @Override
     public void varBumpActivity(ILits voc, BumpStrategy bStrategy, IOrder order,
-            PBConstr constr, int lit, int propagated) {
+            PBConstr constr, int lit, int propagated, boolean conflicting) {
         if (lit == 0) {
             // A new constraint is being bumped.
             constrDegree = constr.getDegree();

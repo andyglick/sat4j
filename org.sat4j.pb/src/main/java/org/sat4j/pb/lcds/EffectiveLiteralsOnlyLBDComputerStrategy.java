@@ -54,6 +54,11 @@ public class EffectiveLiteralsOnlyLBDComputerStrategy
 
     @Override
     protected int fixLbd(PBConstr constr, int lbd) {
+        // For each level, the candidate literal is the one with the highest
+        // coefficient.
+        // As such, if it is effective, the level indeed appears in the LBD.
+        // Otherwise, all other literals at this level will have a smaller
+        // coefficient, and will not be effective either.
         int newLbd = 0;
         for (IteratorInt it = lbdCandidates.iterator(); it.hasNext();) {
             int v = it.next();

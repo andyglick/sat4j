@@ -317,9 +317,10 @@ public class PBSolverCP extends PBSolver {
     }
 
     @Override
-    public void varBumpActivity(Constr constr, int i, int p) {
+    public void varBumpActivity(Constr constr, int i, int p,
+            boolean conflicting) {
         bumper.varBumpActivity(voc, bumpStrategy, getOrder(), (PBConstr) constr,
-                i, p);
+                i, p, conflicting);
     }
 
     @Override

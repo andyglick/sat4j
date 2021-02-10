@@ -31,6 +31,7 @@ package org.sat4j.pb.constraints.pb;
 
 import java.math.BigInteger;
 
+import org.sat4j.core.LiteralsUtils;
 import org.sat4j.minisat.constraints.cnf.Lits;
 import org.sat4j.minisat.core.VarActivityListener;
 import org.sat4j.specs.IVec;
@@ -208,13 +209,15 @@ public class MapPb implements IDataStructurePB {
         assert this.degree.signum() > 0;
         if (reducedCoefs == null) {
             for (int i = 0; i < cpb.size(); i++) {
-                val.varBumpActivity(cpb, i, p);
+                val.varBumpActivity(cpb, i, p, weightedLits
+                        .containsKey(LiteralsUtils.neg(cpb.get(i))));
                 cuttingPlaneStep(cpb.get(i),
                         multiplyCoefficient(cpb.getCoef(i), coefMult));
             }
         } else {
             for (int i = 0; i < cpb.size(); i++) {
-                val.varBumpActivity(cpb, i, p);
+                val.varBumpActivity(cpb, i, p, weightedLits
+                        .containsKey(LiteralsUtils.neg(cpb.get(i))));
                 cuttingPlaneStep(cpb.get(i),
                         multiplyCoefficient(reducedCoefs[i], coefMult));
             }

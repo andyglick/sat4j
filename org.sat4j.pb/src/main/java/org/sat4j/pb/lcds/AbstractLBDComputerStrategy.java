@@ -34,7 +34,7 @@ public abstract class AbstractLBDComputerStrategy
                 nblevel += assignedLiteral(voc, constr, i);
             }
         }
-        return nblevel;
+        return fixLbd(constr, nblevel);
     }
 
     protected void startComputeLBD(PBConstr constr, int propagated) {
