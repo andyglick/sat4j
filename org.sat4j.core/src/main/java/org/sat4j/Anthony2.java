@@ -79,6 +79,13 @@ public class Anthony2 {
         return LiteralsUtils.toDimacs(order.select());
     }
 
+    private static void unassign(IVecInt literals, ILits lits) {
+        for (IteratorInt it = literals.iterator(); it.hasNext();) {
+            int l = it.next();
+            lits.unassign(LiteralsUtils.toInternal(l));
+        }
+    }
+
     private static Collection<Decision> cloneDecisions(
             Collection<Decision> decisions) {
         return decisions.stream().map(Decision::new)
@@ -94,7 +101,6 @@ public class Anthony2 {
         if (d != null) {
             assumptions.push(d);
         }
-        System.out.println(assumptions);
         solver.clearLearntClauses();
         IVecInt implied = Backbone.instance().compute(solver, assumptions);
         IVecInt propagated = findPropagated(implied, assumptions);
@@ -103,12 +109,14 @@ public class Anthony2 {
             int nextDecision = decide(implied, lits, order);
             applyAndDecide(nextDecision, cloneDecisions(decisions), models,
                     assumptions.clone(), solver, lits, order);
+            lits.unassign(LiteralsUtils.toInternal(nextDecision));
             applyAndDecide(-nextDecision, cloneDecisions(decisions), models,
                     assumptions.clone(), solver, lits, order);
+            lits.unassign(LiteralsUtils.toInternal(-nextDecision));
         } else {
-            System.out.println(decisions);
             models.add(new Model(decisions));
         }
+        unassign(propagated, lits);
     }
 
     public static void main(String[] args) throws TimeoutException,
