@@ -337,9 +337,21 @@ public interface Constr extends IConstr {
      * @return a unique integral id for the constraint.
      * @throws UnsupportedOperationException
      *             if no such identifier is available
-     * @since 2.3.6
+     * @since 3.0
      */
     default int getId() {
         throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Allow the user to give a specific id to the constraint.
+     * 
+     * The constraint may ignore it.
+     * 
+     * @param nbConstraintsRead
+     * @since 3.0
+     */
+    default void setId(int nbConstraintsRead) {
+        // do nothing
     }
 }
