@@ -40,6 +40,8 @@ import org.sat4j.minisat.core.SearchParams;
 import org.sat4j.minisat.restarts.MiniSATRestarts;
 import org.sat4j.pb.constraints.pb.AutoDivisionStrategy;
 import org.sat4j.pb.constraints.pb.ConflictMap;
+import org.sat4j.pb.constraints.pb.DefaultAnalysisStrategy;
+import org.sat4j.pb.constraints.pb.IAnalysisStrategy;
 import org.sat4j.pb.constraints.pb.IConflict;
 import org.sat4j.pb.constraints.pb.IConflictFactory;
 import org.sat4j.pb.constraints.pb.IPostProcess;
@@ -88,6 +90,8 @@ public class PBSolverCP extends PBSolver {
     private BumpStrategy bumpStrategy = BumpStrategy.ALWAYS_ONE;
 
     private IBumper bumper = Bumper.ANY;
+
+    private final IAnalysisStrategy analysisStrategy = new DefaultAnalysisStrategy();
 
     /**
      * @param acg
@@ -155,16 +159,17 @@ public class PBSolverCP extends PBSolver {
             throws TimeoutException {
         int litImplied = this.trail.last();
         int currentLevel = this.voc.getLevel(litImplied);
-        IConflict confl = chooseConflict((PBConstr) myconfl, currentLevel);
+        ConflictMap confl = chooseConflict((PBConstr) myconfl, currentLevel);
         confl.setDecisionLevel(currentLevel);
         assert confl.slackConflict().signum() < 0;
-        while (!confl.isUnsat() && !confl.isAssertive(currentLevel)) {
+        while (!confl.isUnsat() && !confl.isAssertive(currentLevel)
+                && !analysisStrategy.shouldStop(currentLevel)) {
             if (!this.undertimeout) {
                 throw new TimeoutException();
             }
             PBConstr constraint = (PBConstr) this.voc.getReason(litImplied);
             // result of the resolution is in the conflict (confl)
-            confl.resolve(constraint, litImplied, this);
+            analysisStrategy.resolve(litImplied, confl, constraint);
             updateNumberOfReductions(confl);
             assert confl.slackConflict().signum() < 0;
             // implication trail is reduced
@@ -186,6 +191,10 @@ public class PBSolverCP extends PBSolver {
             assert confl.slackIsCorrect(currentLevel);
             assert currentLevel == decisionLevel();
             assert litImplied > 1;
+            if (confl.isAssertive(currentLevel)) {
+                analysisStrategy
+                        .isAssertiveAt(confl.getBacktrackLevel(currentLevel));
+            }
         }
         assert confl.isAssertive(currentLevel) || this.trail.size() == 1
                 || decisionLevel() == 0 || confl.isUnsat();
@@ -220,9 +229,9 @@ public class PBSolverCP extends PBSolver {
         // }
     }
 
-    protected IConflict chooseConflict(PBConstr myconfl, int level) {
-        return conflictFactory.createConflict(myconfl, level, noRemove,
-                skipAllow, preprocess, postprocess, weakeningStrategy,
+    protected ConflictMap chooseConflict(PBConstr myconfl, int level) {
+        return (ConflictMap) conflictFactory.createConflict(myconfl, level,
+                noRemove, skipAllow, preprocess, postprocess, weakeningStrategy,
                 autoDivisionStrategy, pbStats);
     }
 

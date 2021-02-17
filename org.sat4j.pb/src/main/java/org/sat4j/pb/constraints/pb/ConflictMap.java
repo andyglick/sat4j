@@ -65,6 +65,7 @@ public class ConflictMap extends MapPb implements IConflict {
     final PBSolverStats stats;
 
     protected IPreProcess preProcess = NoPreProcess.instance();
+
     /**
      * allows to access directly to all variables belonging to a particular
      * level At index 0, unassigned literals are stored (usually level -1); so
@@ -826,6 +827,7 @@ public class ConflictMap extends MapPb implements IConflict {
                 }
             }
             assert previous == oldGetBacktrackLevel(maxLevel);
+            this.backtrackLevel = previous;
             return previous;
         } else
             return this.backtrackLevel;

@@ -31,6 +31,7 @@ package org.sat4j.pb.core;
 
 import org.sat4j.minisat.core.IOrder;
 import org.sat4j.minisat.core.LearningStrategy;
+import org.sat4j.pb.constraints.pb.ConflictMap;
 import org.sat4j.pb.constraints.pb.ConflictMapSwitchToClause;
 import org.sat4j.pb.constraints.pb.IConflict;
 import org.sat4j.pb.constraints.pb.PBConstr;
@@ -53,7 +54,7 @@ public class PBSolverCautious extends PBSolverCP {
     }
 
     @Override
-    protected IConflict chooseConflict(PBConstr myconfl, int level) {
+    protected ConflictMap chooseConflict(PBConstr myconfl, int level) {
         return new ConflictMapSwitchToClause(myconfl, level, isNoRemove(),
                 isSkipAllow(), pbStats);
     }

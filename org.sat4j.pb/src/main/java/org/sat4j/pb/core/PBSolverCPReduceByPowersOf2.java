@@ -5,8 +5,8 @@ import org.sat4j.minisat.core.LearningStrategy;
 import org.sat4j.minisat.core.RestartStrategy;
 import org.sat4j.minisat.core.SearchParams;
 import org.sat4j.pb.constraints.pb.AutoDivisionStrategy;
+import org.sat4j.pb.constraints.pb.ConflictMap;
 import org.sat4j.pb.constraints.pb.ConflictMapReduceByPowersOf2;
-import org.sat4j.pb.constraints.pb.IConflict;
 import org.sat4j.pb.constraints.pb.IWeakeningStrategy;
 import org.sat4j.pb.constraints.pb.NoPostProcess;
 import org.sat4j.pb.constraints.pb.NoPreProcess;
@@ -68,7 +68,7 @@ public class PBSolverCPReduceByPowersOf2 extends PBSolverCP {
     }
 
     @Override
-    protected IConflict chooseConflict(PBConstr myconfl, int level) {
+    protected ConflictMap chooseConflict(PBConstr myconfl, int level) {
         return ConflictMapReduceByPowersOf2.createConflict(myconfl, level,
                 isNoRemove(), isSkipAllow(), NoPreProcess.instance(),
                 NoPostProcess.instance(), IWeakeningStrategy.UNASSIGNED_FIRST,

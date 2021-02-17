@@ -34,8 +34,8 @@ import org.sat4j.minisat.core.LearningStrategy;
 import org.sat4j.minisat.core.RestartStrategy;
 import org.sat4j.minisat.core.SearchParams;
 import org.sat4j.pb.constraints.pb.AutoDivisionStrategy;
+import org.sat4j.pb.constraints.pb.ConflictMap;
 import org.sat4j.pb.constraints.pb.ConflictMapRounding;
-import org.sat4j.pb.constraints.pb.IConflict;
 import org.sat4j.pb.constraints.pb.IWeakeningStrategy;
 import org.sat4j.pb.constraints.pb.NoPostProcess;
 import org.sat4j.pb.constraints.pb.NoPreProcess;
@@ -91,9 +91,9 @@ public class PBSolverCPLongRounding extends PBSolverCPLong {
     }
 
     @Override
-    protected IConflict chooseConflict(PBConstr myconfl, int level) {
-        return ConflictMapRounding.createConflict(myconfl, level, isNoRemove(),
-                isSkipAllow(), NoPreProcess.instance(),
+    protected ConflictMap chooseConflict(PBConstr myconfl, int level) {
+        return (ConflictMap) ConflictMapRounding.createConflict(myconfl, level,
+                isNoRemove(), isSkipAllow(), NoPreProcess.instance(),
                 NoPostProcess.instance(), IWeakeningStrategy.UNASSIGNED_FIRST,
                 AutoDivisionStrategy.ENABLED, pbStats);
     }

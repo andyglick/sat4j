@@ -34,8 +34,8 @@ import org.sat4j.minisat.core.LearningStrategy;
 import org.sat4j.minisat.core.RestartStrategy;
 import org.sat4j.minisat.core.SearchParams;
 import org.sat4j.pb.constraints.pb.AutoDivisionStrategy;
+import org.sat4j.pb.constraints.pb.ConflictMap;
 import org.sat4j.pb.constraints.pb.ConflictMapReduceToClause;
-import org.sat4j.pb.constraints.pb.IConflict;
 import org.sat4j.pb.constraints.pb.IWeakeningStrategy;
 import org.sat4j.pb.constraints.pb.NoPreProcess;
 import org.sat4j.pb.constraints.pb.PBConstr;
@@ -96,9 +96,9 @@ public class PBSolverCPClauseLearning extends PBSolverCPLong {
     }
 
     @Override
-    protected IConflict chooseConflict(PBConstr myconfl, int level) {
-        return ConflictMapReduceToClause.createConflict(myconfl, level,
-                isNoRemove(), isSkipAllow(), NoPreProcess.instance(),
+    protected ConflictMap chooseConflict(PBConstr myconfl, int level) {
+        return (ConflictMap) ConflictMapReduceToClause.createConflict(myconfl,
+                level, isNoRemove(), isSkipAllow(), NoPreProcess.instance(),
                 PostProcessToClause.instance(),
                 IWeakeningStrategy.UNASSIGNED_FIRST,
                 AutoDivisionStrategy.ENABLED, pbStats);
