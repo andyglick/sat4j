@@ -69,7 +69,6 @@ import org.sat4j.pb.IPBSolver;
 import org.sat4j.pb.ObjectiveFunction;
 import org.sat4j.reader.ParseFormatException;
 import org.sat4j.reader.Reader;
-import org.sat4j.specs.Constr;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.IConstr;
 import org.sat4j.specs.IProblem;
@@ -186,7 +185,7 @@ public class OPBReader2005 extends Reader implements Serializable {
             constr = this.solver.addAtLeast(this.lits, this.coeffs, this.d);
         }
         this.nbConstraintsRead++;
-        ((Constr) constr).setId(this.nbConstraintsRead);
+        constr.setId(this.nbConstraintsRead);
     }
 
     /**
