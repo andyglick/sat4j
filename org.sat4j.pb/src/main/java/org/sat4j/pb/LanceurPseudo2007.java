@@ -64,6 +64,12 @@ public class LanceurPseudo2007 extends LanceurPseudo2005 {
 
     @Override
     protected Reader createReader(ISolver theSolver, String problemname) {
+        String veripb = System.getProperty("veripb");
+        if (veripb != null) {
+            PBSearchListener<ISolverService> listener = new PBSearchListenerAdapter<ISolverService>() {
+            };
+            this.solver.setSearchListener(listener);
+        }
         if (problemname.endsWith(".cnf"))
             return new DimacsReader(theSolver);
         return new OPBReader2012(handle);
@@ -80,12 +86,6 @@ public class LanceurPseudo2007 extends LanceurPseudo2005 {
             this.solver = new OptimalModelIterator(
                     new OptToPBSATAdapter(this.handle));
             setLauncherMode(ILauncherMode.DECISION);
-        }
-        String veripb = System.getProperty("veripb");
-        if (veripb != null) {
-            PBSearchListener<ISolverService> listener = new PBSearchListenerAdapter<ISolverService>() {
-            };
-            this.solver.setSearchListener(listener);
         }
         super.configureLauncher();
     }
