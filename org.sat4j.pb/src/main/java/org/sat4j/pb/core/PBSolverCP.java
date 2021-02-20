@@ -169,6 +169,7 @@ public class PBSolverCP extends PBSolver {
         int litImplied = this.trail.last();
         int currentLevel = this.voc.getLevel(litImplied);
         IConflict confl = chooseConflict((PBConstr) myconfl, currentLevel);
+        confl.setListener(listener());
         confl.setDecisionLevel(currentLevel);
         assert confl.slackConflict().signum() < 0;
         while (!confl.isUnsat() && !confl.isAssertive(currentLevel)) {
@@ -237,7 +238,6 @@ public class PBSolverCP extends PBSolver {
         IConflict conflict = conflictFactory.createConflict(myconfl, level,
                 noRemove, skipAllow, preprocess, postprocess, weakeningStrategy,
                 autoDivisionStrategy, pbStats);
-        conflict.setListener(listener());
         return conflict;
     }
 
