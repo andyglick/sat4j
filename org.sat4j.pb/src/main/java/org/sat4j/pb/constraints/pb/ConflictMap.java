@@ -253,7 +253,7 @@ public class ConflictMap extends MapPb implements IConflict {
 
     private final IPostProcess postProcess;
 
-    private final IWeakeningStrategy weakeningStrategy;
+    final IWeakeningStrategy weakeningStrategy;
 
     public void postProcess(int dl) {
         this.postProcess.postProcess(dl, this);
@@ -968,7 +968,7 @@ public class ConflictMap extends MapPb implements IConflict {
         super.removeCoef(lit);
     }
 
-    private int getLevelByLevel(int lit) {
+    int getLevelByLevel(int lit) {
         for (int i = 0; i < this.byLevel.length; i++) {
             if (this.byLevel[i] != null && this.byLevel[i].contains(lit)) {
                 return i;

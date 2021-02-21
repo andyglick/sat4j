@@ -13,7 +13,7 @@ public interface IAnalysisStrategy {
 
     void setSolver(PBSolverCP solver);
 
-    void isAssertiveAt(int dl);
+    void isAssertiveAt(int dl, int litImplied);
 
     void resolve(int pivotLit, ConflictMap conflict, PBConstr constr);
 

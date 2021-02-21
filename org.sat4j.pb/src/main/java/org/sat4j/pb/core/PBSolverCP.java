@@ -192,8 +192,9 @@ public class PBSolverCP extends PBSolver {
             assert currentLevel == decisionLevel();
             assert litImplied > 1;
             if (confl.isAssertive(currentLevel)) {
-                analysisStrategy
-                        .isAssertiveAt(confl.getBacktrackLevel(currentLevel));
+                analysisStrategy.isAssertiveAt(
+                        confl.getBacktrackLevel(currentLevel),
+                        confl.getAssertiveLiteral());
             }
         }
         assert confl.isAssertive(currentLevel) || this.trail.size() == 1
