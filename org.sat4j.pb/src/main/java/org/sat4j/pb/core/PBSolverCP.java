@@ -54,9 +54,12 @@ import org.sat4j.pb.orders.BumpStrategy;
 import org.sat4j.pb.orders.Bumper;
 import org.sat4j.pb.orders.IBumper;
 import org.sat4j.pb.tools.PBSearchListener;
+import org.sat4j.pb.tools.PBSearchListenerDecorator;
 import org.sat4j.pb.tools.VoidPBTracing;
 import org.sat4j.specs.Constr;
+import org.sat4j.specs.ISolverService;
 import org.sat4j.specs.IVec;
+import org.sat4j.specs.SearchListener;
 import org.sat4j.specs.TimeoutException;
 
 /**
@@ -340,5 +343,15 @@ public class PBSolverCP extends PBSolver {
     @Override
     public void postBumpActivity(Constr constr) {
         bumper.postBumpActivity(getOrder(), (PBConstr) constr);
+    }
+
+    @Override
+    public <S extends ISolverService> void setSearchListener(
+            SearchListener<S> sl) {
+        if (sl instanceof PBSearchListener) {
+            super.setSearchListener(sl);
+        } else {
+            super.setSearchListener(new PBSearchListenerDecorator<>(sl));
+        }
     }
 }
