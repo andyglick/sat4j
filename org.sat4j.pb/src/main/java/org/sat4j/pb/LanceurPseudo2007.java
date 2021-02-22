@@ -35,7 +35,7 @@ import org.sat4j.core.ASolverFactory;
 import org.sat4j.pb.reader.OPBReader2012;
 import org.sat4j.pb.tools.OptimalModelIterator;
 import org.sat4j.pb.tools.PBSearchListener;
-import org.sat4j.pb.tools.PBSearchListenerAdapter;
+import org.sat4j.pb.tools.VERIPBSearchListener;
 import org.sat4j.reader.DimacsReader;
 import org.sat4j.reader.Reader;
 import org.sat4j.specs.ISolver;
@@ -66,8 +66,8 @@ public class LanceurPseudo2007 extends LanceurPseudo2005 {
     protected Reader createReader(ISolver theSolver, String problemname) {
         String veripb = System.getProperty("veripb");
         if (veripb != null) {
-            PBSearchListener<ISolverService> listener = new PBSearchListenerAdapter<ISolverService>() {
-            };
+            PBSearchListener<ISolverService> listener = new VERIPBSearchListener(
+                    problemname);
             this.solver.setSearchListener(listener);
         }
         if (problemname.endsWith(".cnf"))
