@@ -24,7 +24,7 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
             PBConstr constr) {
         int nLitImplied = litImplied ^ 1;
         if (constr == null || !conflict.weightedLits.containsKey(nLitImplied)) {
-            // Nor resolution: undo operation should be anticipated
+            // No resolution: undo operation should be anticipated
             undo(litImplied, conflict, nLitImplied);
             return;
         }
@@ -84,7 +84,8 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
                 reducedCoefs);
 
         do {
-            if (slackResolve.signum() >= 0) {
+            if (slackResolve.compareTo(
+                    conflict.weightedLits.getCoef(assertiveLitIndex)) >= 0) {
                 // Weakening a literal to (try) to preserve the assertion level.
                 assert slackThis.signum() > 0;
                 BigInteger tmp = reduceInConstraint(conflict, wpb, reducedCoefs,
@@ -121,14 +122,17 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
             slackThis = conflict.possReducedCoefs.subtract(reducedDegree)
                     .multiply(conflict.coefMultCons);
             assert slackThis
-                    .equals(wpb.slackConstraint(reducedCoefs, reducedDegree)
+                    .equals(slackConstraint(conflict.voc, wpb, reducedCoefs)
+                            .subtract(reducedDegree)
                             .multiply(conflict.coefMultCons));
-            assert slackConflict.equals(conflict.slackConflict());
+            assert slackConflict.equals(conflict.computeSlack(assertiveDL + 1));
             BigInteger slackIndex = slackConflict.multiply(conflict.coefMult);
-            assert slackIndex.signum() <= 0;
-            // estimate of the slack after the cutting plane
+            // assert slackIndex.compareTo();
+            // TODO Really update the slack, not only estimate.
             slackResolve = slackThis.add(slackIndex);
-        } while ((slackResolve.signum() >= 0) || conflict.isUnsat());
+        } while ((slackResolve.compareTo(
+                conflict.weightedLits.getCoef(assertiveLitIndex)) >= 0)
+                || conflict.isUnsat());
 
         assert conflict.coefMult
                 .multiply(conflict.weightedLits.get(litImplied ^ 1))
@@ -143,13 +147,14 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
             final BigInteger degreeBis, BigInteger slackResolve) {
         assert degreeBis.compareTo(BigInteger.ONE) > 0;
 
+        // TODO literal of any level > assertiveDL may be removed
         // search of a literal to remove
         int lit = conflict.weakeningStrategy.findLiteralToRemove(conflict.voc,
                 wpb, coefsBis, indLitImplied, degreeBis);
 
         // If no literal has been found, we do not resolve.
-        // Note that this is possible as we want to preserve the assertion
-        // level, not the conflict.
+        // Note that this is possible as we already know that we will propagate
+        // at some point.
         if (lit < 0 || lit == indLitImplied) {
             return BigInteger.ZERO;
         }
@@ -195,6 +200,8 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
                         .multiply(conflict.coefMult));
             }
         }
+        // TODO Really here??
+        conflict.degree = conflict.degree.multiply(conflict.coefMult);
 
         // cutting plane
         conflict.degree = conflict.cuttingPlane(constr, degreeCons, coefsCons,
@@ -207,13 +214,14 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
         assert conflict.getLevelByLevel(litImplied) == -1;
         assert conflict.getLevelByLevel(litImplied ^ 1) == -1;
         assert conflict.degree.signum() > 0;
-        assert conflict.slackConflict()
-                .compareTo(conflict.weightedLits.getCoef(assertiveLit)) < 0;
-
+        assert conflict.computeSlack(assertiveDL).subtract(conflict.degree)
+                .compareTo(
+                        conflict.weightedLits.getCoef(assertiveLitIndex)) < 0;
         // saturation
         conflict.degree = conflict.saturation();
-        assert conflict.slackConflict()
-                .compareTo(conflict.weightedLits.getCoef(assertiveLit)) < 0;
+        assert conflict.computeSlack(assertiveDL).subtract(conflict.degree)
+                .compareTo(
+                        conflict.weightedLits.getCoef(assertiveLitIndex)) < 0;
         conflict.divideCoefs();
     }
 

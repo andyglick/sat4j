@@ -15,7 +15,7 @@ public abstract class AbstractAnalysisStrategy implements IAnalysisStrategy {
 
     protected int assertiveDL = -2;
 
-    protected int assertiveLit;
+    protected int assertiveLitIndex;
 
     @Override
     public void setSolver(PBSolverCP solver) {
@@ -25,7 +25,7 @@ public abstract class AbstractAnalysisStrategy implements IAnalysisStrategy {
     @Override
     public void isAssertiveAt(int dl, int assertiveLit) {
         this.assertiveDL = dl;
-        this.assertiveLit = assertiveLit;
+        this.assertiveLitIndex = assertiveLit;
     }
 
     @Override
