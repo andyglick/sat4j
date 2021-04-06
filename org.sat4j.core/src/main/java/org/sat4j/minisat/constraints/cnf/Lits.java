@@ -185,7 +185,7 @@ public final class Lits implements Serializable, ILits {
     }
 
     public boolean isSatisfied(int lit) {
-        return this.falsified[lit ^ 1];
+        return this.falsified[lit ^ 1] && !this.falsified[lit];
     }
 
     public boolean isFalsified(int lit) {

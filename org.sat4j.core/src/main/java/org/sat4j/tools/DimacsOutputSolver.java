@@ -247,4 +247,9 @@ public class DimacsOutputSolver extends AbstractOutputSolver
     public void setUnitClauseConsumer(UnitClauseConsumer ucc) {
         throw new UnsupportedOperationException("Not implemented yet!");
     }
+
+    @Override
+    public int[] decisions() {
+        throw new UnsupportedOperationException("Not implemented yet!");
+    }
 }

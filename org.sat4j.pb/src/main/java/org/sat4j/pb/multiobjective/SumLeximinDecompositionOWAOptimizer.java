@@ -715,6 +715,11 @@ public class SumLeximinDecompositionOWAOptimizer
     public void setUnitClauseConsumer(UnitClauseConsumer ucc) {
         solver.setUnitClauseConsumer(ucc);
     }
+
+    @Override
+    public int[] decisions() {
+        return solver.decisions();
+    }
     // END DELEGATION
 
 }

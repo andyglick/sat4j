@@ -1714,31 +1714,31 @@ public class Solver<D extends DataStructureFactory>
     public final LearnedConstraintsDeletionStrategy activity_based_low_memory = new ActivityLCDS(
             this, this.memoryTimer);
 
-    private final ConflictTimer lbdTimer = new LBDConflictTimer(this, 1000);
+    private final ConflictTimer glucoseTimer = new GlucoseConflictTimer(this, 1000);
 
     /**
      * @since 2.1
      */
     public final LearnedConstraintsDeletionStrategy lbd_based = new Glucose2LCDS<D>(
-            this, this.lbdTimer);
+            this, this.glucoseTimer);
 
     /**
      * @since 2.3.6
      */
     public final LearnedConstraintsDeletionStrategy age_based = new AgeLCDS(
-            this, this.lbdTimer);
+            this, this.glucoseTimer);
 
     /**
      * @since 2.3.6
      */
     public final LearnedConstraintsDeletionStrategy activity_based = new ActivityLCDS(
-            this, this.lbdTimer);
+            this, this.glucoseTimer);
 
     /**
      * @since 2.3.6
      */
     public final LearnedConstraintsDeletionStrategy size_based = new SizeLCDS(
-            this, this.lbdTimer);
+            this, this.glucoseTimer);
 
     private LearnedConstraintsDeletionStrategy learnedConstraintsDeletionStrategy = this.lbd_based;
 
@@ -2603,5 +2603,17 @@ public class Solver<D extends DataStructureFactory>
     @Override
     public void postBumpActivity(Constr constr) {
         // Nothing to do by default.
+    }
+
+    @Override
+    public int[] decisions() {
+        if (model == null) {
+            throw new IllegalStateException(
+                    "Can only call that method when the problem is satisfiable!");
+        }
+        int n = decisions.size();
+        int[] outdecisions = new int[n];
+        System.arraycopy(decisions.toArray(), 0, outdecisions, 0, n);
+        return outdecisions;
     }
 }

@@ -565,4 +565,9 @@ public abstract class SolverDecorator<T extends ISolver> implements ISolver {
     public void setUnitClauseConsumer(UnitClauseConsumer ucc) {
         this.solver.setUnitClauseConsumer(ucc);
     }
+
+    @Override
+    public int[] decisions() {
+        return this.solver.decisions();
+    }
 }

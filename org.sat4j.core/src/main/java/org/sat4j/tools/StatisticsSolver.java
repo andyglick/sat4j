@@ -472,6 +472,11 @@ public class StatisticsSolver implements ISolver {
 
     @Override
     public void setUnitClauseConsumer(UnitClauseConsumer ucc) {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);
+    }
+
+    @Override
+    public int[] decisions() {
+        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);
     }
 }

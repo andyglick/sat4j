@@ -647,6 +647,11 @@ public class ManyCore<S extends ISolver> implements ISolver, OutcomeListener,
         throw new UnsupportedOperationException(
                 "Does not make sense in the parallel context");
     }
+
+    @Override
+    public int[] decisions() {
+        return this.solvers.get(this.getWinnerId()).decisions();
+    }
 }
 
 class RunnableSolver implements Runnable {

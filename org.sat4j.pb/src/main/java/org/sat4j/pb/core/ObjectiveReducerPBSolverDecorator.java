@@ -452,4 +452,9 @@ public class ObjectiveReducerPBSolverDecorator implements IPBSolver {
     public void setUnitClauseConsumer(UnitClauseConsumer ucc) {
         decorated.setUnitClauseConsumer(ucc);
     }
+
+    @Override
+    public int[] decisions() {
+        return decorated.decisions();
+    }
 }

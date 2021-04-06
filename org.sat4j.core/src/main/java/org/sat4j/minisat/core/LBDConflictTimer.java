@@ -35,14 +35,15 @@ package org.sat4j.minisat.core;
  * @author daniel
  * 
  */
-final class LBDConflictTimer extends ConflictTimerAdapter {
+final class GlucoseConflictTimer extends ConflictTimerAdapter {
     private static final long serialVersionUID = 1L;
     private int nbconflict = 0;
     private static final int MAX_CLAUSE = 5000;
     private static final int INC_CLAUSE = 1000;
     private int nextbound = MAX_CLAUSE;
 
-    LBDConflictTimer(Solver<? extends DataStructureFactory> solver, int bound) {
+    GlucoseConflictTimer(Solver<? extends DataStructureFactory> solver,
+            int bound) {
         super(solver, bound);
     }
 
@@ -51,9 +52,6 @@ final class LBDConflictTimer extends ConflictTimerAdapter {
         this.nbconflict += bound();
         if (this.nbconflict >= this.nextbound) {
             this.nextbound += INC_CLAUSE;
-            // if (nextbound > wall) {
-            // nextbound = wall;
-            // }
             this.nbconflict = 0;
             getSolver().setNeedToReduceDB(true);
         }

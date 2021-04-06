@@ -209,4 +209,13 @@ public interface IProblem extends RandomAccessModel {
      * 
      */
     void printInfos(PrintWriter out);
+
+    /**
+     * Get access to the decisions taken by the solver.
+     * 
+     * @return a set of Dimacs variables on which the solver had to decide to
+     *         find the current model.
+     * @since 3.0.0
+     */
+    int[] decisions();
 }
