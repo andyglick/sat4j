@@ -147,10 +147,9 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
             final BigInteger degreeBis, BigInteger slackResolve) {
         assert degreeBis.compareTo(BigInteger.ONE) > 0;
 
-        // TODO literal of any level > assertiveDL may be removed
         // search of a literal to remove
-        int lit = conflict.weakeningStrategy.findLiteralToRemove(conflict.voc,
-                wpb, coefsBis, indLitImplied, degreeBis);
+        int lit = findLiteralToRemove(conflict.voc, wpb, coefsBis,
+                indLitImplied, degreeBis);
 
         // If no literal has been found, we do not resolve.
         // Note that this is possible as we already know that we will propagate
@@ -175,6 +174,25 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
         assert conflict.possReducedCoefs
                 .equals(slackConstraint(conflict.voc, wpb, coefsBis));
         return degUpdate;
+    }
+
+    private int findLiteralToRemove(ILits voc, IWatchPb wpb,
+            BigInteger[] coefsBis, int indLitImplied, BigInteger degreeBis) {
+        // Any level > assertiveDL may be removed
+        int lit = -1;
+        int size = wpb.size();
+        for (int ind = 0; ind < size && lit == -1; ind++) {
+            if (coefsBis[ind].signum() != 0
+                    && (!voc.isFalsified(wpb.get(ind))
+                            || (voc.getLevel(wpb.get(ind)) > assertiveDL))
+                    && ind != indLitImplied) {
+                if (coefsBis[ind].compareTo(degreeBis) < 0) {
+                    lit = ind;
+                }
+            }
+        }
+
+        return lit;
     }
 
     private BigInteger slackConstraint(ILits voc, PBConstr wpb,
