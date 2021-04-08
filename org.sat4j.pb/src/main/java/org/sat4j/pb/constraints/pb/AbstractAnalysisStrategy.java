@@ -23,6 +23,11 @@ public abstract class AbstractAnalysisStrategy implements IAnalysisStrategy {
     }
 
     @Override
+    public void reset() {
+        this.assertiveDL = -2;
+    }
+
+    @Override
     public void isAssertiveAt(int dl, int assertiveLit) {
         this.assertiveDL = dl;
         this.assertiveLitIndex = assertiveLit;
@@ -30,10 +35,10 @@ public abstract class AbstractAnalysisStrategy implements IAnalysisStrategy {
 
     @Override
     public void resolve(int pivotLit, ConflictMap conflict, PBConstr constr) {
-        if (!hasBeenAssertive()) {
-            conflict.resolve(constr, pivotLit, solver);
-        } else {
+        if (hasBeenAssertive()) {
             resolveAfterAssertion(pivotLit, conflict, constr);
+        } else {
+            conflict.resolve(constr, pivotLit, solver);
         }
     }
 
@@ -41,7 +46,7 @@ public abstract class AbstractAnalysisStrategy implements IAnalysisStrategy {
             ConflictMap conflict, PBConstr constr);
 
     protected boolean hasBeenAssertive() {
-        return assertiveDL == -2;
+        return assertiveDL != -2;
     }
 
     @Override

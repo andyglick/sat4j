@@ -148,6 +148,8 @@ public class PBSolverCP extends PBSolver {
 
     @Override
     public void analyze(Constr myconfl, Pair results) throws TimeoutException {
+        analysisStrategy.setSolver(this);
+        analysisStrategy.reset();
         if (someCriteria()) {
             analyzeCP(myconfl, results);
         } else {

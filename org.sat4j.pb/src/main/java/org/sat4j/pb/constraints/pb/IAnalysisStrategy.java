@@ -19,4 +19,6 @@ public interface IAnalysisStrategy {
 
     boolean shouldStop(int currentLevel);
 
+    void reset();
+
 }
