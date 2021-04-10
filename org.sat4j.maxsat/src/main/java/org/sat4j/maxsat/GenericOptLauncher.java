@@ -37,7 +37,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.sat4j.AbstractLauncher;
-import org.sat4j.ILauncherMode;
+import org.sat4j.DecisionMode;
+import org.sat4j.OptimizationMode;
+import org.sat4j.OutputPrefix;
 import org.sat4j.maxsat.reader.WDimacsReader;
 import org.sat4j.opt.MinOneDecorator;
 import org.sat4j.pb.ConstraintRelaxingPseudoOptDecorator;
@@ -68,7 +70,7 @@ public class GenericOptLauncher extends AbstractLauncher {
     private static final long serialVersionUID = 1L;
 
     public GenericOptLauncher() {
-        setLauncherMode(ILauncherMode.OPTIMIZATION);
+        setLauncherMode(OptimizationMode.instance());
     }
 
     @SuppressWarnings("nls")
@@ -184,19 +186,19 @@ public class GenericOptLauncher extends AbstractLauncher {
                                 this.wmsd);
                     } else if (cmd.hasOption("hs"))  {
                         asolver = org.sat4j.maxsat.SolverFactory.newMaxHSLike();
-                        setLauncherMode(ILauncherMode.DECISION);
+                        setLauncherMode(DecisionMode.instance());
                     } else if (cmd.hasOption("I")){
-                        this.wmsd.setSearchListener(new SearchOptimizerListener(ILauncherMode.DECISION));
-                        setLauncherMode(ILauncherMode.DECISION);
+                        this.wmsd.setSearchListener(new SearchOptimizerListener(DecisionMode.instance()));
+                        setLauncherMode(DecisionMode.instance());
                         asolver = this.wmsd;
                     }else if(cmd.hasOption("B")){
                         IPBSolver internal = org.sat4j.pb.SolverFactory.newDefault();
-                        internal.setSearchListener(new SearchOptimizerListener(ILauncherMode.DECISION));
+                        internal.setSearchListener(new SearchOptimizerListener(DecisionMode.instance()));
                         IPBSolver external = org.sat4j.pb.SolverFactory.newDefault();
-                        external = new OptToPBSATAdapter(new PseudoOptDecorator(external),ILauncherMode.DECISION);
+                        external = new OptToPBSATAdapter(new PseudoOptDecorator(external),DecisionMode.instance());
                         ManyCorePB mc = new ManyCorePB(external, internal);
                         this.wmsd = new WeightedMaxSatDecorator(mc, equivalence);
-                        setLauncherMode(ILauncherMode.DECISION);
+                        setLauncherMode(DecisionMode.instance());
                         asolver = this.wmsd;
                     }else{
                         asolver = new PseudoOptDecorator(this.wmsd, false,
@@ -221,7 +223,7 @@ public class GenericOptLauncher extends AbstractLauncher {
                 } else {
                     asolver.setTimeout(Integer.parseInt(timeout));
                 }
-                getLogWriter().println(asolver.toString(COMMENT_PREFIX));
+                getLogWriter().println(asolver.toString(OutputPrefix.COMMENT_PREFIX.toString()));
             } catch (ParseException e1) {
                 HelpFormatter helpf = new HelpFormatter();
                 helpf.printHelp("java -jar sat4jopt.jar", options, true);

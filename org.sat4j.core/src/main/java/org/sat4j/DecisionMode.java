@@ -48,13 +48,27 @@ import org.sat4j.tools.Backbone;
  * 
  */
 @Feature("solutionlistener")
-final class DecisionMode implements ILauncherMode {
+public final class DecisionMode implements ILauncherMode {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     private ExitCode exitCode = ExitCode.UNKNOWN;
     private int nbSolutionFound;
     private PrintWriter out;
     private long beginTime;
     private Reader reader;
     private ISolver solver;
+
+    private static final DecisionMode instance = new DecisionMode();
+
+    /**
+     * The launcher is in decision mode: the answer is either SAT, UNSAT or
+     * UNKNOWN
+     */
+    public static DecisionMode instance() {
+        return instance;
+    }
 
     public void displayResult(ISolver solver, IProblem problem, ILogAble logger,
             PrintWriter out, Reader reader, long beginTime,
@@ -64,7 +78,7 @@ final class DecisionMode implements ILauncherMode {
             double wallclocktime = (System.currentTimeMillis() - beginTime)
                     / 1000.0;
             solver.printStat(out);
-            out.println(ANSWER_PREFIX + exitCode);
+            out.printf("%s%s%n", OutputPrefix.ANSWER_PREFIX, exitCode);
             if (exitCode != ExitCode.UNKNOWN
                     && exitCode != ExitCode.UNSATISFIABLE) {
                 int[] model = problem.model();
@@ -109,7 +123,7 @@ final class DecisionMode implements ILauncherMode {
 
     private void printSolution(ISolver solver, PrintWriter out, Reader reader,
             int[] model) {
-        out.print(SOLUTION_PREFIX);
+        out.print(OutputPrefix.SOLUTION_PREFIX);
         if (System.getProperty("color") == null) {
             reader.decode(model, out);
             out.println();
@@ -160,6 +174,7 @@ final class DecisionMode implements ILauncherMode {
     }
 
     public void setIncomplete(boolean isIncomplete) {
+        // Not applicable for decision problems
     }
 
     public ExitCode getCurrentExitCode() {

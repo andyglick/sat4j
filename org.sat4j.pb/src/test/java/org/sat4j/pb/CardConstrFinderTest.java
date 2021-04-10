@@ -72,8 +72,8 @@ public class CardConstrFinderTest {
                     + " (expected=" + this.expectedCards + ", actual="
                     + actual.toString());
         }
-        assertEquals(expectedRemainingConstrs, ccFinder.remainingAtLeastCards()
-                .size());
+        assertEquals(expectedRemainingConstrs,
+                ccFinder.remainingAtLeastCards().size());
     }
 
     @Test
@@ -126,10 +126,13 @@ public class CardConstrFinderTest {
 
     @Test
     public void testThresholdAtMost2() throws ContradictionException {
-        addAtMost(2, 1, 2, 3);
-        addAtMost(2, 1, 2, 4);
-        addAtMost(2, 2, 3, 4);
-        addExpectedAtLeastCard(2, -1, -2, -3, -4);
+        addAtMost(2, 1, 2, 3, 4);
+        addAtMost(2, 1, 2, 3, 5);
+        addAtMost(2, 1, 2, 4, 5);
+        addAtMost(2, 1, 3, 4, 5);
+        addAtMost(2, 2, 3, 4, 5);
+        addExpectedAtLeastCard(3, -1, -2, -3, -4, -5);
+        assertRightDetection(0);
     }
 
     @Test

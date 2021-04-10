@@ -30,7 +30,7 @@
 package org.sat4j.pb;
 
 import org.sat4j.AbstractLauncher;
-import org.sat4j.ILauncherMode;
+import org.sat4j.DecisionMode;
 import org.sat4j.core.ASolverFactory;
 import org.sat4j.pb.reader.OPBReader2012;
 import org.sat4j.pb.tools.OptimalModelIterator;
@@ -76,7 +76,7 @@ public class LanceurPseudo2007 extends LanceurPseudo2005 {
             feedWithDecorated = true;
             this.solver = new OptimalModelIterator(
                     new OptToPBSATAdapter(this.handle));
-            setLauncherMode(ILauncherMode.DECISION);
+            setLauncherMode(DecisionMode.instance());
         }
         super.configureLauncher();
     }

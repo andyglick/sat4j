@@ -118,7 +118,8 @@ public class MUSLauncher extends AbstractLauncher {
             }
         }
         solver.setTimeout(Integer.MAX_VALUE);
-        getLogWriter().println(solver.toString(COMMENT_PREFIX));
+        getLogWriter().println(
+                solver.toString(OutputPrefix.COMMENT_PREFIX.toString()));
         return solver;
     }
 
@@ -129,15 +130,16 @@ public class MUSLauncher extends AbstractLauncher {
                     / 1000.0;
             this.solver.printStat(this.out);
             this.solver.printInfos(this.out);
-            this.out.println(ILauncherMode.ANSWER_PREFIX + this.getExitCode());
+            this.out.printf("%s %s%n", OutputPrefix.ANSWER_PREFIX,
+                    this.getExitCode());
             if (this.getExitCode() == ExitCode.SATISFIABLE) {
                 int[] model = this.solver.model();
-                this.out.print(ILauncherMode.SOLUTION_PREFIX);
+                this.out.print(OutputPrefix.SOLUTION_PREFIX);
                 this.reader.decode(model, this.out);
                 this.out.println();
             } else if (this.getExitCode() == ExitCode.UNSATISFIABLE
                     && this.mus != null) {
-                this.out.print(ILauncherMode.SOLUTION_PREFIX);
+                this.out.print(OutputPrefix.SOLUTION_PREFIX);
                 this.reader.decode(this.mus, this.out);
                 this.out.println();
             }
@@ -182,7 +184,7 @@ public class MUSLauncher extends AbstractLauncher {
                         public void onSolutionFound(IVecInt solution) {
                             System.out.println(solver.getLogPrefix()
                                     + "found mus number " + ++muscount);
-                            out.print(ILauncherMode.SOLUTION_PREFIX);
+                            out.print(OutputPrefix.SOLUTION_PREFIX);
                             int[] localMus = new int[solution.size()];
                             solution.copyTo(localMus);
                             reader.decode(localMus, out);

@@ -29,6 +29,9 @@
  *******************************************************************************/
 package org.sat4j.minisat.core;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import org.junit.Test;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
@@ -41,12 +44,11 @@ import org.sat4j.tools.OptToSatAdapter;
 public class BugFatih2 {
 
     @Test
-    public void testBugReport() throws ContradictionException, TimeoutException {
+    public void testBugReport()
+            throws ContradictionException, TimeoutException {
         ModelIterator solver = new ModelIterator(new OptToSatAdapter(
                 new MaxSatDecorator(SolverFactory.newDefault())));
-        // MaxSatDecorator solver = new
-        // MaxSatDecorator(SolverFactory.newDefault());
-        System.out.println("Taille de voc : " + solver.nVars());
+        assertEquals(0, solver.nVars());
         solver.newVar(13);
         solver.setExpectedNumberOfClauses(24);
         solver.addClause(new VecInt(new int[] { -1 }));
@@ -73,13 +75,12 @@ public class BugFatih2 {
         solver.addClause(new VecInt(new int[] { -3, 1, 12 }));
         solver.addClause(new VecInt(new int[] { -3, -1, 13 }));
         solver.addClause(new VecInt(new int[] { -13 }));
-        System.out.println("Taille de voc : " + solver.nVars());
+        assertEquals(13, solver.nVars());
         if (solver.isSatisfiable()) {
-            System.out.println("Taille du modèle : " + solver.model().length);
+            assertEquals(13, solver.model().length);
             for (int i = 1; i <= solver.model().length; i++) {
-                System.out.print(solver.model(i) + " ");
+                assertFalse(solver.model(i));
             }
-            System.out.println();
         }
     }
 }

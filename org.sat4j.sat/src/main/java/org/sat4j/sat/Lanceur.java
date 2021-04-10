@@ -64,6 +64,7 @@ import org.apache.commons.cli.PosixParser;
 import org.sat4j.AbstractLauncher;
 import org.sat4j.ExitCode;
 import org.sat4j.ILauncherMode;
+import org.sat4j.OutputPrefix;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.core.ICDCL;
 import org.sat4j.pb.IPBSolver;
@@ -260,7 +261,7 @@ public class Lanceur extends AbstractLauncher implements ILogAble {
                 others++;
             }
 
-            getLogWriter().println(asolver.toString(COMMENT_PREFIX)); //$NON-NLS-1$
+            getLogWriter().println(asolver.toString(OutputPrefix.COMMENT_PREFIX.toString())); //$NON-NLS-1$
             return asolver;
         } catch (ParseException e1) {
             HelpFormatter helpf = new HelpFormatter();
@@ -369,14 +370,14 @@ public class Lanceur extends AbstractLauncher implements ILogAble {
         System.out.flush();
         PrintWriter out = getLogWriter();
         out.flush();
-        this.solver.printStat(out, COMMENT_PREFIX);
-        this.solver.printInfos(out, COMMENT_PREFIX);
+        this.solver.printStat(out, OutputPrefix.COMMENT_PREFIX.toString());
+        this.solver.printInfos(out, OutputPrefix.COMMENT_PREFIX.toString());
         ExitCode exitCode = getExitCode();
-        out.println(ILauncherMode.ANSWER_PREFIX + exitCode);
+        out.printf("%s%s%n",OutputPrefix.ANSWER_PREFIX,exitCode);
         if (exitCode == ExitCode.SATISFIABLE
                 || exitCode == ExitCode.OPTIMUM_FOUND || this.incomplete
                 && exitCode == ExitCode.UPPER_BOUND) {
-            out.print(ILauncherMode.SOLUTION_PREFIX);
+            out.print(OutputPrefix.SOLUTION_PREFIX);
             getReader().decode(this.problem.model(), out);
             out.println();
             if (this.isModeOptimization) {

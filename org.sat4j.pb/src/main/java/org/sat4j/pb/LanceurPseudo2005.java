@@ -32,7 +32,9 @@ package org.sat4j.pb;
 import java.io.IOException;
 
 import org.sat4j.AbstractLauncher;
-import org.sat4j.ILauncherMode;
+import org.sat4j.DecisionMode;
+import org.sat4j.OptimizationMode;
+import org.sat4j.OutputPrefix;
 import org.sat4j.core.ASolverFactory;
 import org.sat4j.pb.core.ObjectiveReducerPBSolverDecorator;
 import org.sat4j.pb.reader.OPBReader2006;
@@ -61,7 +63,7 @@ public class LanceurPseudo2005 extends AbstractLauncher implements ILogAble {
 
     LanceurPseudo2005(ASolverFactory<IPBSolver> factory) {
         this.factory = factory;
-        setLauncherMode(ILauncherMode.OPTIMIZATION);
+        setLauncherMode(OptimizationMode.instance());
     }
 
     /**
@@ -124,8 +126,8 @@ public class LanceurPseudo2005 extends AbstractLauncher implements ILogAble {
             }
         } else if (System.getProperty("INTERNAL") != null) {
             theSolver.setSearchListener(
-                    new SearchOptimizerListener(ILauncherMode.DECISION));
-            setLauncherMode(ILauncherMode.DECISION);
+                    new SearchOptimizerListener(DecisionMode.instance()));
+            setLauncherMode(DecisionMode.instance());
         } else {
             if (lower) {
                 theSolver = new ConstraintRelaxingPseudoOptDecorator(theSolver);
@@ -136,7 +138,8 @@ public class LanceurPseudo2005 extends AbstractLauncher implements ILogAble {
         if (args.length == 3) {
             theSolver.setTimeout(Integer.valueOf(args[1]));
         }
-        this.out.println(theSolver.toString(COMMENT_PREFIX));
+        this.out.println(
+                theSolver.toString(OutputPrefix.COMMENT_PREFIX.toString()));
         return theSolver;
     }
 
@@ -168,8 +171,8 @@ public class LanceurPseudo2005 extends AbstractLauncher implements ILogAble {
             obj = ((IPBSolver) problem).getObjectiveFunction();
         }
         if (obj != null) {
-            this.out.println(COMMENT_PREFIX + "objective function length is "
-                    + obj.getVars().size() + " literals");
+            this.out.printf("%sobjective function length is %d literals%n",
+                    OutputPrefix.COMMENT_PREFIX, obj.getVars().size());
         }
         return problem;
     }

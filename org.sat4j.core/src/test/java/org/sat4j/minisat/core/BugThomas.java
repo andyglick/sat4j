@@ -29,6 +29,10 @@
  *******************************************************************************/
 package org.sat4j.minisat.core;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
@@ -39,15 +43,21 @@ import org.sat4j.specs.TimeoutException;
 public class BugThomas {
 
     @Test
-    public void testBugReport() throws ContradictionException, TimeoutException {
+    public void testBugReport()
+            throws ContradictionException, TimeoutException {
         ISolver solver = SolverFactory.newDefault();
-        solver.newVar(3);
+        assertEquals(0, solver.nVars());
+        assertEquals(3, solver.newVar(3));
         solver.addClause(new VecInt(new int[] { 1 }));
         solver.addClause(new VecInt(new int[] { -1, 2 }));
         solver.addClause(new VecInt(new int[] { 1, -2 }));
         solver.addClause(new VecInt(new int[] { -3 }));
-        solver.newVar(1);
-        // solver.addClause(new VecInt(new int[] {4, -4}));
-        solver.isSatisfiable(new VecInt(new int[] { -4 }));
+        assertEquals(3, solver.realNumberOfVariables());
+        assertEquals(1, solver.newVar(1));
+        assertEquals(1, solver.nVars());
+        assertEquals(3, solver.realNumberOfVariables());
+        assertNull(solver.addClause(new VecInt(new int[] { 4, -4 })));
+        assertTrue(solver.isSatisfiable(new VecInt(new int[] { -4 })));
+        assertEquals(4, solver.realNumberOfVariables());
     }
 }

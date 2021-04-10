@@ -29,6 +29,8 @@
  *******************************************************************************/
 package org.sat4j.tools;
 
+import java.io.Serializable;
+
 import org.sat4j.annotations.Feature;
 import org.sat4j.specs.IVecInt;
 
@@ -42,7 +44,7 @@ import org.sat4j.specs.IVecInt;
  * 
  */
 @Feature("solutionlistener")
-public interface SolutionFoundListener {
+public interface SolutionFoundListener extends Serializable {
 
     SolutionFoundListener VOID = new SolutionFoundListener() {
 

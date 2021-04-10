@@ -39,8 +39,10 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.sat4j.AbstractLauncher;
+import org.sat4j.DecisionMode;
 import org.sat4j.ExitCode;
-import org.sat4j.ILauncherMode;
+import org.sat4j.OptimizationMode;
+import org.sat4j.OutputPrefix;
 import org.sat4j.maxsat.WeightedMaxSatDecorator;
 import org.sat4j.maxsat.reader.MSInstanceReader;
 import org.sat4j.pb.ConstraintRelaxingPseudoOptDecorator;
@@ -246,7 +248,7 @@ public class Launcher extends AbstractLauncher implements ILogAble {
 
             switch (typeProbleme) {
             case PB_OPT:
-                setLauncherMode(ILauncherMode.OPTIMIZATION);
+                setLauncherMode(OptimizationMode.instance());
                 if (cmd.hasOption("lo")) {
                     this.problem = new ConstraintRelaxingPseudoOptDecorator(
                             (IPBSolver) asolver);
@@ -256,7 +258,7 @@ public class Launcher extends AbstractLauncher implements ILogAble {
                 break;
             case CNF_MAXSAT:
             case WCNF_MAXSAT:
-                setLauncherMode(ILauncherMode.OPTIMIZATION);
+                setLauncherMode(OptimizationMode.instance());
                 asolver = new WeightedMaxSatDecorator((IPBCDCLSolver) asolver,
                         equivalence);
                 if (cmd.hasOption("lo")) {
@@ -269,7 +271,7 @@ public class Launcher extends AbstractLauncher implements ILogAble {
                 }
                 break;
             default:
-                setLauncherMode(ILauncherMode.DECISION);
+                setLauncherMode(DecisionMode.instance());
                 this.problem = asolver;
                 break;
             }
@@ -293,7 +295,7 @@ public class Launcher extends AbstractLauncher implements ILogAble {
             }
 
             if (asolver != null) {
-                getLogWriter().println(asolver.toString(COMMENT_PREFIX)); //$NON-NLS-1$
+                getLogWriter().println(asolver.toString(OutputPrefix.COMMENT_PREFIX.toString())); //$NON-NLS-1$
             }
             return asolver;
         } catch (ParseException e1) {

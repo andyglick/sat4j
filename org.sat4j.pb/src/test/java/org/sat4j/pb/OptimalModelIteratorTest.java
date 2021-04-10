@@ -1,11 +1,14 @@
 package org.sat4j.pb;
 
+import static org.junit.Assert.assertEquals;
+
 import java.math.BigInteger;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sat4j.core.Vec;
 import org.sat4j.core.VecInt;
+import org.sat4j.minisat.core.Counter;
 import org.sat4j.pb.tools.OptimalModelIterator;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.ISolver;
@@ -47,9 +50,9 @@ public class OptimalModelIteratorTest {
 
         solver.setObjectiveFunction(new ObjectiveFunction(vars, coeffs));
 
-        SolutionFoundListener slf = new SolutionFoundListener() {
+        final Counter nbSolutions = new Counter(0);
 
-            private int nbSolutions = 0;
+        SolutionFoundListener slf = new SolutionFoundListener() {
 
             public void onUnsatTermination() {
                 // TODO Auto-generated method stub
@@ -57,11 +60,11 @@ public class OptimalModelIteratorTest {
             }
 
             public void onSolutionFound(IVecInt solution) {
-                nbSolutions++;
+                nbSolutions.inc();
             }
 
             public void onSolutionFound(int[] solution) {
-                nbSolutions++;
+                nbSolutions.inc();
             }
         };
 
@@ -71,6 +74,7 @@ public class OptimalModelIteratorTest {
                 slf);
 
         decore.isSatisfiable();
+        assertEquals(3, nbSolutions.getValue());
 
     }
 

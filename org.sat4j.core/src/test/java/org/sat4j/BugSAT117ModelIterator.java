@@ -1,5 +1,7 @@
 package org.sat4j;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,18 +17,24 @@ import org.sat4j.tools.GateTranslator;
 import org.sat4j.tools.ModelIterator;
 
 public class BugSAT117ModelIterator {
-    private final GateTranslator gateTranslator;
-    private final ISolver solver;
-    private final ModelIterator modelIterator;
+    private GateTranslator gateTranslator;
+    private ISolver solver;
+    private ModelIterator modelIterator;
 
     @Test
     public void testIt() {
+        solver = SolverFactory.newLight();
+        gateTranslator = new GateTranslator(solver);
+        modelIterator = new ModelIterator(solver);
         Date begin = new Date();
         long beginTime = begin.getTime();
 
+        // this code used to launch an OutOfMemoryError
+        // due to the creation of too many new threads
+        // see https://gitlab.ow2.org/sat4j/sat4j/-/issues/117
         Date now = new Date();
         while (now.getTime() - beginTime < 60000) {
-            solve();
+            assertEquals(15, solve().size());
             now = new Date();
         }
     }
@@ -63,11 +71,5 @@ public class BugSAT117ModelIterator {
         }
 
         return solution;
-    }
-
-    public BugSAT117ModelIterator() {
-        solver = SolverFactory.newLight();
-        gateTranslator = new GateTranslator(solver);
-        modelIterator = new ModelIterator(solver);
     }
 }

@@ -72,8 +72,6 @@ public abstract class AbstractLauncher implements Serializable, ILogAble {
      */
     private static final long serialVersionUID = 1L;
 
-    public static final String COMMENT_PREFIX = "c "; //$NON-NLS-1$
-
     protected long beginTime;
 
     protected transient Reader reader;
@@ -105,7 +103,7 @@ public abstract class AbstractLauncher implements Serializable, ILogAble {
 
     protected boolean prime = System.getProperty("prime") != null;
 
-    private ILauncherMode launcherMode = ILauncherMode.DECISION;
+    private ILauncherMode launcherMode = DecisionMode.instance();
 
     protected void setLauncherMode(ILauncherMode launcherMode) {
         this.launcherMode = launcherMode;
@@ -305,9 +303,10 @@ public abstract class AbstractLauncher implements Serializable, ILogAble {
         if (this.isSilent())
             return;
         if (this.logBuffer != null) {
-            this.logBuffer.append(COMMENT_PREFIX).append(message).append('\n');
+            this.logBuffer.append(OutputPrefix.COMMENT_PREFIX).append(message)
+                    .append('\n');
         } else {
-            this.out.println(COMMENT_PREFIX + message);
+            this.out.println(OutputPrefix.COMMENT_PREFIX + message);
         }
     }
 

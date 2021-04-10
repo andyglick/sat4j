@@ -1,5 +1,5 @@
 /*******************************************************************************
- * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2021 Artois University and CNRS
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -29,54 +29,24 @@
  *******************************************************************************/
 package org.sat4j;
 
-import java.io.Serializable;
-
 /**
- * Enumeration allowing to manage easily exit code for the SAT and PB
- * Competitions.
+ * Enumeration allowing to manage easily solvers output prefixes.
  * 
  * @author leberre
- * 
+ * @since 3.0
  */
-public enum ExitCode implements Serializable {
+public enum OutputPrefix {
+    COMMENT_PREFIX("c "), SOLUTION_PREFIX("v "), ANSWER_PREFIX(
+            "s "), CURRENT_OPTIMUM_VALUE_PREFIX("o ");
 
-    OPTIMUM_FOUND(30, "OPTIMUM FOUND"), UPPER_BOUND(30,
-            "UPPER BOUND"), SATISFIABLE(10, "SATISFIABLE"), UNKNOWN(0,
-                    "UNKNOWN"), UNSATISFIABLE(20, "UNSATISFIABLE");
+    private String prefix;
 
-    /** value of the exit code. */
-    private final int value;
-
-    /** alternative textual representation of the exit code. */
-    private final String str;
-
-    /**
-     * creates an exit code with a given value and an alternative textual
-     * representation.
-     * 
-     * @param i
-     *            the value of the exit code
-     * @param str
-     *            the alternative textual representation
-     */
-    private ExitCode(final int i, final String str) {
-        this.value = i;
-        this.str = str;
+    OutputPrefix(String prefix) {
+        this.prefix = prefix;
     }
 
-    /**
-     * @return the exit code value
-     */
-    public int value() {
-        return this.value;
-    }
-
-    /**
-     * @return the name of the enum or the alternative textual representation if
-     *         any.
-     */
     @Override
     public String toString() {
-        return this.str;
+        return prefix;
     }
 }

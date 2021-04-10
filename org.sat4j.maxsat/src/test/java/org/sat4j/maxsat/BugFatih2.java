@@ -29,6 +29,8 @@
  *******************************************************************************/
 package org.sat4j.maxsat;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.sat4j.core.VecInt;
 import org.sat4j.pb.PseudoOptDecorator;
@@ -41,13 +43,11 @@ public class BugFatih2 {
 
     @Test
     public void testBugReport() throws ContradictionException, TimeoutException {
-        // ModelIterator solver = new ModelIterator(new OptToSatAdapter(
-        // new MaxSatDecorator(SolverFactory.newDefault())));
         WeightedMaxSatDecorator maxSatSolver = new WeightedMaxSatDecorator(
                 org.sat4j.maxsat.SolverFactory.newDefault());
         ModelIterator solver = new ModelIterator(new OptToSatAdapter(
                 new PseudoOptDecorator(maxSatSolver)));
-        System.out.println("Taille de voc : " + solver.nVars());
+        assertEquals(0,solver.nVars());
         solver.newVar(13);
         solver.setExpectedNumberOfClauses(24);
         maxSatSolver.addHardClause(new VecInt(new int[] { -1 }));
@@ -74,13 +74,10 @@ public class BugFatih2 {
         maxSatSolver.addHardClause(new VecInt(new int[] { -3, 1, 12 }));
         maxSatSolver.addHardClause(new VecInt(new int[] { -3, -1, 13 }));
         maxSatSolver.addHardClause(new VecInt(new int[] { -13 }));
-        System.out.println("Taille de voc : " + solver.nVars());
+        assertEquals(13,solver.nVars());
         while (solver.isSatisfiable()) {
-            System.out.println("Taille du modèle : " + solver.model().length);
-            for (int i = 1; i <= solver.model().length; i++) {
-                System.out.print(solver.model(i) + " ");
-            }
-            System.out.println();
+            assertEquals(13,solver.model().length);
         }
+        assertEquals(5,solver.numberOfModelsFoundSoFar());
     }
 }

@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.ow2</groupId>
 		<artifactId>ow2</artifactId>
-		<version>1.5</version>
+		<version>1.5.1</version>
 	</parent>
 	<groupId>org.ow2.sat4j</groupId>
 	<artifactId>org.ow2.sat4j.pom</artifactId>
@@ -87,6 +87,16 @@ Sat4j is a full featured boolean reasoning library designed to bring state-of-th
 		<bundle-manifest>${project.build.directory}/META-INF/MANIFEST.MF</bundle-manifest>
 		<sonar.java.source>${javaSource}</sonar.java.source>
 	</properties>
+	<repositories>
+    	<repository>
+      		<id>ow2-parent-pom-staging</id>
+      		<name>OW2 parent pom staging</name>
+      		<url>https://repository.ow2.org/nexus/service/local/repositories/ow2_pom-1000/content/</url>
+      		<releases>
+        		<enabled>true</enabled>
+      		</releases>
+    	</repository>
+    </repositories>
 	<pluginRepositories>
 		<pluginRepository>
 			<id>apache.snapshots</id>
@@ -109,8 +119,8 @@ Sat4j is a full featured boolean reasoning library designed to bring state-of-th
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
-			<version>1.10.19</version>
+			<artifactId>mockito-core</artifactId>
+			<version>3.9.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -286,7 +296,7 @@ Sat4j is a full featured boolean reasoning library designed to bring state-of-th
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.2</version>
+				<version>0.8.6</version>
 				<executions>
 					<execution>
 						<phase>process-test-classes</phase>

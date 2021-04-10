@@ -33,6 +33,7 @@ import java.util.Collection;
 
 import org.sat4j.AbstractLauncher;
 import org.sat4j.ExitCode;
+import org.sat4j.OutputPrefix;
 import org.sat4j.pb.reader.OPBEclipseReader2007;
 import org.sat4j.pb.tools.XplainPB;
 import org.sat4j.reader.Reader;
@@ -57,13 +58,14 @@ public class LanceurPseudo2007Eclipse extends LanceurPseudo2007 {
         if (args.length == 3) {
             theSolver.setTimeout(Integer.valueOf(args[1]));
         }
-        this.out.println(theSolver.toString(COMMENT_PREFIX));
+        this.out.println(
+                theSolver.toString(OutputPrefix.COMMENT_PREFIX.toString()));
         return theSolver;
     }
 
     /**
-	 * 
-	 */
+     * 
+     */
     private static final long serialVersionUID = 1L;
 
     public LanceurPseudo2007Eclipse() {

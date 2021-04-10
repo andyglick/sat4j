@@ -36,13 +36,6 @@ import junit.framework.TestCase;
 public class HeapTest extends TestCase {
 
     /*
-     * Test method for 'org.sat4j.minisat.core.Heap.setBounds(int)'
-     */
-    public void testSetBounds() {
-
-    }
-
-    /*
      * Test method for 'org.sat4j.minisat.core.Heap.inHeap(int)'
      */
     public void testInHeap() {
@@ -135,19 +128,4 @@ public class HeapTest extends TestCase {
         assertEquals(1, heap.getmin());
         assertEquals(3, heap.getmin());
     }
-
-    /*
-     * Test method for 'org.sat4j.minisat.core.Heap.heapProperty()'
-     */
-    public void testHeapProperty() {
-
-    }
-
-    /*
-     * Test method for 'org.sat4j.minisat.core.Heap.heapProperty(int)'
-     */
-    public void testHeapPropertyInt() {
-
-    }
-
 }

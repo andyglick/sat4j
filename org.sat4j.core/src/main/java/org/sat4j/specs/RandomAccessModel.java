@@ -29,6 +29,8 @@
  *******************************************************************************/
 package org.sat4j.specs;
 
+import java.io.Serializable;
+
 /**
  * That interface allows to efficiently retrieve the truth value of a given
  * variable in the solver.
@@ -36,7 +38,7 @@ package org.sat4j.specs;
  * @author daniel
  * 
  */
-public interface RandomAccessModel {
+public interface RandomAccessModel extends Serializable {
     /**
      * Provide the truth value of a specific variable in the model.
      * 

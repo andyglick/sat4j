@@ -52,13 +52,29 @@ import org.sat4j.tools.LexicoDecorator;
  * 
  */
 @Feature("solutionlistener")
-final class OptimizationMode implements ILauncherMode {
+public final class OptimizationMode implements ILauncherMode {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     private int nbSolutions;
     private ExitCode exitCode = ExitCode.UNKNOWN;
     private boolean isIncomplete = false;
     private PrintWriter out;
     private long beginTime;
     private IOptimizationProblem problem;
+
+    private static final OptimizationMode instance = new OptimizationMode();
+
+    /**
+     * The launcher is in optimization mode: the answer is either SAT,
+     * UPPER_BOUND, OPTIMUM_FOUND, UNSAT or UNKNOWN. Using the incomplete
+     * property, the solver returns an upper bound of the optimal solution when
+     * a time out occurs.
+     */
+    public static OptimizationMode instance() {
+        return instance;
+    }
 
     public void setIncomplete(boolean isIncomplete) {
         this.isIncomplete = isIncomplete;
@@ -73,7 +89,7 @@ final class OptimizationMode implements ILauncherMode {
         System.out.flush();
         out.flush();
         solver.printStat(out);
-        out.println(ANSWER_PREFIX + exitCode);
+        out.printf("%s%s%n", OutputPrefix.ANSWER_PREFIX, exitCode);
         if (exitCode == ExitCode.SATISFIABLE
                 || exitCode == ExitCode.OPTIMUM_FOUND
                 || isIncomplete && exitCode == ExitCode.UPPER_BOUND) {
@@ -81,7 +97,7 @@ final class OptimizationMode implements ILauncherMode {
             logger.log("Found " + this.nbSolutions + " solution(s)");
 
             if (displaySolutionLine) {
-                out.print(SOLUTION_PREFIX);
+                out.print(OutputPrefix.SOLUTION_PREFIX);
                 reader.decode(problem.model(), out);
                 out.println();
             }
@@ -137,8 +153,8 @@ final class OptimizationMode implements ILauncherMode {
                 }
                 logger.log("Got one! Elapsed wall clock time (in seconds):" //$NON-NLS-1$
                         + (System.currentTimeMillis() - beginTime) / 1000.0);
-                out.println(CURRENT_OPTIMUM_VALUE_PREFIX
-                        + optproblem.getObjectiveValue());
+                out.printf("%s%s%n", OutputPrefix.CURRENT_OPTIMUM_VALUE_PREFIX,
+                        optproblem.getObjectiveValue());
                 optproblem.discardCurrentSolution();
             }
             if (isSatisfiable) {

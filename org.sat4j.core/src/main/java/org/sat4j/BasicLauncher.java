@@ -91,7 +91,8 @@ public class BasicLauncher<T extends ISolver> extends AbstractLauncher {
                 && System.getProperty("all") == null) {
             asolver.setDBSimplificationAllowed(true);
         }
-        getLogWriter().println(asolver.toString(COMMENT_PREFIX));
+        getLogWriter().println(
+                asolver.toString(OutputPrefix.COMMENT_PREFIX.toString()));
         return asolver;
     }
 

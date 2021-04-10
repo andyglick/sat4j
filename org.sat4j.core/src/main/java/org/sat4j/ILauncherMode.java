@@ -47,12 +47,6 @@ import org.sat4j.tools.SolutionFoundListener;
  */
 public interface ILauncherMode extends SolutionFoundListener {
 
-    String SOLUTION_PREFIX = "v "; //$NON-NLS-1$
-
-    String ANSWER_PREFIX = "s "; //$NON-NLS-1$
-
-    String CURRENT_OPTIMUM_VALUE_PREFIX = "o ";
-
     /**
      * Output of the launcher when the solver stops
      * 
@@ -120,19 +114,4 @@ public interface ILauncherMode extends SolutionFoundListener {
      *            the status of the problem to solve
      */
     void setExitCode(ExitCode exitCode);
-
-    /**
-     * The launcher is in decision mode: the answer is either SAT, UNSAT or
-     * UNKNOWN
-     */
-    ILauncherMode DECISION = new DecisionMode();
-
-    /**
-     * The launcher is in optimization mode: the answer is either SAT,
-     * UPPER_BOUND, OPTIMUM_FOUND, UNSAT or UNKNOWN. Using the incomplete
-     * property, the solver returns an upper bound of the optimal solution when
-     * a time out occurs.
-     */
-    ILauncherMode OPTIMIZATION = new OptimizationMode();
-
 }

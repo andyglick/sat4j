@@ -31,7 +31,7 @@ package org.sat4j.pb.tools;
 
 import java.math.BigInteger;
 
-import org.sat4j.ILauncherMode;
+import org.sat4j.OutputPrefix;
 import org.sat4j.annotations.Feature;
 import org.sat4j.pb.IPBSolverService;
 import org.sat4j.pb.ObjectiveFunction;
@@ -78,8 +78,9 @@ public final class SearchOptimizerListener
             this.currentValue = obj.calculateDegree(lazyModel);
             final BigInteger offset = obj.getCorrectionOffset();
             final BigInteger factor = obj.getCorrectionFactor();
-            System.out.println(ILauncherMode.CURRENT_OPTIMUM_VALUE_PREFIX
-                    + this.currentValue.multiply(factor).add(offset));
+            System.out.printf("%s%d%n",
+                    OutputPrefix.CURRENT_OPTIMUM_VALUE_PREFIX,
+                    this.currentValue.multiply(factor).add(offset));
             if (this.prevConstr != null) {
                 this.solverService.removeSubsumedConstr(prevConstr);
             }

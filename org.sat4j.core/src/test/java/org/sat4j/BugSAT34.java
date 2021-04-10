@@ -31,6 +31,7 @@ package org.sat4j;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -105,8 +106,10 @@ public class BugSAT34 {
             assertNull(this.solvername + " has a model problem", model);
         } catch (ContradictionException e) {
         } catch (TimeoutException e) {
+        } catch (Throwable t) {
+            fail(this.solvername + " has unit clause problem causing " + t);
         }
-        ;
+
     }
 
 }
