@@ -91,7 +91,7 @@ public class PBSolverCP extends PBSolver {
 
     private IBumper bumper = Bumper.ANY;
 
-    private final IAnalysisStrategy analysisStrategy = new DefaultAnalysisStrategy();
+    private IAnalysisStrategy analysisStrategy = new DefaultAnalysisStrategy();
 
     /**
      * @param acg
@@ -146,10 +146,14 @@ public class PBSolverCP extends PBSolver {
         this.skipAllow = skipAllow;
     }
 
+    public void setAnalysisStrategy(IAnalysisStrategy analysisStrategy) {
+        this.analysisStrategy = analysisStrategy;
+    }
+
     @Override
     public void analyze(Constr myconfl, Pair results) throws TimeoutException {
         analysisStrategy.setSolver(this);
-        analysisStrategy.reset();
+        analysisStrategy.newConflict();
         if (someCriteria()) {
             analyzeCP(myconfl, results);
         } else {
@@ -196,7 +200,8 @@ public class PBSolverCP extends PBSolver {
             if (confl.isAssertive(currentLevel)) {
                 analysisStrategy.isAssertiveAt(
                         confl.getBacktrackLevel(currentLevel),
-                        confl.getAssertiveLiteral());
+                        confl.weightedLits
+                                .getFromAllLits(confl.getAssertiveLiteral()));
             }
         }
         assert confl.isAssertive(currentLevel) || this.trail.size() == 1

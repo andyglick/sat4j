@@ -102,7 +102,7 @@ public class InternalMapPBStructure {
         return this.coefs.get(this.allLits.get(lit));
     }
 
-    int getFromAllLits(int lit) {
+    public int getFromAllLits(int lit) {
         return this.allLits.get(lit);
     }
 

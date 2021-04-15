@@ -47,7 +47,7 @@ public class MapPb implements IDataStructurePB {
      * coded with a HashMap <literal, coefficient> and a BigInteger for the
      * degree.
      */
-    protected InternalMapPBStructure weightedLits;
+    public InternalMapPBStructure weightedLits;
 
     protected BigInteger degree;
 

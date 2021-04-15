@@ -35,6 +35,8 @@ import org.sat4j.pb.constraints.pb.ConflictMapReduceToClause;
 import org.sat4j.pb.constraints.pb.ConflictMapRounding;
 import org.sat4j.pb.constraints.pb.ConflictMapWeakenReason;
 import org.sat4j.pb.constraints.pb.ConflictMapWeakenToClash;
+import org.sat4j.pb.constraints.pb.ContinueAnalysisStrategy;
+import org.sat4j.pb.constraints.pb.DefaultAnalysisStrategy;
 import org.sat4j.pb.constraints.pb.IWeakeningStrategy;
 import org.sat4j.pb.constraints.pb.PostProcessToCard;
 import org.sat4j.pb.constraints.pb.PostProcessToClause;
@@ -102,11 +104,13 @@ public class KTHLauncher {
         options.addOption("b", "bump-strategy", true,
                 "Bumping strategy to apply, among one, degree, coefficient, ratio");
         options.addOption("lcds", "deletion-strategy", true,
-                "Learned constraint deletion strategy, among lbd, assigned, unassigned-same, unassigned-different, effective,, degree");
+                "Learned constraint deletion strategy, among lbd, assigned, unassigned-same, unassigned-different, effective, degree");
         options.addOption("br", "bumper", true,
                 "Literal bumper, among any, assigned and falsified");
         options.addOption("db", "double-bump-clashing", false,
                 "Whether clashing literal should be doubly bumped");
+        options.addOption("as", "analysis-strategy", true,
+                "Analysis strategy, among first-assertive, backjump-level");
         Option op = options.getOption("coeflim");
         op.setArgName("limit");
         op = options.getOption("coeflim-small");
@@ -136,6 +140,8 @@ public class KTHLauncher {
         op = options.getOption("bumper");
         op.setArgName("strategy");
         op = options.getOption("deletion-strategy");
+        op.setArgName("strategy");
+        op = options.getOption("analysis-strategy");
         op.setArgName("strategy");
         return options;
     }
@@ -415,6 +421,21 @@ public class KTHLauncher {
                 } else {
                     log(value
                             + " is not a supported value for option bump-strategy");
+                    return;
+                }
+            }
+            
+            if (line.hasOption("analysis-strategy")) {
+                String value = line.getOptionValue("analysis-strategy");
+                if ("first-assertive".equals(value)) {
+                    cpsolver.setAnalysisStrategy(new DefaultAnalysisStrategy());
+                
+                } else if ("backjump-level".equals(value)) {
+                    cpsolver.setAnalysisStrategy(new ContinueAnalysisStrategy());
+                
+                } else {
+                    log(value
+                            + " is not a supported value for option analysis-strategy");
                     return;
                 }
             }

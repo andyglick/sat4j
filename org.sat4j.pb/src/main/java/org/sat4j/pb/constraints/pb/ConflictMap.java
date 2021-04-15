@@ -803,8 +803,11 @@ public class ConflictMap extends MapPb implements IConflict {
                     level = indexToLevel(indLevel);
                     assert ConflictMap.this.computeSlack(level)
                             .subtract(ConflictMap.this.degree).equals(slack);
-                    if (ConflictMap.this.isImplyingLiteralOrdered(level, slack))
+                    if (ConflictMap.this.isImplyingLiteralOrdered(level,
+                            slack)) {
+                        // The assertive literal has been set at this point.
                         break;
+                    }
 
                     // updating the new slack
                     lits = ConflictMap.this.byLevel[indLevel];
