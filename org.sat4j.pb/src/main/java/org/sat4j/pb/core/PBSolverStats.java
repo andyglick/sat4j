@@ -75,6 +75,10 @@ public class PBSolverStats extends SolverStats {
 
     private long timeForArtithmeticOperations;
 
+    private long nbResolutionsAfterAssertion;
+
+    private long nbSubOptimalAnalyses;
+
     private BigInteger minRemoved;
 
     private BigInteger maxRemoved;
@@ -151,6 +155,12 @@ public class PBSolverStats extends SolverStats {
                 + this.minRemoved);
         out.println(prefix + "maximum degree of deleted constraints\t: "
                 + this.maxRemoved);
+        out.println(
+                prefix + "number of deleted constraints\t: " + this.nbRemoved);
+        out.println(prefix + "number of resolutions after assertion\t: "
+                + this.nbResolutionsAfterAssertion);
+        out.println(prefix + "number sub-optimal analyses\t: "
+                + this.nbSubOptimalAnalyses);
         out.println(
                 prefix + "number of deleted constraints\t: " + this.nbRemoved);
     }
@@ -279,6 +289,16 @@ public class PBSolverStats extends SolverStats {
 
     public void incTimeForArithmeticOperations(long time) {
         this.timeForArtithmeticOperations += time;
+    }
+
+    public void incNbSubOptimalAnalyses() {
+        this.nbSubOptimalAnalyses++;
+
+    }
+
+    public void incNbResolutionsAfterAssertion() {
+        this.nbResolutionsAfterAssertion++;
+
     }
 
     public void setMinRemoved(BigInteger minRemoved) {

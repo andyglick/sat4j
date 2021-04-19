@@ -28,6 +28,11 @@ public abstract class AbstractAnalysisStrategy implements IAnalysisStrategy {
      */
     protected int assertiveLit = -1;
 
+    /**
+     * Whether the cancellation to perform after the assertion is the first.
+     */
+    private boolean firstCancellationAfterAssertion = true;
+
     @Override
     public void setSolver(PBSolverCP solver) {
         this.solver = solver;
@@ -37,6 +42,7 @@ public abstract class AbstractAnalysisStrategy implements IAnalysisStrategy {
     public void newConflict() {
         this.assertiveDL = -2;
         this.assertiveLit = -1;
+        this.firstCancellationAfterAssertion = true;
     }
 
     @Override
@@ -60,6 +66,13 @@ public abstract class AbstractAnalysisStrategy implements IAnalysisStrategy {
             // A specific kind of resolution should be applied to preserve
             // assertion.
             resolveAfterAssertion(pivotLit, conflict, constr);
+
+            // Collecting statistics
+            if (firstCancellationAfterAssertion) {
+                conflict.stats.incNbSubOptimalAnalyses();
+                firstCancellationAfterAssertion = false;
+            }
+            conflict.stats.incNbResolutionsAfterAssertion();
 
         } else {
             // Resolution is performed as usual.
