@@ -60,4 +60,8 @@ public interface IAnalysisStrategy {
      */
     boolean shouldStop(int currentLevel);
 
+    int getBacktrackLevel(ConflictMap confl, int currentLevel);
+
+    void undoOne(ConflictMap confl, int last);
+
 }

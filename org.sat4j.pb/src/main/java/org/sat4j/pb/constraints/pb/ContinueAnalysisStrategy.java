@@ -49,7 +49,7 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
         BigInteger degree = constr.getDegree();
         BigInteger[] coeffs = constr.getCoefs();
         degree = reduceUntilAssertive(conflict, litImplied, ind, coeffs, degree,
-                (IWatchPb) constr);
+                constr);
 
         // A resolution is performed if and only if we can guarantee that the
         // backtrack level will not increase (i.e., get worse).
@@ -64,12 +64,11 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
 
     private BigInteger reduceUntilAssertive(ConflictMap conflict,
             int litImplied, int ind, BigInteger[] reducedCoefs,
-            BigInteger degreeReduced, IWatchPb wpb) {
+            BigInteger degreeReduced, PBConstr wpb) {
         BigInteger reducedDegree = degreeReduced;
         BigInteger previousCoefLitImplied = BigInteger.ZERO;
         BigInteger coefLitImplied = conflict.weightedLits.get(litImplied ^ 1);
-        BigInteger coeffAssertive = conflict.weightedLits
-                .getCoef(conflict.weightedLits.getFromAllLits(assertiveLit));
+        BigInteger coeffAssertive = BigInteger.ZERO;
         BigInteger finalSlack = BigInteger.ONE.negate();
 
         do {
@@ -120,10 +119,12 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
 
     }
 
-    public BigInteger reduceInConstraint(ConflictMap conflict, IWatchPb wpb,
+    public BigInteger reduceInConstraint(ConflictMap conflict, PBConstr wpb,
             final BigInteger[] coefsBis, final int indLitImplied,
             final BigInteger degreeBis) {
-        assert degreeBis.compareTo(BigInteger.ONE) > 0;
+        if (degreeBis.signum() <= 0) {
+            return BigInteger.ZERO;
+        }
 
         // Search for a literal to remove.
         int lit = findLiteralToRemove(conflict.voc, wpb, coefsBis,
@@ -149,7 +150,7 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
         return degUpdate;
     }
 
-    private int findLiteralToRemove(ILits voc, IWatchPb wpb,
+    private int findLiteralToRemove(ILits voc, PBConstr wpb,
             BigInteger[] coefsBis, int indLitImplied, BigInteger degreeBis) {
         // Any literal assigned at a level > assertiveDL may be removed
         // TODO Propose other strategies, e.g., based on why assertion is lost?
@@ -181,7 +182,8 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
 
         // TODO Check if this is really the good place to do this operation.
         conflict.degree = conflict.degree.multiply(conflict.coefMult);
-        conflict.degree = conflict.cuttingPlane(constr, degreeCons, coefsCons,
+        conflict.degree = conflict.cuttingPlane(constr,
+                degreeCons.multiply(conflict.coefMultCons), coefsCons,
                 conflict.coefMultCons, solver, indLitInConstr);
 
         // neither litImplied nor nLitImplied is present in coefs structure
@@ -194,10 +196,33 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
         assert conflict.degree.signum() > 0;
         // saturation
         conflict.degree = conflict.saturation();
-        assert conflict.computeSlack(assertiveDL).subtract(conflict.degree)
-                .compareTo(conflict.weightedLits.getCoef(conflict.weightedLits
-                        .getFromAllLits(assertiveLit))) < 0;
+        assert checkAssertionLevel(conflict) : "Conflict is not assertive at "
+                + assertiveDL + ": " + conflict.toString();
         conflict.divideCoefs();
+
+        // Collecting statistics
+        if (firstCancellationAfterAssertion) {
+            conflict.stats.incNbSubOptimalAnalyses();
+            firstCancellationAfterAssertion = false;
+        }
+        conflict.stats.incNbResolutionsAfterAssertion();
+
+    }
+
+    private boolean checkAssertionLevel(ConflictMap conflict) {
+        BigInteger slack = conflict.computeSlack(assertiveDL + 1)
+                .subtract(conflict.degree);
+
+        for (int i = 0; i < conflict.size(); i++) {
+            int lit = conflict.weightedLits.getLit(i);
+            if (!conflict.voc.isFalsified(lit)
+                    || conflict.voc.getLevel(lit) > assertiveDL) {
+                if (conflict.weightedLits.getCoef(i).compareTo(slack) > 0) {
+                    return true;
+                }
+            }
+        }
+        return slack.signum() <= 0;
     }
 
     private void undo(int litImplied, ConflictMap conflict, int nLitImplied) {
@@ -231,7 +256,6 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
         BigInteger degree = conflict.degree.multiply(conflict.coefMult)
                 .add(degreeCons.multiply(conflict.coefMultCons));
         Map<Integer, BigInteger> litCoef = new HashMap<Integer, BigInteger>();
-
         for (int i = 0; i < cpb.size(); i++) {
             BigInteger coef = reducedCoefs[i];
             int lit = cpb.get(i);
@@ -239,7 +263,8 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
             if (coef.signum() > 0) {
                 coef = coef.multiply(conflict.coefMultCons);
                 if (conflict.weightedLits.containsKey(nlit)) {
-                    BigInteger tmp = conflict.weightedLits.get(nlit);
+                    BigInteger tmp = conflict.weightedLits.get(nlit)
+                            .multiply(conflict.coefMult);
                     if (tmp.compareTo(coef) < 0) {
                         litCoef.put(lit, coef.subtract(tmp));
                         degree = degree.subtract(tmp);
@@ -260,7 +285,7 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
                                 .multiply(conflict.coefMult).add(coef));
 
                     } else {
-                        litCoef.put(lit, conflict.coefMult.add(coef));
+                        litCoef.put(lit, coef);
                     }
                 }
             }
@@ -268,22 +293,34 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
 
         // Adding missing literals.
         for (int l = 0; l < conflict.size(); l++) {
-            if (!litCoef.containsKey(l) && !litCoef.containsKey(l ^ 1)) {
-                litCoef.put(l, conflict.weightedLits.get(l));
+            int lit = conflict.weightedLits.getLit(l);
+            if (!litCoef.containsKey(lit) && !litCoef.containsKey(lit ^ 1)) {
+                litCoef.put(lit, conflict.weightedLits.get(lit)
+                        .multiply(conflict.coefMult));
             }
         }
 
         // Computing the slack.
         BigInteger slack = BigInteger.ZERO;
+        BigInteger max = BigInteger.ZERO;
         for (Map.Entry<Integer, BigInteger> wl : litCoef.entrySet()) {
             if (!conflict.voc.isFalsified(wl.getKey())
                     || conflict.voc.getLevel(wl.getKey()) > assertiveDL) {
                 slack = slack.add(wl.getValue().min(degree));
+                max = max.max(wl.getValue().min(degree));
             }
         }
         slack = slack.subtract(degree);
 
-        return new BigInteger[] { slack, litCoef.get(assertiveLit) };
+        return new BigInteger[] { slack, max };
     }
 
+    @Override
+    public int getBacktrackLevel(ConflictMap confl, int currentLevel) {
+        return assertiveDL;
+    }
+
+    @Override
+    public void undoOne(ConflictMap confl, int last) {
+    }
 }

@@ -79,6 +79,8 @@ public class PBSolverStats extends SolverStats {
 
     private long nbSubOptimalAnalyses;
 
+    private long nbImprovedBackjumps;
+
     private BigInteger minRemoved;
 
     private BigInteger maxRemoved;
@@ -161,6 +163,8 @@ public class PBSolverStats extends SolverStats {
                 + this.nbResolutionsAfterAssertion);
         out.println(prefix + "number sub-optimal analyses\t: "
                 + this.nbSubOptimalAnalyses);
+        out.println(prefix + "number of improved backjumps\t: "
+                + this.nbImprovedBackjumps);
         out.println(
                 prefix + "number of deleted constraints\t: " + this.nbRemoved);
     }
@@ -298,6 +302,11 @@ public class PBSolverStats extends SolverStats {
 
     public void incNbResolutionsAfterAssertion() {
         this.nbResolutionsAfterAssertion++;
+
+    }
+
+    public void incNbImprovedBackjumps() {
+        this.nbImprovedBackjumps++;
 
     }
 

@@ -168,8 +168,7 @@ public class PBSolverCP extends PBSolver {
         ConflictMap confl = chooseConflict((PBConstr) myconfl, currentLevel);
         confl.setDecisionLevel(currentLevel);
         assert confl.slackConflict().signum() < 0;
-        while (!confl.isUnsat() && !confl.isAssertive(currentLevel)
-                && !analysisStrategy.shouldStop(currentLevel)) {
+        while (!confl.isUnsat() && !analysisStrategy.shouldStop(currentLevel)) {
             if (!this.undertimeout) {
                 throw new TimeoutException();
             }
@@ -177,7 +176,8 @@ public class PBSolverCP extends PBSolver {
             // result of the resolution is in the conflict (confl)
             analysisStrategy.resolve(litImplied, confl, constraint);
             updateNumberOfReductions(confl);
-            assert confl.slackConflict().signum() < 0;
+            assert confl.slackConflict().signum() < 0
+                    || confl.propagatesNow(currentLevel);
             // implication trail is reduced
             if (this.trail.size() == 1) {
                 break;
@@ -187,42 +187,40 @@ public class PBSolverCP extends PBSolver {
                 break;
             }
             litImplied = this.trail.last();
-            if (this.voc.getLevel(litImplied) != currentLevel) {
+            while (this.voc.getLevel(litImplied) != currentLevel) {
                 this.trailLim.pop();
                 slistener.backtracking(LiteralsUtils.toDimacs(litImplied));
+                currentLevel = decisionLevel();
             }
-            assert this.voc.getLevel(litImplied) <= currentLevel;
             currentLevel = this.voc.getLevel(litImplied);
+            assert this.voc.getLevel(litImplied) <= currentLevel;
             confl.setDecisionLevel(currentLevel);
             assert confl.slackIsCorrect(currentLevel);
-            assert currentLevel == decisionLevel();
+            assert currentLevel == decisionLevel() : currentLevel + " != "
+                    + decisionLevel();
             assert litImplied > 1;
             if (confl.isAssertive(currentLevel)) {
                 analysisStrategy.isAssertiveAt(
                         confl.getBacktrackLevel(currentLevel),
-                        confl.weightedLits
-                                .getFromAllLits(confl.getAssertiveLiteral()));
+                        confl.weightedLits.getLit(confl.getAssertiveLiteral()));
             }
         }
-        assert confl.isAssertive(currentLevel) || this.trail.size() == 1
+        assert confl.propagatesNow(currentLevel)
+                || confl.isAssertive(currentLevel) || this.trail.size() == 1
                 || decisionLevel() == 0 || confl.isUnsat();
-
         assert currentLevel == decisionLevel();
         confl.setDecisionLevel(currentLevel);
-        confl.undoOne(this.trail.last());
-        undoOne();
+        analysisStrategy.undoOne(confl, this.trail.last());
         this.qhead = this.trail.size();
         updateNumberOfReducedLearnedConstraints(confl);
         // necessary informations to build a PB-constraint
         // are kept from the conflict
-        if (confl.isUnsat() || confl.size() == 0 || decisionLevel() == 0
-                || (this.trail.size() == 0
-                        && confl.slackConflict().signum() < 0)) {
+        if (confl.isUnsat() || confl.size() == 0 || (this.trail.size() == 0
+                && confl.slackConflict().signum() < 0)) {
             results.setReason(null);
             results.setBacktrackLevel(-1);
             return;
         }
-
         // assertive PB-constraint is build and referenced
         confl.postProcess(currentLevel);
         PBConstr resConstr = (PBConstr) this.dsfactory
@@ -232,7 +230,9 @@ public class PBSolverCP extends PBSolver {
 
         // the conflict give the highest decision level for the backtrack
         // (which is less than current level)
-        int backtrackLevel = confl.getBacktrackLevel(currentLevel);
+        int backtrackLevel = analysisStrategy.getBacktrackLevel(confl,
+                currentLevel);
+        assert confl.propagatesNow(backtrackLevel);
         results.setBacktrackLevel(backtrackLevel);
         // }
     }

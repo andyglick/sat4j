@@ -106,7 +106,7 @@ public class InternalMapPBStructure {
         return this.allLits.get(lit);
     }
 
-    int getLit(int indLit) {
+    public int getLit(int indLit) {
         assert indLit < this.lits.size();
         return this.lits.get(indLit);
     }

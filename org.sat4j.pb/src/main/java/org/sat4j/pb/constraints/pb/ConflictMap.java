@@ -589,7 +589,19 @@ public class ConflictMap extends MapPb implements IConflict {
      * @return true if the conflict is unsatisfiable
      */
     public boolean isUnsat() {
-        return this.sumAllCoefs.subtract(this.degree).signum() < 0;
+        if (this.sumAllCoefs.subtract(this.degree).signum() < 0) {
+            return true;
+        }
+
+        BigInteger sum = BigInteger.ZERO;
+        for (int i = 0; i < size(); i++) {
+            int lit = weightedLits.getLit(i);
+            if (!voc.isFalsified(lit) || voc.getLevel(lit) > 0) {
+                sum = sum.add(weightedLits.getCoef(i));
+            }
+        }
+
+        return sum.subtract(this.degree).signum() < 0;
     }
 
     // given the slack already computed, tests if a literal could be implied at
@@ -732,7 +744,7 @@ public class ConflictMap extends MapPb implements IConflict {
     }
 
     protected BigInteger saturation(BigInteger[] coefs, BigInteger degree,
-            IWatchPb wpb) {
+            PBConstr wpb) {
         assert degree.signum() > 0;
         BigInteger degreeResult = degree;
         boolean isMinimumEqualsToDegree = true;
@@ -830,7 +842,6 @@ public class ConflictMap extends MapPb implements IConflict {
                 }
             }
             assert previous == oldGetBacktrackLevel(maxLevel);
-            this.backtrackLevel = previous;
             return previous;
         } else
             return this.backtrackLevel;
@@ -1029,6 +1040,19 @@ public class ConflictMap extends MapPb implements IConflict {
             this.byLevel[0].push(lit);
         }
 
+    }
+
+    public boolean propagatesNow(int level) {
+        BigInteger slack = computeSlack(level + 1).subtract(degree);
+        for (int i = 0; i < this.size(); i++) {
+            int lit = this.weightedLits.getLit(i);
+            if (!this.voc.isFalsified(lit) || this.voc.getLevel(lit) > level) {
+                if (this.weightedLits.getCoef(i).compareTo(slack) > 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

@@ -4,6 +4,7 @@
 package org.sat4j.pb.constraints.pb;
 
 import org.sat4j.pb.core.PBSolverCP;
+import org.sat4j.pb.core.PBSolverStats;
 
 /**
  * The AbstractAnalysisStrategy defines template methods for implementing
@@ -31,7 +32,7 @@ public abstract class AbstractAnalysisStrategy implements IAnalysisStrategy {
     /**
      * Whether the cancellation to perform after the assertion is the first.
      */
-    private boolean firstCancellationAfterAssertion = true;
+    protected boolean firstCancellationAfterAssertion = true;
 
     @Override
     public void setSolver(PBSolverCP solver) {
@@ -47,6 +48,9 @@ public abstract class AbstractAnalysisStrategy implements IAnalysisStrategy {
 
     @Override
     public void isAssertiveAt(int dl, int assertiveLit) {
+        if (dl < assertiveDL) {
+            ((PBSolverStats) solver.getStats()).incNbImprovedBackjumps();
+        }
         this.assertiveDL = dl;
         this.assertiveLit = assertiveLit;
     }
@@ -66,13 +70,6 @@ public abstract class AbstractAnalysisStrategy implements IAnalysisStrategy {
             // A specific kind of resolution should be applied to preserve
             // assertion.
             resolveAfterAssertion(pivotLit, conflict, constr);
-
-            // Collecting statistics
-            if (firstCancellationAfterAssertion) {
-                conflict.stats.incNbSubOptimalAnalyses();
-                firstCancellationAfterAssertion = false;
-            }
-            conflict.stats.incNbResolutionsAfterAssertion();
 
         } else {
             // Resolution is performed as usual.

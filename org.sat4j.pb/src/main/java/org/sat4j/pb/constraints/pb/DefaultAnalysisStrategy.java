@@ -21,4 +21,14 @@ public class DefaultAnalysisStrategy extends AbstractAnalysisStrategy {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public int getBacktrackLevel(ConflictMap confl, int currentLevel) {
+        return confl.getBacktrackLevel(currentLevel);
+    }
+
+    @Override
+    public void undoOne(ConflictMap confl, int last) {
+        confl.undoOne(last);
+        solver.undoOne();
+    }
 }

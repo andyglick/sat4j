@@ -1029,7 +1029,7 @@ public class Solver<D extends DataStructureFactory>
     /**
      * 
      */
-    protected void undoOne() {
+    public void undoOne() {
         // gather last assigned literal
         int p = this.trail.last();
         assert p > 1;
@@ -1342,7 +1342,7 @@ public class Solver<D extends DataStructureFactory>
                     return Lbool.UNDEFINED;
                 }
                 assert this.analysisResult
-                        .getBacktrackLevel() < decisionLevel();
+                        .getBacktrackLevel() <= decisionLevel();
                 backjumpLevel = Math.max(
                         this.analysisResult.getBacktrackLevel(),
                         this.rootLevel);
@@ -1714,7 +1714,8 @@ public class Solver<D extends DataStructureFactory>
     public final LearnedConstraintsDeletionStrategy activity_based_low_memory = new ActivityLCDS(
             this, this.memoryTimer);
 
-    private final ConflictTimer glucoseTimer = new GlucoseConflictTimer(this, 1000);
+    private final ConflictTimer glucoseTimer = new GlucoseConflictTimer(this,
+            1000);
 
     /**
      * @since 2.1
