@@ -10,7 +10,8 @@ package org.sat4j.pb.constraints.pb;
 public class DefaultAnalysisStrategy extends AbstractAnalysisStrategy {
 
     @Override
-    public boolean shouldStopAfterAssertion(int currentLevel) {
+    public boolean shouldStopAfterAssertion(int currentLevel,
+            ConflictMap conflict) {
         // The analysis stops immediately when the conflict becomes assertive.
         return true;
     }

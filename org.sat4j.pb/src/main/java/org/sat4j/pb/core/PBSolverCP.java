@@ -168,16 +168,22 @@ public class PBSolverCP extends PBSolver {
         ConflictMap confl = chooseConflict((PBConstr) myconfl, currentLevel);
         confl.setDecisionLevel(currentLevel);
         assert confl.slackConflict().signum() < 0;
-        while (!confl.isUnsat() && !analysisStrategy.shouldStop(currentLevel)) {
+        // System.out.println("===");
+        while (!confl.isUnsat()
+                && !analysisStrategy.shouldStop(currentLevel, confl)) {
             if (!this.undertimeout) {
                 throw new TimeoutException();
             }
             PBConstr constraint = (PBConstr) this.voc.getReason(litImplied);
+            // System.out.println("Conflict: " + confl);
+            // System.out.println("Reason: " + constraint);
+            // System.out.println("Lit implied: " + litImplied);
             // result of the resolution is in the conflict (confl)
             analysisStrategy.resolve(litImplied, confl, constraint);
             updateNumberOfReductions(confl);
             assert confl.slackConflict().signum() < 0
-                    || confl.propagatesNow(currentLevel);
+                    || confl.propagatesNow(currentLevel) : "Problem at "
+                            + currentLevel + " " + confl.toString();
             // implication trail is reduced
             if (this.trail.size() == 1) {
                 break;

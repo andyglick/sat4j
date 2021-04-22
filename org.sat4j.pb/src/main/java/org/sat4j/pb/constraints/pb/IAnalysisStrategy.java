@@ -58,7 +58,7 @@ public interface IAnalysisStrategy {
      * 
      * @return Whether the analysis should stop.
      */
-    boolean shouldStop(int currentLevel);
+    boolean shouldStop(int currentLevel, ConflictMap conflict);
 
     int getBacktrackLevel(ConflictMap confl, int currentLevel);
 

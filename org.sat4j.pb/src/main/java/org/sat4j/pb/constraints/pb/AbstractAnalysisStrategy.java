@@ -34,6 +34,8 @@ public abstract class AbstractAnalysisStrategy implements IAnalysisStrategy {
      */
     protected boolean firstCancellationAfterAssertion = true;
 
+    private boolean improved = false;
+
     @Override
     public void setSolver(PBSolverCP solver) {
         this.solver = solver;
@@ -44,13 +46,18 @@ public abstract class AbstractAnalysisStrategy implements IAnalysisStrategy {
         this.assertiveDL = -2;
         this.assertiveLit = -1;
         this.firstCancellationAfterAssertion = true;
+        this.improved = false;
     }
 
     @Override
     public void isAssertiveAt(int dl, int assertiveLit) {
-        if (dl < assertiveDL) {
+        if (dl < assertiveDL && !improved) {
             ((PBSolverStats) solver.getStats()).incNbImprovedBackjumps();
+            improved = true;
         }
+        // System.out.println("Propagates " +
+        // LiteralsUtils.toDimacs(assertiveLit)
+        // + " at " + dl);
         this.assertiveDL = dl;
         this.assertiveLit = assertiveLit;
     }
@@ -92,8 +99,9 @@ public abstract class AbstractAnalysisStrategy implements IAnalysisStrategy {
             ConflictMap conflict, PBConstr constr);
 
     @Override
-    public boolean shouldStop(int currentLevel) {
-        return hasBeenAssertive() && shouldStopAfterAssertion(currentLevel);
+    public boolean shouldStop(int currentLevel, ConflictMap conflict) {
+        return hasBeenAssertive()
+                && shouldStopAfterAssertion(currentLevel, conflict);
     }
 
     /**
@@ -105,6 +113,7 @@ public abstract class AbstractAnalysisStrategy implements IAnalysisStrategy {
      * 
      * @return Whether the analysis should stop.
      */
-    protected abstract boolean shouldStopAfterAssertion(int currentLevel);
+    protected abstract boolean shouldStopAfterAssertion(int currentLevel,
+            ConflictMap conflict);
 
 }

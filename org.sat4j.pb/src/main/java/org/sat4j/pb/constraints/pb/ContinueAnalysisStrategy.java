@@ -15,8 +15,19 @@ import org.sat4j.minisat.core.ILits;
  */
 public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
 
+    private boolean previousConflicting = false;
+
     @Override
-    public boolean shouldStopAfterAssertion(int currentLevel) {
+    public void isAssertiveAt(int dl, int assertiveLit) {
+        if (dl != assertiveDL) {
+            previousConflicting = false;
+        }
+        super.isAssertiveAt(dl, assertiveLit);
+    }
+
+    @Override
+    public boolean shouldStopAfterAssertion(int currentLevel,
+            ConflictMap conflict) {
         // We stop when the current level reaches the backtrack level.
         // This way, we do not need to restore decisions, as assignments are
         // removed at each resolution.
@@ -24,7 +35,12 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
         // have continued to perform resolutions for each undo.
         // Technically, continuing may still improve the backjump level,
         // but when it does not, we may have trouble restoring assignments.
-        return currentLevel == assertiveDL;
+        // System.out.println(
+        // "I am at level " + currentLevel + " and assertion is at "
+        // + assertiveDL + " and " + previousConflicting);
+        return (currentLevel <= assertiveDL)
+                && conflict.propagatesNow(currentLevel)
+                && conflict.slackConflict().signum() >= 0;
     }
 
     @Override
@@ -104,16 +120,20 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
                 previousCoefLitImplied = reducedCoefs[ind];
             }
 
-            BigInteger[] slackAndCoeff = computeSlack(conflict, wpb,
+            BigInteger[] slackAndCoeffAndDegree = computeSlack(conflict, wpb,
                     reducedDegree, reducedCoefs);
-            finalSlack = slackAndCoeff[0];
-            coeffAssertive = slackAndCoeff[1];
+            finalSlack = slackAndCoeffAndDegree[0];
+            coeffAssertive = slackAndCoeffAndDegree[1];
+            if (slackAndCoeffAndDegree[2].signum() <= 0) {
+                return BigInteger.ZERO;
+            }
         } while ((finalSlack.compareTo(coeffAssertive) >= 0)
                 || conflict.isUnsat());
 
         assert conflict.coefMult
                 .multiply(conflict.weightedLits.get(litImplied ^ 1))
                 .equals(conflict.coefMultCons.multiply(reducedCoefs[ind]));
+        previousConflicting = finalSlack.signum() < 0;
 
         return reducedDegree;
 
@@ -194,6 +214,7 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
         assert conflict.getLevelByLevel(litImplied ^ 1) == -1;
 
         assert conflict.degree.signum() > 0;
+
         // saturation
         conflict.degree = conflict.saturation();
         assert checkAssertionLevel(conflict) : "Conflict is not assertive at "
@@ -307,17 +328,20 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
             if (!conflict.voc.isFalsified(wl.getKey())
                     || conflict.voc.getLevel(wl.getKey()) > assertiveDL) {
                 slack = slack.add(wl.getValue().min(degree));
+            }
+
+            if (conflict.voc.getLevel(wl.getKey()) > assertiveDL) {
                 max = max.max(wl.getValue().min(degree));
             }
         }
         slack = slack.subtract(degree);
 
-        return new BigInteger[] { slack, max };
+        return new BigInteger[] { slack, max, degree };
     }
 
     @Override
     public int getBacktrackLevel(ConflictMap confl, int currentLevel) {
-        return assertiveDL;
+        return Math.min(assertiveDL, currentLevel);
     }
 
     @Override
