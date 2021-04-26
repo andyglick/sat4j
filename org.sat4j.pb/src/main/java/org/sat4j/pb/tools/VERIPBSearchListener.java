@@ -18,20 +18,14 @@ public class VERIPBSearchListener implements PBSearchListener<ISolverService> {
 
     private StringBuilder conflict;
     private StringBuilder reason;
-    private FileWriter fw = null;
+    private final String filename;
     private int nConstraints;
 
     public VERIPBSearchListener(String problemname) {
-        String filename = problemname.replace(".opb", ".pbp");
+        this.filename = problemname.replace(".opb", ".pbp");
         File f = new File(filename);
         if (f.exists()) {
             f.delete();
-        }
-
-        try {
-            this.fw = new FileWriter(filename, true);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -39,8 +33,10 @@ public class VERIPBSearchListener implements PBSearchListener<ISolverService> {
     public void init(ISolverService solverService) {
         this.nConstraints = ((IProblem) solverService).nConstraints();
         try {
+            FileWriter fw = new FileWriter(this.filename, true);
             fw.write("pseudo-Boolean proof version 1.0\n");
             fw.write("f " + this.nConstraints + "\n");
+            fw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -69,15 +65,25 @@ public class VERIPBSearchListener implements PBSearchListener<ISolverService> {
     @Override
     public void learn(IConstr c) {
         try {
+            FileWriter fw = new FileWriter(this.filename, true);
             fw.write("p " + this.conflict.toString() + "\n");
+            fw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
         this.nConstraints++;
+        c.setId(nConstraints);
     }
 
     @Override
     public void delete(IConstr c) {
+        try {
+            FileWriter fw = new FileWriter(this.filename, true);
+            fw.write("d " + c.getId() + "\n");
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -103,7 +109,10 @@ public class VERIPBSearchListener implements PBSearchListener<ISolverService> {
     @Override
     public void end(Lbool result) {
         if (result.toString().equals("F")) {
+            this.nConstraints++;
             try {
+                FileWriter fw = new FileWriter(this.filename, true);
+                fw.write("u >= 1 ;\n");
                 fw.write("c " + this.nConstraints + "\n");
                 fw.close();
             } catch (IOException e) {
@@ -126,9 +135,10 @@ public class VERIPBSearchListener implements PBSearchListener<ISolverService> {
 
     @Override
     public void learnUnit(int p) {
-        System.out.println("p = " + p);
         try {
+            FileWriter fw = new FileWriter(this.filename, true);
             fw.write("p " + this.conflict.toString() + "\n");
+            fw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
