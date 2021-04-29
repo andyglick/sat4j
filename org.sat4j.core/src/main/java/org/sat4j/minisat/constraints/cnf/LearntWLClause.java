@@ -96,8 +96,7 @@ public final class LearntWLClause extends WLClause {
         this.activity += claInc;
     }
 
-    public boolean propagatePI(MandatoryLiteralListener s, int p) {
+    public void propagatePI(MandatoryLiteralListener s, int p) {
         this.voc.watch(p, this);
-        return true;
     }
 }

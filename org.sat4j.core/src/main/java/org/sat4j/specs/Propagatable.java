@@ -60,10 +60,9 @@ public interface Propagatable {
      *            an object to gather mandatory literals.
      * @param p
      *            the falsified literal
-     * @return
      * @since 2.3.6
      */
-    boolean propagatePI(MandatoryLiteralListener l, int p);
+    void propagatePI(MandatoryLiteralListener l, int p);
 
     /**
      * Allow to access a constraint view of the propagatable to avoid casting.

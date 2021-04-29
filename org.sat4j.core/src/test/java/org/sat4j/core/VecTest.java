@@ -29,6 +29,8 @@
  *******************************************************************************/
 package org.sat4j.core;
 
+import static org.junit.Assert.assertNotEquals;
+
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -86,8 +88,8 @@ public class VecTest extends TestCase {
      * Test pour void Vec(int)
      */
     public void testVecint() {
-        IVec<Integer> vec = new Vec<Integer>(10, new Integer(0));
-        assertEquals(new Integer(0), vec.last());
+        IVec<Integer> vec = new Vec<Integer>(10, Integer.valueOf(0));
+        assertEquals(Integer.valueOf(0), vec.last());
         assertEquals(10, vec.size());
     }
 
@@ -95,7 +97,7 @@ public class VecTest extends TestCase {
      * Test pour void Vec(int, Object)
      */
     public void testVecintObject() {
-        Integer pad = new Integer(10);
+        Integer pad = Integer.valueOf(10);
         IVec<Integer> vec = new Vec<Integer>(10, pad);
         assertEquals(pad, vec.last());
         assertEquals(10, vec.size());
@@ -116,39 +118,39 @@ public class VecTest extends TestCase {
 
     public void testShrink() {
         for (int i = 0; i < 15; i++) {
-            this.myvec.push(new Integer(i));
+            this.myvec.push(Integer.valueOf(i));
         }
         assertEquals(15, this.myvec.size());
         this.myvec.shrink(10);
         assertEquals(5, this.myvec.size());
-        assertEquals(new Integer(4), this.myvec.last());
+        assertEquals(Integer.valueOf(4), this.myvec.last());
         this.myvec.shrink(0);
         assertEquals(5, this.myvec.size());
-        assertEquals(new Integer(4), this.myvec.last());
+        assertEquals(Integer.valueOf(4), this.myvec.last());
     }
 
     public void testShrinkTo() {
         for (int i = 0; i < 15; i++) {
-            this.myvec.push(new Integer(i));
+            this.myvec.push(Integer.valueOf(i));
         }
         assertEquals(15, this.myvec.size());
         this.myvec.shrinkTo(10);
         assertEquals(10, this.myvec.size());
-        assertEquals(new Integer(9), this.myvec.last());
+        assertEquals(Integer.valueOf(9), this.myvec.last());
         this.myvec.shrinkTo(10);
         assertEquals(10, this.myvec.size());
-        assertEquals(new Integer(9), this.myvec.last());
+        assertEquals(Integer.valueOf(9), this.myvec.last());
 
     }
 
     public void testPop() {
         for (int i = 0; i < 15; i++) {
-            this.myvec.push(new Integer(i));
+            this.myvec.push(Integer.valueOf(i));
         }
         assertEquals(15, this.myvec.size());
         this.myvec.pop();
         assertEquals(14, this.myvec.size());
-        assertEquals(new Integer(13), this.myvec.last());
+        assertEquals(Integer.valueOf(13), this.myvec.last());
     }
 
     /*
@@ -169,11 +171,11 @@ public class VecTest extends TestCase {
      */
     public void testGrowTointObject() {
         assertEquals(0, this.myvec.size());
-        Integer douze = new Integer(12);
+        Integer douze = Integer.valueOf(12);
         this.myvec.growTo(12, douze);
         assertEquals(12, this.myvec.size());
         assertEquals(douze, this.myvec.last());
-        Integer treize = new Integer(13);
+        Integer treize = Integer.valueOf(13);
         this.myvec.growTo(20, treize);
         assertEquals(20, this.myvec.size());
         assertEquals(treize, this.myvec.last());
@@ -185,17 +187,17 @@ public class VecTest extends TestCase {
     public void testPush() {
         assertEquals(0, this.myvec.size());
         for (int i = 0; i < 10; i++) {
-            this.myvec.push(new Integer(0));
+            this.myvec.push(Integer.valueOf(0));
         }
         assertEquals(10, this.myvec.size());
-        assertEquals(new Integer(0), this.myvec.last());
+        assertEquals(Integer.valueOf(0), this.myvec.last());
     }
 
     /*
      * Test pour void push(Object)
      */
     public void testPushObject() {
-        Integer deux = new Integer(2);
+        Integer deux = Integer.valueOf(2);
         assertEquals(0, this.myvec.size());
         for (int i = 0; i < 10; i++) {
             this.myvec.push(deux);
@@ -213,7 +215,7 @@ public class VecTest extends TestCase {
 
     public void testLast() {
         for (int i = 0; i < 10; i++) {
-            Integer myint = new Integer(i);
+            Integer myint = Integer.valueOf(i);
             this.myvec.push(myint);
             assertEquals(myint, this.myvec.last());
         }
@@ -221,7 +223,7 @@ public class VecTest extends TestCase {
 
     public void testGet() {
         for (int i = 0; i < 10; i++) {
-            Integer myint = new Integer(i);
+            Integer myint = Integer.valueOf(i);
             this.myvec.push(myint);
             assertEquals(myint, this.myvec.get(i));
         }
@@ -229,7 +231,7 @@ public class VecTest extends TestCase {
 
     public void testCopyTo() {
         Vec<Integer> nvec = new Vec<Integer>();
-        this.myvec.growTo(15, new Integer(15));
+        this.myvec.growTo(15, Integer.valueOf(15));
         this.myvec.copyTo(nvec);
         assertEquals(15, nvec.size());
         assertEquals(15, this.myvec.size());
@@ -239,17 +241,17 @@ public class VecTest extends TestCase {
 
     public void testMoveTo() {
         Vec<Integer> nvec = new Vec<Integer>();
-        this.myvec.growTo(15, new Integer(15));
+        this.myvec.growTo(15, Integer.valueOf(15));
         this.myvec.moveTo(nvec);
         assertEquals(15, nvec.size());
         assertEquals(0, this.myvec.size());
-        assertEquals(new Integer(15), nvec.last());
+        assertEquals(Integer.valueOf(15), nvec.last());
     }
 
     public void testSelectionSort() {
         Vec<Integer> nvec = new Vec<Integer>();
         for (int i = 30; i > 0; i--) {
-            nvec.push(new Integer(i));
+            nvec.push(Integer.valueOf(i));
         }
         Comparator<Integer> comp = new DefaultComparator<Integer>();
         nvec.selectionSort(0, 30, comp);
@@ -261,10 +263,10 @@ public class VecTest extends TestCase {
     public void testSort() {
         IVec<Integer> nvec = new Vec<Integer>();
         for (int i = 101; i > 0; i--) {
-            nvec.push(new Integer(i));
+            nvec.push(Integer.valueOf(i));
         }
-        nvec.push(new Integer(30));
-        nvec.push(new Integer(40));
+        nvec.push(Integer.valueOf(30));
+        nvec.push(Integer.valueOf(40));
         Comparator<Integer> comp = new DefaultComparator<Integer>();
         nvec.sort(comp);
         for (int i = 1; i <= 30; i++) {
@@ -281,13 +283,13 @@ public class VecTest extends TestCase {
     public void testSortUnique() {
         IVec<Integer> nvec = new Vec<Integer>();
         for (int i = 101; i > 0; i--) {
-            nvec.push(new Integer(i));
+            nvec.push(Integer.valueOf(i));
         }
-        nvec.push(new Integer(30));
-        nvec.push(new Integer(40));
-        nvec.push(new Integer(50));
-        nvec.push(new Integer(55));
-        nvec.push(new Integer(60));
+        nvec.push(Integer.valueOf(30));
+        nvec.push(Integer.valueOf(40));
+        nvec.push(Integer.valueOf(50));
+        nvec.push(Integer.valueOf(55));
+        nvec.push(Integer.valueOf(60));
         Comparator<Integer> comp = new DefaultComparator<Integer>();
         nvec.sortUnique(comp);
         for (int i = 1; i <= 101; i++) {
@@ -298,26 +300,26 @@ public class VecTest extends TestCase {
     public void testDelete() {
         IVec<Integer> nvec = new Vec<Integer>();
         for (int i = 0; i < 100; i++) {
-            nvec.push(new Integer(i));
+            nvec.push(Integer.valueOf(i));
         }
-        assertEquals(new Integer(10), nvec.delete(10));
-        assertEquals(new Integer(99), nvec.get(10));
+        assertEquals(Integer.valueOf(10), nvec.delete(10));
+        assertEquals(Integer.valueOf(99), nvec.get(10));
         nvec.clear();
-        nvec.push(new Integer(1));
-        assertEquals(new Integer(1), nvec.delete(0));
+        nvec.push(Integer.valueOf(1));
+        assertEquals(Integer.valueOf(1), nvec.delete(0));
     }
 
     public void testRemove() {
         IVec<Integer> nvec = new Vec<Integer>();
         for (int i = 0; i < 100; i++) {
-            nvec.push(new Integer(i));
+            nvec.push(Integer.valueOf(i));
         }
         Integer toRemove = nvec.get(10);
         nvec.remove(toRemove);
         assertEquals(99, nvec.size());
-        assertEquals(new Integer(11), nvec.get(10));
+        assertEquals(Integer.valueOf(11), nvec.get(10));
         nvec.clear();
-        toRemove = new Integer(1);
+        toRemove = Integer.valueOf(1);
         nvec.push(toRemove);
         assertEquals(1, nvec.size());
         nvec.remove(toRemove);
@@ -327,14 +329,14 @@ public class VecTest extends TestCase {
     public void testRemoveFromLast() {
         IVec<Integer> nvec = new Vec<Integer>();
         for (int i = 0; i < 100; i++) {
-            nvec.push(new Integer(i));
+            nvec.push(Integer.valueOf(i));
         }
         Integer toRemove = nvec.get(10);
         nvec.removeFromLast(toRemove);
         assertEquals(99, nvec.size());
-        assertEquals(new Integer(11), nvec.get(10));
+        assertEquals(Integer.valueOf(11), nvec.get(10));
         nvec.clear();
-        toRemove = new Integer(1);
+        toRemove = Integer.valueOf(1);
         nvec.push(toRemove);
         assertEquals(1, nvec.size());
         nvec.removeFromLast(toRemove);
@@ -342,15 +344,15 @@ public class VecTest extends TestCase {
     }
 
     public void testEquals() {
-        IVec<Integer> nvec = new Vec<Integer>(3, new Integer(2));
-        IVec<Integer> vect = new Vec<Integer>(3, new Integer(2));
-        IVec<Integer> vecf = new Vec<Integer>(4, new Integer(2));
-        IVec<Integer> vecf2 = new Vec<Integer>(2, new Integer(2));
-        IVec<Integer> vecf3 = new Vec<Integer>(3, new Integer(3));
+        IVec<Integer> nvec = new Vec<Integer>(3, Integer.valueOf(2));
+        IVec<Integer> vect = new Vec<Integer>(3, Integer.valueOf(2));
+        IVec<Integer> vecf = new Vec<Integer>(4, Integer.valueOf(2));
+        IVec<Integer> vecf2 = new Vec<Integer>(2, Integer.valueOf(2));
+        IVec<Integer> vecf3 = new Vec<Integer>(3, Integer.valueOf(3));
         assertEquals(nvec, vect);
-        assertFalse(nvec.equals(vecf));
-        assertFalse(nvec.equals(vecf2));
-        assertFalse(nvec.equals(vecf3));
+        assertNotEquals(nvec, vecf);
+        assertNotEquals(nvec, vecf2);
+        assertNotEquals(nvec, vecf3);
 
     }
 

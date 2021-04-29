@@ -1,5 +1,6 @@
 package org.sat4j.pb;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -122,6 +123,7 @@ public class BugSAT117 {
     public void testFromPaul() {
         // This test will run for 60s, may want to disable it for fast unit
         // testing.
+        // It will run out of memory if the timers are not properly stopped.
         final ISolver solver = SolverFactory.newLight();
         GateTranslator gateTranslator = new GateTranslator(solver);
         ModelIterator modelIterator = new ModelIterator(solver);
@@ -130,7 +132,7 @@ public class BugSAT117 {
         long beginTime = begin.getTime();
         Date now = new Date();
         while (now.getTime() - beginTime < 60000) {
-            solve(gateTranslator, modelIterator);
+            assertEquals(15, solve(gateTranslator, modelIterator).size());
             now = new Date();
         }
     }

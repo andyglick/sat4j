@@ -30,12 +30,12 @@
 
 package org.sat4j.minisat;
 
-import junit.framework.TestCase;
-
 import org.sat4j.minisat.constraints.ClausalDataStructureWL;
 import org.sat4j.minisat.core.ILits;
 import org.sat4j.minisat.core.IOrder;
 import org.sat4j.minisat.orders.VarOrderHeap;
+
+import junit.framework.TestCase;
 
 /**
  * @author leberre
@@ -54,33 +54,6 @@ public class VarOrderTest extends TestCase {
         assertEquals(p, this.order.select());
         this.voc.satisfies(2); // satisfying literal 1
         assertEquals(ILits.UNDEFINED, this.order.select());
-    }
-
-    /*
-     * Class to test for void newVar(int)
-     */
-    public void testNewVarint() {
-    }
-
-    public void testSelect() {
-    }
-
-    public void testSetVarDecay() {
-    }
-
-    public void testUndo() {
-    }
-
-    public void testUpdateVar() {
-    }
-
-    public void testVarDecayActivity() {
-    }
-
-    public void testNumberOfInterestingVariables() {
-    }
-
-    public void testGetVocabulary() {
     }
 
     /*

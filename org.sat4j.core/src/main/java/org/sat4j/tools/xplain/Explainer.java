@@ -29,9 +29,11 @@
  *******************************************************************************/
 package org.sat4j.tools.xplain;
 
+import java.io.Serializable;
+
 import org.sat4j.specs.TimeoutException;
 
-public interface Explainer {
+public interface Explainer extends Serializable {
 
     int[] minimalExplanation() throws TimeoutException;
 

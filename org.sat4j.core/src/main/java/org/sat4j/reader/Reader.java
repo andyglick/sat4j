@@ -33,6 +33,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
@@ -49,7 +50,12 @@ import org.sat4j.specs.IProblem;
  * @author leberre
  */
 @Feature(value = "reader", parent = "expert")
-public abstract class Reader {
+public abstract class Reader implements Serializable {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
 
     /**
      * This is the usual method to feed a solver with a benchmark.

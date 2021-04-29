@@ -228,11 +228,10 @@ public class BinaryClauses implements Constr, Propagatable, Serializable {
         throw new UnsupportedOperationException("Not implemented yet!");
     }
 
-    public boolean propagatePI(MandatoryLiteralListener l, int p) {
+    public void propagatePI(MandatoryLiteralListener l, int p) {
         for (int i = 0; i < clauses.size(); i++) {
             l.isMandatory(clauses.get(i));
         }
-        return true;
     }
 
     public Constr toConstraint() {

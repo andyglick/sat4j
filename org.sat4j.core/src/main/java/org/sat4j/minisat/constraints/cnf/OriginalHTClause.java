@@ -104,7 +104,7 @@ public class OriginalHTClause extends HTClause {
         // do nothing
     }
 
-    public boolean propagatePI(MandatoryLiteralListener l, int p) {
+    public void propagatePI(MandatoryLiteralListener l, int p) {
         if (this.head == neg(p)) {
             final int[] mylits = this.middleLits;
             // moving head on the right
@@ -137,7 +137,6 @@ public class OriginalHTClause extends HTClause {
                 this.voc.watch(neg(this.tail), this);
             }
         }
-        return true;
     }
 
     private int savedindexhead;

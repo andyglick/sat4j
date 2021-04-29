@@ -356,7 +356,7 @@ public final class MaxWatchPb extends WatchPb {
         return new MaxWatchPb(voc, mpb);
     }
 
-    public boolean propagatePI(MandatoryLiteralListener l, int p) {
+    public void propagatePI(MandatoryLiteralListener l, int p) {
         this.voc.watch(p, this);
 
         // compute the new value for watchCumul
@@ -397,7 +397,6 @@ public final class MaxWatchPb extends WatchPb {
             }
             ind++;
         }
-        return true;
     }
 
     public int getAssertionLevel(IVecInt trail, int decisionLevel) {

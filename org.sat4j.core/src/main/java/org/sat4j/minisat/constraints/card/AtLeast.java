@@ -359,7 +359,7 @@ public class AtLeast implements Propagatable, Constr, Undoable, Serializable {
         }
     }
 
-    public boolean propagatePI(MandatoryLiteralListener l, int p) {
+    public void propagatePI(MandatoryLiteralListener l, int p) {
         // remet la clause dans la liste des clauses regardees
         this.voc.watch(p, this);
 
@@ -374,7 +374,6 @@ public class AtLeast implements Propagatable, Constr, Undoable, Serializable {
                 }
             }
         }
-        return true;
     }
 
     public boolean canBeSatisfiedByCountingLiterals() {

@@ -667,7 +667,7 @@ public class MinWatchCard
 
     private int savedindex = this.degree + 1;
 
-    public boolean propagatePI(MandatoryLiteralListener l, int p) {
+    public void propagatePI(MandatoryLiteralListener l, int p) {
         // Recherche du litt?ral falsifi?
         int indFalsified = 0;
         while ((this.lits[indFalsified] ^ 1) != p) {
@@ -693,7 +693,7 @@ public class MinWatchCard
                     l.isMandatory(this.lits[i]);
                 }
             }
-            return true;
+            return;
         }
         this.savedindex = indSwap + 1;
         // Si un litt?ral a ?t? trouv? on les ?change
@@ -703,9 +703,6 @@ public class MinWatchCard
 
         // On observe le nouveau litt?ral
         this.voc.watch(tmpInt ^ 1, this);
-
-        return true;
-
     }
 
     public boolean canBeSatisfiedByCountingLiterals() {

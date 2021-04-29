@@ -87,16 +87,6 @@ Sat4j is a full featured boolean reasoning library designed to bring state-of-th
 		<bundle-manifest>${project.build.directory}/META-INF/MANIFEST.MF</bundle-manifest>
 		<sonar.java.source>${javaSource}</sonar.java.source>
 	</properties>
-	<repositories>
-    	<repository>
-      		<id>ow2-parent-pom-staging</id>
-      		<name>OW2 parent pom staging</name>
-      		<url>https://repository.ow2.org/nexus/service/local/repositories/ow2_pom-1000/content/</url>
-      		<releases>
-        		<enabled>true</enabled>
-      		</releases>
-    	</repository>
-    </repositories>
 	<pluginRepositories>
 		<pluginRepository>
 			<id>apache.snapshots</id>

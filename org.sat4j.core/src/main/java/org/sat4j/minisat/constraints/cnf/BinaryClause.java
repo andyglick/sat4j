@@ -126,7 +126,7 @@ public abstract class BinaryClause
         return s.enqueue(this.head, this);
     }
 
-    public boolean propagatePI(MandatoryLiteralListener m, int p) {
+    public void propagatePI(MandatoryLiteralListener m, int p) {
         this.voc.watch(p, this);
         if (this.head == neg(p)) {
             m.isMandatory(this.tail);
@@ -134,7 +134,6 @@ public abstract class BinaryClause
             assert this.tail == neg(p);
             m.isMandatory(this.head);
         }
-        return true;
     }
 
     /*

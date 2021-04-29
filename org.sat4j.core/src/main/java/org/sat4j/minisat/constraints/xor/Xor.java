@@ -125,7 +125,7 @@ public class Xor implements Constr, Propagatable {
     }
 
     @Override
-    public boolean propagatePI(MandatoryLiteralListener l, int p) {
+    public void propagatePI(MandatoryLiteralListener l, int p) {
         throw new UnsupportedOperationException("Not implemented yet!");
     }
 

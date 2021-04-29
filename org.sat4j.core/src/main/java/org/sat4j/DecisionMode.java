@@ -55,7 +55,7 @@ public final class DecisionMode implements ILauncherMode {
     private static final long serialVersionUID = 1L;
     private ExitCode exitCode = ExitCode.UNKNOWN;
     private int nbSolutionFound;
-    private PrintWriter out;
+    private transient PrintWriter out;
     private long beginTime;
     private Reader reader;
     private ISolver solver;

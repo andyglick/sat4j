@@ -328,7 +328,7 @@ public class CBClause implements Constr, Undoable, Propagatable, Serializable {
         throw new UnsupportedOperationException("Not implemented yet!");
     }
 
-    public boolean propagatePI(MandatoryLiteralListener l, int p) {
+    public void propagatePI(MandatoryLiteralListener l, int p) {
         // TODO: implement this method !
         throw new UnsupportedOperationException("Not implemented yet!");
     }

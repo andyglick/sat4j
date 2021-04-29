@@ -101,7 +101,7 @@ public final class OriginalWLClause extends WLClause {
 
     private int savedindex = 2;
 
-    public boolean propagatePI(MandatoryLiteralListener s, int p) {
+    public void propagatePI(MandatoryLiteralListener s, int p) {
         final int[] mylits = this.lits;
         // Lits[1] must contain a falsified literal
         if (mylits[0] == (p ^ 1)) {
@@ -117,14 +117,13 @@ public final class OriginalWLClause extends WLClause {
                 mylits[i] = previous;
                 this.voc.watch(mylits[1] ^ 1, this);
                 savedindex = i + 1;
-                return true;
+                return;
             }
         }
         // the clause is now either unit
         this.voc.watch(p, this);
         // first literal is mandatory
         s.isMandatory(mylits[0]);
-        return true;
     }
 
     @Override

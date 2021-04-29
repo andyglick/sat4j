@@ -60,7 +60,7 @@ public final class OptimizationMode implements ILauncherMode {
     private int nbSolutions;
     private ExitCode exitCode = ExitCode.UNKNOWN;
     private boolean isIncomplete = false;
-    private PrintWriter out;
+    private transient PrintWriter out;
     private long beginTime;
     private IOptimizationProblem problem;
 
