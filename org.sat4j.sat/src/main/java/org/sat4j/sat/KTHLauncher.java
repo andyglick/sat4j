@@ -37,11 +37,15 @@ import org.sat4j.pb.constraints.pb.ConflictMapWeakenReason;
 import org.sat4j.pb.constraints.pb.ConflictMapWeakenToClash;
 import org.sat4j.pb.constraints.pb.ContinueAnalysisStrategy;
 import org.sat4j.pb.constraints.pb.DefaultAnalysisStrategy;
+import org.sat4j.pb.constraints.pb.IPostUipWeakeningStrategy;
 import org.sat4j.pb.constraints.pb.IWeakeningStrategy;
+import org.sat4j.pb.constraints.pb.NeverWeakenAfterUip;
 import org.sat4j.pb.constraints.pb.PostProcessToCard;
 import org.sat4j.pb.constraints.pb.PostProcessToClause;
 import org.sat4j.pb.constraints.pb.PreProcessReduceConflict;
 import org.sat4j.pb.constraints.pb.SkipStrategy;
+import org.sat4j.pb.constraints.pb.WeakenAnyAfterUip;
+import org.sat4j.pb.constraints.pb.WeakenOrderedAfterUip;
 import org.sat4j.pb.core.PBDataStructureFactory;
 import org.sat4j.pb.core.PBSolverCP;
 import org.sat4j.pb.lcds.PBActivityLCDS;
@@ -110,7 +114,9 @@ public class KTHLauncher {
         options.addOption("db", "double-bump-clashing", false,
                 "Whether clashing literal should be doubly bumped");
         options.addOption("as", "analysis-strategy", true,
-                "Analysis strategy, among first-assertive, backjump-level");
+                "Analysis strategy, among first-assertive, backjump-level, top-level, high-level");
+        options.addOption("pw", "post-uip-weakening", true,
+                "Post-UIP weakening strategy, among never, any, ordered");
         Option op = options.getOption("coeflim");
         op.setArgName("limit");
         op = options.getOption("coeflim-small");
@@ -142,6 +148,8 @@ public class KTHLauncher {
         op = options.getOption("deletion-strategy");
         op.setArgName("strategy");
         op = options.getOption("analysis-strategy");
+        op.setArgName("strategy");
+        op = options.getOption("post-uip-weakening");
         op.setArgName("strategy");
         return options;
     }
@@ -425,13 +433,38 @@ public class KTHLauncher {
                 }
             }
             
+            IPostUipWeakeningStrategy weakenStrat = new WeakenAnyAfterUip();
+            if (line.hasOption("post-uip-weakening")) {
+                String value = line.getOptionValue("post-uip-weakening");
+                if ("any".equals(value)) {
+                    // This is the default.
+                
+                } else if ("never".equals(value)) {
+                    weakenStrat = new NeverWeakenAfterUip();
+                
+                } else if ("ordered".equals(value)) {
+                    weakenStrat = new WeakenOrderedAfterUip();
+                
+                } else {
+                    log(value
+                            + " is not a supported value for option post-uip-weakening");
+                    return;
+                }
+            }
+            
             if (line.hasOption("analysis-strategy")) {
                 String value = line.getOptionValue("analysis-strategy");
                 if ("first-assertive".equals(value)) {
                     cpsolver.setAnalysisStrategy(new DefaultAnalysisStrategy());
                 
                 } else if ("backjump-level".equals(value)) {
-                    cpsolver.setAnalysisStrategy(new ContinueAnalysisStrategy());
+                    cpsolver.setAnalysisStrategy(ContinueAnalysisStrategy.newContinueUntilBackjumpLevel(weakenStrat));
+                
+                }  else if ("top-level".equals(value)) {
+                    cpsolver.setAnalysisStrategy(ContinueAnalysisStrategy.newContinueUnlessTopLevel(weakenStrat));
+                
+                }  else if ("high-level".equals(value)) {
+                    cpsolver.setAnalysisStrategy(ContinueAnalysisStrategy.newContinueUnlessHighLevel(weakenStrat));
                 
                 } else {
                     log(value

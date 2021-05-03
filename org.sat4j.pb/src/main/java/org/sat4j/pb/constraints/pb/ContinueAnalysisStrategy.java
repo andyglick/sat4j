@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.sat4j.core.VecInt;
-import org.sat4j.minisat.core.ILits;
 
 /**
  * The ContinueAnalysisStrategy implements the analysis strategy that allows to
@@ -16,6 +15,44 @@ import org.sat4j.minisat.core.ILits;
 public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
 
     private boolean previousConflicting = false;
+
+    private final IStopAnalysisStrategy stopStrategy;
+
+    private final IPostUipWeakeningStrategy weakeningStrategy;
+
+    private ContinueAnalysisStrategy(IStopAnalysisStrategy stopStrategy,
+            IPostUipWeakeningStrategy weakeningStrategy) {
+        this.stopStrategy = stopStrategy;
+        this.weakeningStrategy = weakeningStrategy;
+    }
+
+    public static ContinueAnalysisStrategy newContinueUntilBackjumpLevel(
+            IPostUipWeakeningStrategy weakeningStrategy) {
+        // We stop when the current level reaches the backtrack level.
+        // This way, we do not need to restore decisions, as assignments are
+        // removed at each resolution.
+        // Said differently, instead of just canceling assignments, we (may)
+        // have continued to perform resolutions for each undo.
+        // Technically, continuing may still improve the backjump level,
+        // but when it does not, we may have trouble restoring assignments.
+        return new ContinueAnalysisStrategy((a, c) -> c <= a,
+                weakeningStrategy);
+    }
+
+    public static ContinueAnalysisStrategy newContinueUnlessTopLevel(
+            IPostUipWeakeningStrategy weakeningStrategy) {
+        // We stop when the backjump level is 0, as it cannot be improved.
+        return new ContinueAnalysisStrategy((a, c) -> c <= a || a == 0,
+                weakeningStrategy);
+    }
+
+    public static ContinueAnalysisStrategy newContinueUnlessHighLevel(
+            IPostUipWeakeningStrategy weakeningStrategy) {
+        // We stop when the backjump level is "high enough"
+        return new ContinueAnalysisStrategy(
+                (a, c) -> c <= a || ((c > 0) && (100 * a / c) <= 10),
+                weakeningStrategy);
+    }
 
     @Override
     public void isAssertiveAt(int dl, int assertiveLit) {
@@ -28,17 +65,7 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
     @Override
     public boolean shouldStopAfterAssertion(int currentLevel,
             ConflictMap conflict) {
-        // We stop when the current level reaches the backtrack level.
-        // This way, we do not need to restore decisions, as assignments are
-        // removed at each resolution.
-        // Said differently, instead of just canceling assignments, we (may)
-        // have continued to perform resolutions for each undo.
-        // Technically, continuing may still improve the backjump level,
-        // but when it does not, we may have trouble restoring assignments.
-        // System.out.println(
-        // "I am at level " + currentLevel + " and assertion is at "
-        // + assertiveDL + " and " + previousConflicting);
-        return (currentLevel <= assertiveDL)
+        return stopStrategy.shouldStop(assertiveDL, currentLevel)
                 && conflict.propagatesNow(currentLevel)
                 && conflict.slackConflict().signum() >= 0;
     }
@@ -92,7 +119,7 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
             if (finalSlack.compareTo(coeffAssertive) >= 0) {
                 // Weakening a literal to (try) to preserve the assertion level.
                 BigInteger tmp = reduceInConstraint(conflict, wpb, reducedCoefs,
-                        ind, reducedDegree);
+                        ind, reducedDegree, finalSlack, coeffAssertive);
                 if (tmp.signum() == 0) {
                     // Then we do not resolve because we cannot preserve the
                     // assertion level.
@@ -141,14 +168,16 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
 
     public BigInteger reduceInConstraint(ConflictMap conflict, PBConstr wpb,
             final BigInteger[] coefsBis, final int indLitImplied,
-            final BigInteger degreeBis) {
+            final BigInteger degreeBis, BigInteger slack,
+            BigInteger coeffAssertive) {
         if (degreeBis.signum() <= 0) {
             return BigInteger.ZERO;
         }
 
         // Search for a literal to remove.
-        int lit = findLiteralToRemove(conflict.voc, wpb, coefsBis,
-                indLitImplied, degreeBis);
+        int lit = weakeningStrategy.findLiteralToRemove(conflict.voc, wpb,
+                coefsBis, indLitImplied, degreeBis, slack, coeffAssertive,
+                assertiveDL);
 
         // If no literal has been found, we do not resolve.
         // Note that this is possible as we already know that we will propagate
@@ -168,26 +197,6 @@ public class ContinueAnalysisStrategy extends AbstractAnalysisStrategy {
         assert coefsBis[indLitImplied].signum() > 0;
         assert degreeBis.compareTo(degUpdate) > 0;
         return degUpdate;
-    }
-
-    private int findLiteralToRemove(ILits voc, PBConstr wpb,
-            BigInteger[] coefsBis, int indLitImplied, BigInteger degreeBis) {
-        // Any literal assigned at a level > assertiveDL may be removed
-        // TODO Propose other strategies, e.g., based on why assertion is lost?
-        int lit = -1;
-        int size = wpb.size();
-        for (int ind = 0; (ind < size) && (lit == -1); ind++) {
-            if (coefsBis[ind].signum() != 0
-                    && (!voc.isFalsified(wpb.get(ind))
-                            || (voc.getLevel(wpb.get(ind)) > assertiveDL))
-                    && ind != indLitImplied) {
-                if (coefsBis[ind].compareTo(degreeBis) < 0) {
-                    lit = ind;
-                }
-            }
-        }
-
-        return lit;
     }
 
     private void cuttingPlane(ConflictMap conflict, PBConstr constr,
