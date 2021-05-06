@@ -18,7 +18,8 @@ public class WeakenOrderedAfterUip implements IPostUipWeakeningStrategy {
         int falsmaxlevel = -1;
         int size = wpb.size();
         for (int ind = 0; (ind < size); ind++) {
-            if (coefsBis[ind].signum() != 0 && ind != indLitImplied) {
+            if (coefsBis[ind].signum() != 0 && ind != indLitImplied
+                    && coefsBis[ind].compareTo(degreeBis) < 0) {
                 int lit = wpb.get(ind);
                 if (voc.isSatisfied(lit) && voc.getLevel(lit) > satmaxlevel) {
                     satlit = ind;
