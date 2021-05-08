@@ -1,14 +1,14 @@
 package org.sat4j.pb.orders;
 
+import java.io.PrintStream;
 import java.util.Random;
 
 import org.sat4j.OutputPrefix;
 import org.sat4j.minisat.core.ConflictTimerAdapter;
-import org.sat4j.minisat.core.DataStructureFactory;
 import org.sat4j.minisat.core.ILits;
 import org.sat4j.minisat.core.IOrder;
-import org.sat4j.minisat.core.Solver;
 import org.sat4j.pb.constraints.pb.PBConstr;
+import org.sat4j.pb.core.PBSolverCP;
 
 public class RandomDynamicBumpingStrategy extends ConflictTimerAdapter
         implements IBumper {
@@ -23,13 +23,21 @@ public class RandomDynamicBumpingStrategy extends ConflictTimerAdapter
             new BumperEffective(), new BumperEffectiveAndPropagated() };
 
     private static final Random RANDOM = new Random(12345);
+
+    private final PrintStream out;
     private int index;
 
-    public RandomDynamicBumpingStrategy(
-            Solver<? extends DataStructureFactory> solver, int bound) {
+    private final PBSolverCP pbsolver;
+
+    private long lastTimeMs = System.currentTimeMillis();
+    private long lastDecision = 0L;
+
+    public RandomDynamicBumpingStrategy(PBSolverCP solver, int bound) {
         super(solver, bound);
         index = RANDOM.nextInt(bumpers.length);
         solver.addConflictTimer(this);
+        this.pbsolver = solver;
+        out = System.err;
     }
 
     @Override
@@ -47,16 +55,54 @@ public class RandomDynamicBumpingStrategy extends ConflictTimerAdapter
 
     @Override
     public void run() {
+        out.println(buildStats());
         index = RANDOM.nextInt(bumpers.length);
-        // if (getSolver().isVerbose()) {
-        System.out.println(OutputPrefix.COMMENT_PREFIX.toString()
-                + " switching bumping strategy to " + bumpers[index]);
-        // }
+        if (getSolver().isVerbose()) {
+            System.out.println(OutputPrefix.COMMENT_PREFIX.toString()
+                    + " switching bumping strategy to " + bumpers[index]);
+        }
+        int strategyIndex = RANDOM.nextInt(BumpStrategy.values().length);
+        pbsolver.setBumpStrategy(BumpStrategy.values()[strategyIndex]);
+        if (getSolver().isVerbose()) {
+            System.out.println(OutputPrefix.COMMENT_PREFIX.toString()
+                    + " switching bump strategy to "
+                    + BumpStrategy.values()[strategyIndex]);
+        }
+    }
+
+    private String buildStats() {
+        StringBuilder stb = new StringBuilder();
+        long deltatime = System.currentTimeMillis() - lastTimeMs;
+        long deltadecision = pbsolver.getStats().getDecisions() - lastDecision;
+        long depth = pbsolver.nAssigns();
+        long dLevel = pbsolver.decisionLevel();
+        stb.append("{\n");
+        stb.append("  bumper: ");
+        stb.append(bumpers[index]);
+        stb.append(",\n");
+        stb.append("  bumpStrategy: ");
+        stb.append(pbsolver.getBumpStrategy());
+        stb.append(",\n");
+        stb.append("  time: ");
+        stb.append(deltatime);
+        stb.append(",\n");
+        stb.append("  decisions: ");
+        stb.append(deltadecision);
+        stb.append(",\n");
+        stb.append("  depth: ");
+        stb.append(depth);
+        stb.append(",\n");
+        stb.append("  decisionLevel: ");
+        stb.append(dLevel);
+        stb.append("\n}");
+        lastTimeMs = System.currentTimeMillis();
+        lastDecision = pbsolver.getStats().getDecisions();
+        return stb.toString();
     }
 
     @Override
     public String toString() {
-        return "Random bumping strategy apllied every " + bound()
+        return "Random bumping strategy applied every " + bound()
                 + " conflicts";
     }
 }

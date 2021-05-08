@@ -383,7 +383,7 @@ public class Solver<D extends DataStructureFactory>
         }
     }
 
-    protected int nAssigns() {
+    public int nAssigns() {
         return this.trail.size();
     }
 
@@ -2048,7 +2048,6 @@ public class Solver<D extends DataStructureFactory>
         this.constrTypes.clear();
         this.undertimeout = true;
         this.declaredMaxVarId = 0;
-        this.externalConflictTimers.clear();
     }
 
     public int nVars() {

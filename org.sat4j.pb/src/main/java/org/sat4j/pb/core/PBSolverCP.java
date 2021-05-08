@@ -263,8 +263,16 @@ public class PBSolverCP extends PBSolver {
         this.bumpStrategy = bumpStrategy;
     }
 
+    public BumpStrategy getBumpStrategy() {
+        return this.bumpStrategy;
+    }
+
     public void setBumper(IBumper bumperEffective) {
         this.bumper = bumperEffective;
+    }
+
+    public IBumper getBumper() {
+        return this.bumper;
     }
 
     public SkipStrategy isSkipAllow() {
