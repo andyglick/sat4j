@@ -50,6 +50,7 @@ import org.sat4j.pb.orders.BumperEffective;
 import org.sat4j.pb.orders.BumperEffectiveAndPropagated;
 import org.sat4j.pb.orders.DoubleBumpClashingLiteralsDecorator;
 import org.sat4j.pb.orders.IBumper;
+import org.sat4j.pb.orders.RandomDynamicBumpingStrategy;
 import org.sat4j.pb.reader.OPBReader2012;
 import org.sat4j.pb.restarts.GrowingCoefficientRestarts;
 import org.sat4j.pb.tools.InprocCardConstrLearningSolver;
@@ -102,9 +103,9 @@ public class KTHLauncher {
         options.addOption("b", "bump-strategy", true,
                 "Bumping strategy to apply, among one, degree, coefficient, ratio");
         options.addOption("lcds", "deletion-strategy", true,
-                "Learned constraint deletion strategy, among lbd, assigned, unassigned-same, unassigned-different, effective,, degree");
+                "Learned constraint deletion strategy, among lbd, assigned, unassigned-same, unassigned-different, effective, degree");
         options.addOption("br", "bumper", true,
-                "Literal bumper, among any, assigned and falsified");
+                "Literal bumper, among any, assigned, falsified and randomdac");
         options.addOption("db", "double-bump-clashing", false,
                 "Whether clashing literal should be doubly bumped");
         Option op = options.getOption("coeflim");
@@ -440,7 +441,8 @@ public class KTHLauncher {
 
                 } else if ("effective-and-propagated".equals(value)) {
                     bumper = new BumperEffectiveAndPropagated();
-
+                } else if ("randomdac".equals(value)) {
+                    bumper = new RandomDynamicBumpingStrategy(cpsolver,1000);
                 } else {
                     log(value
                             + " is not a supported value for option bump-strategy");

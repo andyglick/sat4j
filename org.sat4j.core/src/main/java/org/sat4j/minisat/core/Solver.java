@@ -37,6 +37,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -1715,7 +1716,8 @@ public class Solver<D extends DataStructureFactory>
     public final LearnedConstraintsDeletionStrategy activity_based_low_memory = new ActivityLCDS(
             this, this.memoryTimer);
 
-    private final ConflictTimer glucoseTimer = new GlucoseConflictTimer(this, 1000);
+    private final ConflictTimer glucoseTimer = new GlucoseConflictTimer(this,
+            1000);
 
     /**
      * @since 2.1
@@ -1860,6 +1862,9 @@ public class Solver<D extends DataStructureFactory>
             this.conflictCount.add(this.restarter);
             this.conflictCount
                     .add(this.learnedConstraintsDeletionStrategy.getTimer());
+            for (ConflictTimer etimer : externalConflictTimers) {
+                this.conflictCount.add(etimer);
+            }
         }
         boolean firstTimeGlobal = false;
         if (this.timeBasedTimeout) {
@@ -2043,6 +2048,7 @@ public class Solver<D extends DataStructureFactory>
         this.constrTypes.clear();
         this.undertimeout = true;
         this.declaredMaxVarId = 0;
+        this.externalConflictTimers.clear();
     }
 
     public int nVars() {
@@ -2616,5 +2622,11 @@ public class Solver<D extends DataStructureFactory>
         int[] outdecisions = new int[n];
         System.arraycopy(decisions.toArray(), 0, outdecisions, 0, n);
         return outdecisions;
+    }
+
+    private final Collection<ConflictTimer> externalConflictTimers = new ArrayList<>();
+
+    public void addConflictTimer(ConflictTimer ctimer) {
+        externalConflictTimers.add(ctimer);
     }
 }
