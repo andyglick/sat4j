@@ -34,6 +34,8 @@ public class ExternalDynamicBumpingStrategy extends ConflictTimerAdapter
 
     private final PBSolverCP pbsolver;
 
+    private final int port;
+
     private long lastTimeMs = System.currentTimeMillis();
     private long lastDecision = 0L;
 
@@ -42,7 +44,7 @@ public class ExternalDynamicBumpingStrategy extends ConflictTimerAdapter
         super(solver, bound);
         solver.addConflictTimer(this);
         this.pbsolver = solver;
-
+        this.port = port;
         try {
             Socket socket = new Socket("127.0.0.1", port);
             out = new PrintStream(socket.getOutputStream());
@@ -121,7 +123,7 @@ public class ExternalDynamicBumpingStrategy extends ConflictTimerAdapter
 
     @Override
     public String toString() {
-        return "Random bumping strategy applied every " + bound()
-                + " conflicts";
+        return "External Dynamic Automated Configuration bumping strategy listening on port "
+                + port + " applied every " + bound() + " conflicts";
     }
 }

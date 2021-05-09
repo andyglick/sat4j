@@ -31,8 +31,8 @@ public class RandomDynamicBumpingStrategy extends ConflictTimerAdapter
 
     private final PBSolverCP pbsolver;
 
-    private long lastTimeMs = System.currentTimeMillis();
-    private long lastDecision = 0L;
+    private final long lastTimeMs = System.currentTimeMillis();
+    private final long lastDecision = 0L;
 
     public RandomDynamicBumpingStrategy(PBSolverCP solver, int bound) {
         super(solver, bound);
@@ -62,7 +62,6 @@ public class RandomDynamicBumpingStrategy extends ConflictTimerAdapter
 
     @Override
     public void run() {
-        out.println(buildStats());
         index = RANDOM.nextInt(bumpers.length);
         if (getSolver().isVerbose()) {
             System.out.println(OutputPrefix.COMMENT_PREFIX.toString()
@@ -75,36 +74,6 @@ public class RandomDynamicBumpingStrategy extends ConflictTimerAdapter
                     + " switching bump strategy to "
                     + BumpStrategy.values()[strategyIndex]);
         }
-    }
-
-    private String buildStats() {
-        StringBuilder stb = new StringBuilder();
-        long deltatime = System.currentTimeMillis() - lastTimeMs;
-        long deltadecision = pbsolver.getStats().getDecisions() - lastDecision;
-        long depth = pbsolver.nAssigns();
-        long dLevel = pbsolver.decisionLevel();
-        stb.append("{\n");
-        stb.append("  bumper: ");
-        stb.append(bumpers[index]);
-        stb.append(",\n");
-        stb.append("  bumpStrategy: ");
-        stb.append(pbsolver.getBumpStrategy());
-        stb.append(",\n");
-        stb.append("  time: ");
-        stb.append(deltatime);
-        stb.append(",\n");
-        stb.append("  decisions: ");
-        stb.append(deltadecision);
-        stb.append(",\n");
-        stb.append("  depth: ");
-        stb.append(depth);
-        stb.append(",\n");
-        stb.append("  decisionLevel: ");
-        stb.append(dLevel);
-        stb.append("\n}");
-        lastTimeMs = System.currentTimeMillis();
-        lastDecision = pbsolver.getStats().getDecisions();
-        return stb.toString();
     }
 
     @Override
