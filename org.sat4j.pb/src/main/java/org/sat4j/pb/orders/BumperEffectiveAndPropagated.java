@@ -66,6 +66,6 @@ public class BumperEffectiveAndPropagated implements IBumper {
 
     @Override
     public String toString() {
-        return "EFFECTIVE AND PROPAGATED";
+        return "EFFECTIVE_AND_PROPAGATED";
     }
 }

@@ -49,6 +49,7 @@ import org.sat4j.pb.orders.Bumper;
 import org.sat4j.pb.orders.BumperEffective;
 import org.sat4j.pb.orders.BumperEffectiveAndPropagated;
 import org.sat4j.pb.orders.DoubleBumpClashingLiteralsDecorator;
+import org.sat4j.pb.orders.ExternalDynamicBumpingStrategy;
 import org.sat4j.pb.orders.IBumper;
 import org.sat4j.pb.orders.RandomDynamicBumpingStrategy;
 import org.sat4j.pb.reader.OPBReader2012;
@@ -105,7 +106,9 @@ public class KTHLauncher {
         options.addOption("lcds", "deletion-strategy", true,
                 "Learned constraint deletion strategy, among lbd, assigned, unassigned-same, unassigned-different, effective, degree");
         options.addOption("br", "bumper", true,
-                "Literal bumper, among any, assigned, falsified and randomdac");
+                "Literal bumper, among any, assigned, falsified, randomdac and externaldac");
+        options.addOption("p", "port", true,
+                "Port on which is listening the externaldac");
         options.addOption("db", "double-bump-clashing", false,
                 "Whether clashing literal should be doubly bumped");
         Option op = options.getOption("coeflim");
@@ -443,6 +446,12 @@ public class KTHLauncher {
                     bumper = new BumperEffectiveAndPropagated();
                 } else if ("randomdac".equals(value)) {
                     bumper = new RandomDynamicBumpingStrategy(cpsolver,1000);
+                } else if ("externaldac".equals(value)) {
+                    int port = 33333;
+                    if (line.hasOption("port")) {
+                        port = Integer.valueOf(line.getOptionValue("port"));
+                    }
+                    bumper = new ExternalDynamicBumpingStrategy(cpsolver,1000,port);
                 } else {
                     log(value
                             + " is not a supported value for option bump-strategy");

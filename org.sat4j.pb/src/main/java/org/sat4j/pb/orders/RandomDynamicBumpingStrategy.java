@@ -1,6 +1,8 @@
 package org.sat4j.pb.orders;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.net.Socket;
 import java.util.Random;
 
 import org.sat4j.OutputPrefix;
@@ -24,7 +26,7 @@ public class RandomDynamicBumpingStrategy extends ConflictTimerAdapter
 
     private static final Random RANDOM = new Random(12345);
 
-    private final PrintStream out;
+    private PrintStream out;
     private int index;
 
     private final PBSolverCP pbsolver;
@@ -37,7 +39,12 @@ public class RandomDynamicBumpingStrategy extends ConflictTimerAdapter
         index = RANDOM.nextInt(bumpers.length);
         solver.addConflictTimer(this);
         this.pbsolver = solver;
-        out = System.err;
+        try {
+            out = new PrintStream(
+                    new Socket("127.0.0.1", 33333).getOutputStream());
+        } catch (IOException e) {
+            out = System.err;
+        }
     }
 
     @Override
