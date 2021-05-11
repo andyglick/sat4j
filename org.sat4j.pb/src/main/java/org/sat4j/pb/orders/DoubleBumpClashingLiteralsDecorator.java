@@ -14,10 +14,13 @@ public class DoubleBumpClashingLiteralsDecorator implements IBumper {
 
     @Override
     public void varBumpActivity(ILits voc, BumpStrategy bumpStrategy,
-            IOrder order, PBConstr constr, int i, int propagated) {
+            IOrder order, PBConstr constr, int i, int propagated,
+            boolean conflicting) {
         decorated.varBumpActivity(voc, bumpStrategy, order, constr, i,
-                propagated);
-        bumpStrategy.varBumpActivity(order, constr, i);
+                propagated, conflicting);
+        if (conflicting)
+            decorated.varBumpActivity(voc, bumpStrategy, order, constr, i,
+                    propagated, conflicting);
     }
 
     @Override

@@ -1074,7 +1074,8 @@ public class Solver<D extends DataStructureFactory>
         this.order.updateVar(p);
     }
 
-    public void varBumpActivity(Constr constr, int i, int p) {
+    public void varBumpActivity(Constr constr, int i, int p,
+            boolean conflicting) {
         this.order.updateVar(constr.get(i));
     }
 

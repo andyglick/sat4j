@@ -35,7 +35,8 @@ public enum Bumper implements IBumper {
     };
 
     public void varBumpActivity(ILits voc, BumpStrategy bumpStrategy,
-            IOrder order, PBConstr constr, int i, int propagated) {
+            IOrder order, PBConstr constr, int i, int propagated,
+            boolean conflicting) {
         if (isBumpable(voc, constr.get(i), constr.get(propagated))) {
             bumpStrategy.varBumpActivity(order, constr, i);
         }

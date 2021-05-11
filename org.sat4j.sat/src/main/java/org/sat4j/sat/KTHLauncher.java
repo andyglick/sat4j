@@ -614,10 +614,10 @@ public class KTHLauncher {
             } catch (ContradictionException e) {
                 log("UNSATISFIABLE", "s ");
             } catch (Exception e) {
-                e.printStackTrace();
+                log("Unexpected Exception:" + e.getMessage());
             }
         } catch (ParseException exp) {
-            log("Unexpected exception:" + exp.getMessage());
+            log("Unexpected parsing exception:" + exp.getMessage());
         }
     }
 }
