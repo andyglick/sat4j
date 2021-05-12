@@ -109,6 +109,8 @@ public class KTHLauncher {
                 "Literal bumper, among any, assigned, falsified, randomdac and externaldac");
         options.addOption("p", "port", true,
                 "Port on which is listening the externaldac");
+        options.addOption("rbs", "random-bumping-strategy", false,
+                "Whether the bumping strategy is also random");
         options.addOption("db", "double-bump-clashing", false,
                 "Whether clashing literal should be doubly bumped");
         Option op = options.getOption("coeflim");
@@ -445,7 +447,7 @@ public class KTHLauncher {
                 } else if ("effective-and-propagated".equals(value)) {
                     bumper = new BumperEffectiveAndPropagated();
                 } else if ("randomdac".equals(value)) {
-                    bumper = new RandomDynamicBumpingStrategy(cpsolver,1000);
+                    bumper = new RandomDynamicBumpingStrategy(cpsolver,1000,line.hasOption("random-bumping-strategy"));
                 } else if ("externaldac".equals(value)) {
                     int port = 33333;
                     if (line.hasOption("port")) {
