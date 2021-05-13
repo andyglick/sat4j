@@ -5,7 +5,6 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 import org.sat4j.OutputPrefix;
 import org.sat4j.minisat.core.ConflictTimerAdapter;
@@ -92,16 +91,6 @@ public class ExternalDynamicBumpingStrategyWithSyncedStart extends ConflictTimer
             msg = buildStats();
             out.println(String.format("%04d", msg.length() + 1) + msg);
             out.flush();
-            System.out.println("Before Sleep");
-            try
-            {
-                TimeUnit.SECONDS.sleep(1);
-            }
-            catch(InterruptedException ex)
-            {
-                throw new Error(ex);
-            }
-            System.out.println("After Sleep");
             String jsonline = in.nextLine();
             if (jsonline.equals("CONFIRM")) {
                 System.out.println("RL controller confirmed it received init state");

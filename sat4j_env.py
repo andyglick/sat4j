@@ -196,8 +196,7 @@ class SAT4JEnvSelHeur(Env):
         if not self.conn:
             self.close()
             raise Exception('Connection unexpected closed')
-        self.conn.sendall(json.dumps(msg).encode('utf-8'))
-        self.conn.send("\n".encode('utf-8'))
+        self.conn.sendall(json.dumps(msg).encode('utf-8') + "\n".encode('utf-8'))
         s, r, d = self._process_data()
         info = {}
         if d:
