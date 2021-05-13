@@ -50,6 +50,7 @@ import org.sat4j.pb.orders.BumperEffective;
 import org.sat4j.pb.orders.BumperEffectiveAndPropagated;
 import org.sat4j.pb.orders.DoubleBumpClashingLiteralsDecorator;
 import org.sat4j.pb.orders.ExternalDynamicBumpingStrategy;
+import org.sat4j.pb.orders.ExternalDynamicBumpingStrategyWithSyncedStart;
 import org.sat4j.pb.orders.IBumper;
 import org.sat4j.pb.orders.RandomDynamicBumpingStrategy;
 import org.sat4j.pb.reader.OPBReader2012;
@@ -111,6 +112,8 @@ public class KTHLauncher {
                 "Port on which is listening the externaldac");
         options.addOption("db", "double-bump-clashing", false,
                 "Whether clashing literal should be doubly bumped");
+         options.addOption("sync", "synced-start", false,
+                "Whether externaldac uses synced start or not");
         Option op = options.getOption("coeflim");
         op.setArgName("limit");
         op = options.getOption("coeflim-small");
@@ -451,7 +454,11 @@ public class KTHLauncher {
                     if (line.hasOption("port")) {
                         port = Integer.valueOf(line.getOptionValue("port"));
                     }
-                    bumper = new ExternalDynamicBumpingStrategy(cpsolver,1000,port);
+                    if (line.hasOption("synced-start")) {
+                        bumper = new ExternalDynamicBumpingStrategyWithSyncedStart(cpsolver, 1000, port);
+                    } else {
+                        bumper = new ExternalDynamicBumpingStrategy(cpsolver,1000,port);
+                    }
                 } else {
                     log(value
                             + " is not a supported value for option bump-strategy");
