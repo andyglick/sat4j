@@ -99,11 +99,9 @@ public class ExternalDynamicBumpingStrategyWithSyncedStart extends ConflictTimer
             }
         }
         if (send_state) {  // only needs to skip once in the beginning as we already make sure the init state is sent
-            System.out.println("Sending State");
             msg = buildStats();
             out.println(String.format("%04d", msg.length() + 1) + msg);
             out.flush();
-            System.out.println("State sent");
         }
         String jsonline = in.nextLine();
 
