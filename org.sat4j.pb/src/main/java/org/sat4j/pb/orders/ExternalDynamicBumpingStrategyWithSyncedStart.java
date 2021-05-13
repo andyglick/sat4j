@@ -76,18 +76,21 @@ public class ExternalDynamicBumpingStrategyWithSyncedStart extends ConflictTimer
     @Override
     public void run() {
         boolean send_state = true;
+        String msg = "";
         while (!started) {
             String jsonline = in.nextLine();
             if (jsonline.equals("START")) {
                 System.out.println("Received start signal from RL controller");
-                out.println("CONFIRM");
+                msg = "CONFIRM";
+                out.println(String.format("%04d", msg.length() + 1) + msg);
                 out.flush();
                 started = true;
             }
         }
         while (!sent_init_state) {
             System.out.println("Waiting to confirm start state received");
-            out.println(buildStats());
+            msg = buildStats();
+            out.println(String.format("%04d", msg.length() + 1) + msg);
             out.flush();
             System.out.println("Before Sleep");
             try
@@ -108,7 +111,8 @@ public class ExternalDynamicBumpingStrategyWithSyncedStart extends ConflictTimer
         }
         if (send_state) {  // only needs to skip once in the beginning as we already make sure the init state is sent
             System.out.println("Sending State");
-            out.println(buildStats());
+            msg = buildStats();
+            out.println(String.format("%04d", msg.length() + 1) + msg);
             out.flush();
             System.out.println("State sent");
         }
@@ -116,16 +120,13 @@ public class ExternalDynamicBumpingStrategyWithSyncedStart extends ConflictTimer
 
         if (jsonline.equals("END")) {
             System.out.println("Received shutdown signal from RL controller");
-            out.println("CONFIRM");
+            msg = "CONFIRM";
+            out.println(String.format("%04d", msg.length() + 1) + msg);
             out.flush();
             System.exit(0);
         }
 
         String[] parts = jsonline.split(" ");
-        for (String s: parts) {
-            //Do your stuff here
-            System.out.println(s);
-        }
         if (parts.length != 4) {
             throw new IllegalStateException(
                     "Wrong format from DAC engine: " + jsonline);

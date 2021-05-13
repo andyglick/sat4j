@@ -119,13 +119,12 @@ class SAT4JEnvSelHeur(Env):
         """
         # TODO maybe we want to send message lengths again
         # # Read message length and unpack it into an integer
-        # raw_msglen = self.recvall(4)
-        # if not raw_msglen:
-        #     return None
-        # msglen = int(raw_msglen.decode())
-        # # Read the message data
-        # return self.recvall(msglen)
-        return self.conn.recv(4096)
+        raw_msglen = self.recvall(4)
+        if not raw_msglen:
+            return None
+        msglen = int(raw_msglen.decode())
+        # Read the message data
+        return self.recvall(msglen)
 
     def recvall(self, n: int):
         """
@@ -149,16 +148,10 @@ class SAT4JEnvSelHeur(Env):
         :return:
         """
         msg = self.recv_msg()
-        empty_msg = self.recv_msg()  # ignore empty line that is sent
-        # print('I AM HERE')
-        print(msg)
-        print(empty_msg)
         if len(msg) == 0:
-            raise NotImplementedError
+            raise ConnectionError('Empty message received')
         else:
             msg = msg.decode('utf-8')
-        # print('received_msg')
-        # print(msg)
         data = eval(msg)
         if 'reward' in data:
             r = data['reward']
@@ -252,9 +245,9 @@ class SAT4JEnvSelHeur(Env):
 
         self.conn.sendall("START\n".encode('utf-8'))
         tmp_msg = self.recv_msg().decode('utf-8')
-        _ = self.recv_msg().decode('utf-8')
-        while tmp_msg != 'CONFIRM':
-            raise TimeoutError('Could not establish start procedure')
+        if tmp_msg.strip() != 'CONFIRM':
+            print(tmp_msg, tmp_msg.strip())
+            raise ConnectionAbortedError('Could not establish start procedure')
 
         print('connection established')
         print('Waiting on initial state')
@@ -266,12 +259,11 @@ class SAT4JEnvSelHeur(Env):
 
     def kill_connection(self):
         """Kill the connection"""
-        # print('Kill Connection called')
         count = 0
         if self.conn:
             tmp_msg = 'NONE'
             try:
-                while tmp_msg != 'CONFIRM':
+                while tmp_msg.strip() != 'CONFIRM':
                     self.conn.sendall("END\n".encode('utf-8'))
                     self.conn.send("\n".encode('utf-8'))
                     tmp_msg = self.recv_msg().decode('utf-8')
@@ -325,7 +317,7 @@ if __name__ == '__main__':
     env = SAT4JEnvSelHeur(host=HOST, port=PORT,
                           time_step_limit=4)
     s = env.reset()
-    # print('LOW S')
+    print(s)
     try:
         for i in range(10):
             done = False
@@ -343,6 +335,5 @@ if __name__ == '__main__':
         env.close()
         raise e
     finally:
-        print('Yo Im here')
         print('Closing Env')
         env.close()
