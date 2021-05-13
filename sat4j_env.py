@@ -44,8 +44,10 @@ class SAT4JEnvSelHeur(Env):
         bumpStrategies = ["ALWAYS_ONE", "DEGREE",
                           "COEFFICIENT", "RATIO_DC", "RATIO_CD"]
         self.action_space = MultiDiscrete([len(bumpers), len(bumpStrategies)])
-        self.action_map = {0: {i: v for i, v in enumerate(bumpers)},
-                           1: {j: w for j, w in enumerate(bumpStrategies)}}
+        self.index_action_map = {0: {i: v for i, v in enumerate(bumpers)},
+                                 1: {j: w for j, w in enumerate(bumpStrategies)}}
+        self.action_index_map = {0: {v: i for i, v in enumerate(bumpers)},
+                                 1: {w: j for j, w in enumerate(bumpStrategies)}}
 
         total_state_features = (1 * len(self._heuristic_state_features))
         # TODO should be fixed for any other method than DDQN
@@ -176,10 +178,10 @@ class SAT4JEnvSelHeur(Env):
             tmp_state = state
             state = list(map(self._transformation_func, state, self._prev_state, self.__norm_vals,
                              self.__skip_transform))
-            state[0] = 0
-            state[1] = 0
+            state[0] = self.action_index_map[0][state[0]]
+            state[1] = self.action_index_map[1][state[1]]
             self._prev_state = tmp_state
-        return np.array(state), r, done
+        return np.array(state, dtype=np.float32), r, done
 
     def step(self, action: typing.Union[int, typing.List[int]]):
         """
@@ -189,8 +191,8 @@ class SAT4JEnvSelHeur(Env):
         """
         self.__step += 1
         assert len(action) == 2, f"Expected a pair of actions got {len(action)}"
-        msg = {"bumper": self.action_map[0][action[0]],
-               "bumpStrategy": self.action_map[1][action[1]]}
+        msg = {"bumper": self.index_action_map[0][action[0]],
+               "bumpStrategy": self.index_action_map[1][action[1]]}
         if not self.conn:
             self.close()
             raise Exception('Connection unexpected closed')
@@ -254,6 +256,8 @@ class SAT4JEnvSelHeur(Env):
         s, _, _ = self._process_data()
         self.conn.sendall("CONFIRM\n".encode('utf-8'))
         print('Received initial state')
+        # do a default first step (if we have instance features we don't need this but without we do
+        s, _, _, _ = self.step([0, 0])
 
         return s
 
@@ -315,7 +319,7 @@ if __name__ == '__main__':
     PORT = int(sys.argv[1])  # The port used by the server
 
     env = SAT4JEnvSelHeur(host=HOST, port=PORT,
-                          time_step_limit=4)
+                          time_step_limit=8)
     s = env.reset()
     print(s)
     try:
