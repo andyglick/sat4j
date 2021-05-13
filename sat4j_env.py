@@ -3,12 +3,10 @@ import time
 import typing
 from copy import deepcopy
 from enum import Enum
-from os import remove
-from os.path import join as joinpath
+import os
 from typing import Union
 import json
 import subprocess
-import select
 
 import numpy as np
 from gym import Env
@@ -32,7 +30,8 @@ class SAT4JEnvSelHeur(Env):
                  num_steps=None, state_type: Union[int, StateType] = StateType.DIFF,
                  seed: int = 12345, max_rand_steps: int = 0, config_dir: str = '.',
                  port_file_id=None, external: bool = False,
-                 time_step_limit: int = -1):
+                 time_step_limit: int = -1, work_dir: str='.',
+                 instance: str=None):
         """
         Initialize environment
         """
@@ -96,6 +95,8 @@ class SAT4JEnvSelHeur(Env):
         self.done = True  # Starts as true as the expected behavior is that before normal resets an episode was done.
         self.sat4j = None
         self.__external = external
+        self.wd = work_dir
+        self.instance = instance
 
     @staticmethod
     def _save_div(a, b):
@@ -237,9 +238,10 @@ class SAT4JEnvSelHeur(Env):
                 '-br',
                 'externaldac',
                 '-sync',
-                'normalized-sha1-size112-round21-0.opb.bz2'
+                f'{self.instance}'
             ]
-            with open('sat4j.out', 'a+') as fout, open('sat4j.err', 'a+') as ferr:
+            with open(os.path.join(self.wd, 'sat4j.out'), 'a+') as fout,\
+                    open(os.path.join(self.wd, 'sat4j.err'), 'a+') as ferr:
                 self.sat4j = subprocess.Popen(command, stdout=fout, stderr=ferr)
 
         self.conn, address = self.socket.accept()
@@ -318,7 +320,7 @@ if __name__ == '__main__':
     PORT = int(sys.argv[1])  # The port used by the server
 
     env = SAT4JEnvSelHeur(host=HOST, port=PORT,
-                          time_step_limit=8)
+                          time_step_limit=8, instance='normalized-sha1-size112-round21-0.opb.bz2')
     s = env.reset()
     print(s)
     try:

@@ -452,6 +452,7 @@ public class KTHLauncher {
                 } else if ("randomdac".equals(value)) {
                     bumper = new RandomDynamicBumpingStrategy(cpsolver,1000,line.hasOption("random-bumping-strategy"));
                 } else if ("externaldac".equals(value)) {
+                    cpsolver.setVerbose(true);
                     int port = 33333;
                     if (line.hasOption("port")) {
                         port = Integer.valueOf(line.getOptionValue("port"));
