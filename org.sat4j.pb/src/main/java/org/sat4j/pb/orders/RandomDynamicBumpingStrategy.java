@@ -1,8 +1,5 @@
 package org.sat4j.pb.orders;
 
-import java.io.IOException;
-import java.io.PrintStream;
-import java.net.Socket;
 import java.util.Random;
 
 import org.sat4j.OutputPrefix;
@@ -26,25 +23,19 @@ public class RandomDynamicBumpingStrategy extends ConflictTimerAdapter
 
     private static final Random RANDOM = new Random(12345);
 
-    private PrintStream out;
     private int index;
 
     private final PBSolverCP pbsolver;
 
-    private final long lastTimeMs = System.currentTimeMillis();
-    private final long lastDecision = 0L;
+    private final boolean randomStrategy;
 
-    public RandomDynamicBumpingStrategy(PBSolverCP solver, int bound) {
+    public RandomDynamicBumpingStrategy(PBSolverCP solver, int bound,
+            boolean randomStrategy) {
         super(solver, bound);
         index = RANDOM.nextInt(bumpers.length);
         solver.addConflictTimer(this);
         this.pbsolver = solver;
-        try {
-            out = new PrintStream(
-                    new Socket("127.0.0.1", 33333).getOutputStream());
-        } catch (IOException e) {
-            out = System.err;
-        }
+        this.randomStrategy = randomStrategy;
     }
 
     @Override
@@ -67,18 +58,20 @@ public class RandomDynamicBumpingStrategy extends ConflictTimerAdapter
             System.out.println(OutputPrefix.COMMENT_PREFIX.toString()
                     + " switching bumping strategy to " + bumpers[index]);
         }
-        int strategyIndex = RANDOM.nextInt(BumpStrategy.values().length);
-        pbsolver.setBumpStrategy(BumpStrategy.values()[strategyIndex]);
-        if (getSolver().isVerbose()) {
-            System.out.println(OutputPrefix.COMMENT_PREFIX.toString()
-                    + " switching bump strategy to "
-                    + BumpStrategy.values()[strategyIndex]);
+        if (randomStrategy) {
+            int strategyIndex = RANDOM.nextInt(BumpStrategy.values().length);
+            pbsolver.setBumpStrategy(BumpStrategy.values()[strategyIndex]);
+            if (getSolver().isVerbose()) {
+                System.out.println(OutputPrefix.COMMENT_PREFIX.toString()
+                        + " switching bump strategy to "
+                        + BumpStrategy.values()[strategyIndex]);
+            }
         }
     }
 
     @Override
     public String toString() {
-        return "Random bumping strategy applied every " + bound()
-                + " conflicts";
+        return "Random bumper applied every " + bound() + " conflicts"
+                + (randomStrategy ? " with random bumping strategy" : "");
     }
 }

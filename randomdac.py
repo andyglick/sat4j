@@ -49,4 +49,5 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             _thread.start_new_thread(listen_client, (client, clientid))
             clientid += 1
     except KeyboardInterrupt:
+        s.close()
         print(' ... ok, the server has been stopped  ...')
