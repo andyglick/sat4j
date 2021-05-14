@@ -12,9 +12,14 @@ import org.sat4j.minisat.core.ILits;
 import org.sat4j.minisat.core.IOrder;
 import org.sat4j.pb.constraints.pb.PBConstr;
 import org.sat4j.pb.core.PBSolverCP;
+import org.sat4j.specs.IConstr;
+import org.sat4j.specs.ISolverService;
+import org.sat4j.specs.Lbool;
+import org.sat4j.specs.RandomAccessModel;
+import org.sat4j.specs.SearchListener;
 
-public class ExternalDynamicBumpingStrategyWithSyncedStart extends ConflictTimerAdapter
-        implements IBumper {
+public class ExternalDynamicBumpingStrategyWithSyncedStart
+        extends ConflictTimerAdapter implements IBumper, SearchListener {
 
     /**
      *
@@ -42,8 +47,8 @@ public class ExternalDynamicBumpingStrategyWithSyncedStart extends ConflictTimer
     private long lastTimeMs = System.currentTimeMillis();
     private long lastDecision = 0L;
 
-    public ExternalDynamicBumpingStrategyWithSyncedStart(PBSolverCP solver, int bound,
-            int port) {
+    public ExternalDynamicBumpingStrategyWithSyncedStart(PBSolverCP solver,
+            int bound, int port) {
         super(solver, bound);
         solver.addConflictTimer(this);
         this.pbsolver = solver;
@@ -93,12 +98,14 @@ public class ExternalDynamicBumpingStrategyWithSyncedStart extends ConflictTimer
             out.flush();
             String jsonline = in.nextLine();
             if (jsonline.equals("CONFIRM")) {
-                System.out.println("RL controller confirmed it received init state");
+                System.out.println(
+                        "RL controller confirmed it received init state");
                 sent_init_state = true;
                 send_state = false;
             }
         }
-        if (send_state) {  // only needs to skip once in the beginning as we already make sure the init state is sent
+        if (send_state) { // only needs to skip once in the beginning as we
+                          // already make sure the init state is sent
             msg = buildStats();
             out.println(String.format("%04d", msg.length() + 1) + msg);
             out.flush();
@@ -166,5 +173,114 @@ public class ExternalDynamicBumpingStrategyWithSyncedStart extends ConflictTimer
     public String toString() {
         return "External Dynamic Automated Configuration bumping strategy listening on port "
                 + port + " applied every " + bound() + " conflicts";
+    }
+
+    @Override
+    public void learnUnit(int p) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void init(ISolverService solverService) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void assuming(int p) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void propagating(int p) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void enqueueing(int p, IConstr reason) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void backtracking(int p) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void adding(int p) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void learn(IConstr c) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void delete(IConstr c) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void conflictFound(IConstr confl, int dlevel, int trailLevel) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void conflictFound(int p) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void solutionFound(int[] model, RandomAccessModel lazyModel) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void beginLoop() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void start() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void end(Lbool result) {
+        String msg = "done";
+        out.println(String.format("%04d", msg.length() + 1) + msg);
+        out.flush();
+    }
+
+    @Override
+    public void restarting() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void backjump(int backjumpLevel) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void cleaning() {
+        // TODO Auto-generated method stub
+
     }
 }

@@ -458,7 +458,10 @@ public class KTHLauncher {
                         port = Integer.valueOf(line.getOptionValue("port"));
                     }
                     if (line.hasOption("synced-start")) {
-                        bumper = new ExternalDynamicBumpingStrategyWithSyncedStart(cpsolver, 1000, port);
+                        ExternalDynamicBumpingStrategyWithSyncedStart edswst =
+                         new ExternalDynamicBumpingStrategyWithSyncedStart(cpsolver, 1000, port);
+                        cpsolver.setSearchListener(edswst);
+                        bumper = edswst;
                     } else {
                         bumper = new ExternalDynamicBumpingStrategy(cpsolver,1000,port);
                     }
