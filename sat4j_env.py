@@ -313,6 +313,11 @@ if __name__ == '__main__':
     import sys
     HOST = ''  # The server's hostname or IP address
     PORT = int(sys.argv[1])  # The port used by the server
+    if len(sys.argv) == 4:
+        a0 = int(sys.argv[2])
+        a1 = int(sys.argv[3])
+    else:
+        a0 = a1 = None
 
     env = SAT4JEnvSelHeur(host=HOST, port=PORT,
                           time_step_limit=100, instance='normalized-ECrand4regsplit-v030-n1.opb.bz2')
@@ -321,17 +326,20 @@ if __name__ == '__main__':
         for i in range(10):
             print('-'*100)
             s = env.reset()
-            print(s)
+            # print(s)
             done = False
             r_ = 0
             while not done:
-                a = [np.random.randint(6), 0]
-                print(a)
+                if a0 is not None:
+                    a = [a0, a1]
+                else:
+                    a = [np.random.randint(6), np.random.randint(5)]
+                # print(a)
                 s, r, done, _ = env.step(a)
                 r_ += r
-                print('#'*10)
-                print(s, r, done)
-                print('#'*10)
+                # print('#'*10)
+                # print(s, r, done)
+                # print('#'*10)
             print(i, r_)
             rs.append(r_)
     except Exception as e:
@@ -340,4 +348,4 @@ if __name__ == '__main__':
     finally:
         print('Closing Env')
         env.close()
-        print(f'Average reward: {np.mean(rs)}')
+        print(f'Actions: [{a0}, {a1}] | Average reward: {np.mean(rs)}')
