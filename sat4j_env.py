@@ -155,33 +155,27 @@ class SAT4JEnvSelHeur(Env):
             raise ConnectionError('Empty message received')
         else:
             msg = msg.decode('utf-8')
+        done = msg.strip() == 'done'
+        if done:  # Done flag is sent seperately from final state so we have to query again.
+            msg = self.recv_msg().decode('utf-8')
         data = eval(msg)
-        if 'reward' in data:
-            r = data['reward']
-            del data['reward']
-        else:
-            r = -1
-        if 'done' in data:
-            done = data['done']
-            del data['done']
-        else:
-            done = False
+        r = self._last_time - time.time()
+        self._last_time = time.time()
 
         state = []
 
         for feature in self._heuristic_state_features:
             state.append(data[f"{feature}"])
 
+        state[0] = self.action_index_map[0][state[0]]
+        state[1] = self.action_index_map[1][state[1]]
         if self._prev_state is None:
             self.__norm_vals = deepcopy(state)
             self._prev_state = deepcopy(state)
         if self.__state_type != StateType.RAW:  # Transform state to DIFF state or normalize
-            tmp_state = state
             state = list(map(self._transformation_func, state, self._prev_state, self.__norm_vals,
                              self.__skip_transform))
-            state[0] = self.action_index_map[0][state[0]]
-            state[1] = self.action_index_map[1][state[1]]
-            self._prev_state = tmp_state
+        self._prev_state = state
         return np.array(state, dtype=np.float32), r, done
 
     def step(self, action: typing.Union[int, typing.List[int]]):
@@ -254,6 +248,7 @@ class SAT4JEnvSelHeur(Env):
 
         print('connection established')
         print('Waiting on initial state')
+        self._last_time = time.time()
         s, _, _ = self._process_data()
         self.conn.sendall("CONFIRM\n".encode('utf-8'))
         print('Received initial state')
@@ -274,7 +269,7 @@ class SAT4JEnvSelHeur(Env):
                     tmp_msg = self.recv_msg().decode('utf-8')
                     count += 1
                     if count >= 10: break
-            except BrokenPipeError:
+            except (BrokenPipeError, ConnectionResetError):
                 self.conn.close()
                 self.conn = None
                 pass
@@ -320,25 +315,29 @@ if __name__ == '__main__':
     PORT = int(sys.argv[1])  # The port used by the server
 
     env = SAT4JEnvSelHeur(host=HOST, port=PORT,
-                          time_step_limit=8, instance='normalized-sha1-size112-round21-0.opb.bz2')
-    s = env.reset()
-    print(s)
+                          time_step_limit=100, instance='normalized-ECrand4regsplit-v030-n1.opb.bz2')
+    rs = []
     try:
         for i in range(10):
+            print('-'*100)
+            s = env.reset()
+            print(s)
             done = False
+            r_ = 0
             while not done:
-                a = [np.random.randint(3), np.random.randint(2)]
+                a = [np.random.randint(6), 0]
                 print(a)
                 s, r, done, _ = env.step(a)
+                r_ += r
                 print('#'*10)
                 print(s, r, done)
                 print('#'*10)
-            print(i)
-            if i < 99:
-                env.reset()
+            print(i, r_)
+            rs.append(r_)
     except Exception as e:
         env.close()
         raise e
     finally:
         print('Closing Env')
         env.close()
+        print(f'Average reward: {np.mean(rs)}')

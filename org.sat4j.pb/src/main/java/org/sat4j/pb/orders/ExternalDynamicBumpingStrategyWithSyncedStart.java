@@ -264,6 +264,10 @@ public class ExternalDynamicBumpingStrategyWithSyncedStart
         String msg = "done";
         out.println(String.format("%04d", msg.length() + 1) + msg);
         out.flush();
+
+        msg = buildStats();
+        out.println(String.format("%04d", msg.length() + 1) + msg);
+        out.flush();
     }
 
     @Override
