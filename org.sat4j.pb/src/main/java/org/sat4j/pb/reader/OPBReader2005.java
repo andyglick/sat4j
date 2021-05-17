@@ -182,7 +182,7 @@ public class OPBReader2005 extends Reader implements Serializable {
             constr = this.solver.addExactly(this.lits, this.coeffs, this.d);
             ConstrGroup cg = ((ConstrGroup) constr);
             for (int i = 0; i < cg.size(); i++) {
-                constr.setId(++this.currentConstraintId);
+                cg.getConstr(i).setId(++this.currentConstraintId);
             }
         } else if ("<=".equals(this.operator)) {
             constr = this.solver.addAtMost(this.lits, this.coeffs, this.d);
