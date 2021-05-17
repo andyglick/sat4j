@@ -63,6 +63,7 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sat4j.core.ConstrGroup;
 import org.sat4j.core.Vec;
 import org.sat4j.core.VecInt;
 import org.sat4j.pb.IPBSolver;
@@ -120,6 +121,7 @@ public class OPBReader2005 extends Reader implements Serializable {
 
     // file.
     protected int nbConstraintsRead;
+    protected int currentConstraintId;
 
     /**
      * callback called when we get the number of variables and the expected
@@ -128,7 +130,7 @@ public class OPBReader2005 extends Reader implements Serializable {
      * @param nbvar
      *            the number of variables
      * @param nbconstr
-     *            the number of contraints
+     *            the number of constraints
      */
     protected void metaData(int nbvar, int nbconstr) {
         this.solver.newVar(nbvar);
@@ -178,14 +180,20 @@ public class OPBReader2005 extends Reader implements Serializable {
         IConstr constr;
         if ("=".equals(this.operator)) {
             constr = this.solver.addExactly(this.lits, this.coeffs, this.d);
+            ConstrGroup cg = ((ConstrGroup) constr);
+            for (int i = 0; i < cg.size(); i++) {
+                constr.setId(++this.currentConstraintId);
+            }
         } else if ("<=".equals(this.operator)) {
             constr = this.solver.addAtMost(this.lits, this.coeffs, this.d);
+            constr.setId(++this.currentConstraintId);
         } else {
             assert ">=".equals(this.operator);
             constr = this.solver.addAtLeast(this.lits, this.coeffs, this.d);
+            constr.setId(++this.currentConstraintId);
         }
         this.nbConstraintsRead++;
-        constr.setId(this.nbConstraintsRead);
+
     }
 
     /**
@@ -717,6 +725,7 @@ public class OPBReader2005 extends Reader implements Serializable {
 
         // read constraints
         this.nbConstraintsRead = 0;
+        this.currentConstraintId = 0;
         char c;
         while (!eof()) {
             skipSpaces();
