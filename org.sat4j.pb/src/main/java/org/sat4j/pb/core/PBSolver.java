@@ -165,9 +165,9 @@ public abstract class PBSolver extends Solver<PBDataStructureFactory>
         assert literals.size() == coeffs.size();
         ConstrGroup group = new ConstrGroup(false);
         group.add(addConstr(this.dsfactory.createPseudoBooleanConstraint(vlits,
-                coeffs, false, weight)));
-        group.add(addConstr(this.dsfactory.createPseudoBooleanConstraint(vlits,
                 coeffs, true, weight)));
+        group.add(addConstr(this.dsfactory.createPseudoBooleanConstraint(vlits,
+                coeffs, false, weight)));
         return group;
     }
 

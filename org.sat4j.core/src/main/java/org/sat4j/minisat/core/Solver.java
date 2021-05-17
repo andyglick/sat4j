@@ -497,8 +497,8 @@ public class Solver<D extends DataStructureFactory>
     public IConstr addExactly(IVecInt literals, int n)
             throws ContradictionException {
         ConstrGroup group = new ConstrGroup(false);
-        group.add(addAtMost(literals, n));
         group.add(addAtLeast(literals, n));
+        group.add(addAtMost(literals, n));
         return group;
     }
 
