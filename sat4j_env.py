@@ -31,7 +31,7 @@ class SAT4JEnvSelHeur(Env):
                  seed: int = 12345, max_rand_steps: int = 0, config_dir: str = '.',
                  port_file_id=None, external: bool = False,
                  time_step_limit: int = -1, work_dir: str='.',
-                 instance: str=None):
+                 instance: str=None, jar_path: str='dist/CUSTOM/sat4j-kth.jar'):
         """
         Initialize environment
         """
@@ -97,6 +97,7 @@ class SAT4JEnvSelHeur(Env):
         self.__external = external
         self.wd = work_dir
         self.instance = instance
+        self.jarpath = jar_path
 
     @staticmethod
     def _save_div(a, b):
@@ -226,7 +227,7 @@ class SAT4JEnvSelHeur(Env):
             command = [
                 'java',
                 '-jar',
-                'dist/CUSTOM/sat4j-kth.jar',
+                f'{self.jarpath}',
                 '-port',
                 f'{self.port}',
                 '-br',
@@ -320,8 +321,10 @@ if __name__ == '__main__':
     else:
         a0 = a1 = None
 
-    env = SAT4JEnvSelHeur(host=HOST, port=PORT,
-                          time_step_limit=100, instance='normalized-ECrand4regsplit-v030-n1.opb.bz2')
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    env = SAT4JEnvSelHeur(host=HOST, port=PORT, time_step_limit=100,
+                          instance=os.path.join(dir_path, 'normalized-ECrand4regsplit-v030-n1.opb.bz2'),
+                          jar_path=os.path.join(dir_path, 'dist/CUSTOM/sat4j-kth.jar'))
     rs = []
     try:
         for i in range(10):

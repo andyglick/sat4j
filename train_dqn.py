@@ -388,9 +388,16 @@ if __name__ == "__main__":
                         dest='epsilon')
     parser.add_argument('--environment-actions', default=[2, ], nargs='+', type=int,
                         help='Defines the action space for sigmoid')
+    parser.add_argument('--sat4j-jar-path', type=str, help='Path to sat4j jar',
+                        default=os.environ.get('SAT4J_PATH'))
 
     # setup output dir
     args = parser.parse_args()
+    if args.sat4j_jar_path is None:
+        parser.print_usage()
+        print('train_and_eval_chainer_agent.py: error: Environment Variable \'SAT4J_PATH\' unset ->'
+              ' the following argument is required: --sat4j-jar-path')
+        exit(0)
 
     if not args.load_model:
         out_dir = prepare_output_dir(args, user_specified_dir=args.out_dir,
@@ -402,9 +409,9 @@ if __name__ == "__main__":
         os.makedirs(eval_dir, exist_ok=False)
 
     env = SAT4JEnvSelHeur(host='', port=args.port, time_step_limit=args.env_max_steps, work_dir=out_dir,
-                          instance=args.instance)
+                          instance=args.instance, jar_path=args.sat4j_jar_path)
     eval_env = SAT4JEnvSelHeur(host='', port=args.port + 1, time_step_limit=args.env_max_steps,
-                               work_dir=eval_dir, instance=args.instance)
+                               work_dir=eval_dir, instance=args.instance, jar_path=args.sat4j_jar_path)
     # Setup agent
     state_dim = env.observation_space.shape[0]
     action_dim = np.prod(env.action_space.nvec)
