@@ -269,7 +269,8 @@ class SAT4JEnvSelHeur(Env):
                     tmp_msg = self.recv_msg().decode('utf-8')
                     count += 1
                     if count >= 10: break
-            except (BrokenPipeError, ConnectionResetError):
+            # the errors can happen if sat4j already closed the connection after finding a solution
+            except (BrokenPipeError, ConnectionResetError, AttributeError):
                 self.conn.close()
                 self.conn = None
                 pass
