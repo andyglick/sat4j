@@ -31,7 +31,8 @@ class SAT4JEnvSelHeur(Env):
                  seed: int = 12345, max_rand_steps: int = 0, config_dir: str = '.',
                  port_file_id=None, external: bool = False,
                  time_step_limit: int = -1, work_dir: str='.',
-                 instance: str=None, jar_path: str='dist/CUSTOM/sat4j-kth.jar'):
+                 instance: str=None, jar_path: str='dist/CUSTOM/sat4j-kth.jar',
+                 instances: list=None):
         """
         Initialize environment
         """
@@ -98,6 +99,8 @@ class SAT4JEnvSelHeur(Env):
         self.wd = work_dir
         self.instance = instance
         self.jarpath = jar_path
+        self.instances = instances
+        self._inst_pointer = 0
 
     @staticmethod
     def _save_div(a, b):
@@ -186,6 +189,7 @@ class SAT4JEnvSelHeur(Env):
         :return:
         """
         self.__step += 1
+        print(action)
         assert len(action) == 2, f"Expected a pair of actions got {len(action)}"
         msg = {"bumper": self.index_action_map[0][action[0]],
                "bumpStrategy": self.index_action_map[1][action[1]]}
@@ -222,6 +226,11 @@ class SAT4JEnvSelHeur(Env):
             self.socket.bind((self.host, self.port))
 
         self.socket.listen()
+
+        if self.instances is not None:
+            self.instance = self.instances[self._inst_pointer]
+            self._inst_pointer = (self._inst_pointer + 1) % len(self.instances)
+            print(f'Using instance {self.instance}')
 
         if not self.__external:
             command = [

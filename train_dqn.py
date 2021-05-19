@@ -200,6 +200,7 @@ class DQN:
 
                 ########### Begin Evaluation
                 if (total_steps % eval_every_n_steps) == 0:
+                    print('Begin Evaluation')
                     eval_s, eval_r, eval_d = self.eval(eval_eps, max_env_time_steps)
                     eval_stats = dict(
                         elapsed_time=time.time() - start_time,
@@ -233,6 +234,7 @@ class DQN:
                         with open(os.path.join(out_dir, 'train_scores.json'), 'a+') as out_fh:
                             json.dump(eval_stats, out_fh)
                             out_fh.write('\n')
+                    print('End Evaluation')
                 ########### End Evaluation
 
                 # Update replay buffer
@@ -345,7 +347,8 @@ class DQN:
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser('Online DQN training')
-    parser.add_argument('instance', type=str, help="Instance to train on")
+    parser.add_argument('instances', type=str, help="Instances to train on", nargs='*')
+    parser.add_argument('--val-instances', type=str, help="Instances to validate on", nargs='*')
     parser.add_argument('--episodes', '-e',
                         default=100,
                         type=int,
@@ -390,6 +393,8 @@ if __name__ == "__main__":
                         help='Defines the action space for sigmoid')
     parser.add_argument('--sat4j-jar-path', type=str, help='Path to sat4j jar',
                         default=os.environ.get('SAT4J_PATH'))
+    parser.add_argument('--only-control-bumper', action='store_true', help='Flag to indicate that only the bumper '\
+                        'parameter is being controlled.')
 
     # setup output dir
     args = parser.parse_args()
@@ -409,15 +414,21 @@ if __name__ == "__main__":
         os.makedirs(eval_dir, exist_ok=False)
 
     env = SAT4JEnvSelHeur(host='', port=args.port, time_step_limit=args.env_max_steps, work_dir=out_dir,
-                          instance=args.instance, jar_path=args.sat4j_jar_path)
+                          instances=args.instances, jar_path=args.sat4j_jar_path)
     eval_env = SAT4JEnvSelHeur(host='', port=args.port + 1, time_step_limit=args.env_max_steps,
-                               work_dir=eval_dir, instance=args.instance, jar_path=args.sat4j_jar_path)
+                               work_dir=eval_dir, jar_path=args.sat4j_jar_path,
+                               instances=args.instances if args.val_instances is None else args.val_instances)
     # Setup agent
     state_dim = env.observation_space.shape[0]
-    action_dim = np.prod(env.action_space.nvec)
+    if not args.only_control_bumper:
+        action_dim = np.prod(env.action_space.nvec)
+        facts = env.action_space.nvec
+    else:
+        action_dim = env.action_space.nvec[0]
+        facts = [env.action_space.nvec[0], 1]
 
     agent = DQN(state_dim, action_dim, gamma=0.99, env=env, eval_env=eval_env,
-                factored_action_space=env.action_space.nvec)
+                factored_action_space=facts)
 
     episodes = args.episodes
     max_env_time_steps = args.env_max_steps
