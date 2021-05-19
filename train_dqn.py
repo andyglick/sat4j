@@ -378,10 +378,6 @@ if __name__ == "__main__":
                         default=10 ** 3,
                         type=int,
                         help='After how many steps to evaluate')
-    parser.add_argument('--eval-n-episodes',
-                        default=1,
-                        type=int,
-                        help='How many episodes to evaluate')
     parser.add_argument('--env-max-steps',
                         default=200,
                         type=int,
@@ -438,7 +434,8 @@ if __name__ == "__main__":
         print('#'*80)
         print(f'Using agent type "{agent}" to learn')
         print('#'*80)
-        agent.train(episodes, max_env_time_steps, epsilon, args.eval_n_episodes, args.eval_after_n_steps,
+        num_eval_episodes = len(args.val_instances) if args.val_instances is not None else len(args.instances)
+        agent.train(episodes, max_env_time_steps, epsilon, num_eval_episodes, args.eval_after_n_steps,
                     max_train_time_steps=args.training_steps)
         os.mkdir(os.path.join(out_dir, 'final'))
         agent.save_model(os.path.join(out_dir, 'final'))

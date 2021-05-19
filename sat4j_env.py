@@ -189,7 +189,6 @@ class SAT4JEnvSelHeur(Env):
         :return:
         """
         self.__step += 1
-        print(action)
         assert len(action) == 2, f"Expected a pair of actions got {len(action)}"
         msg = {"bumper": self.index_action_map[0][action[0]],
                "bumpStrategy": self.index_action_map[1][action[1]]}
