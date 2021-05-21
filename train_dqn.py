@@ -385,8 +385,6 @@ if __name__ == "__main__":
     parser.add_argument('--load-model', default=None)
     parser.add_argument('--agent-epsilon', default=0.2, type=float, help='Fixed epsilon to use during training',
                         dest='epsilon')
-    parser.add_argument('--environment-actions', default=[2, ], nargs='+', type=int,
-                        help='Defines the action space for sigmoid')
     parser.add_argument('--sat4j-jar-path', type=str, help='Path to sat4j jar',
                         default=os.environ.get('SAT4J_PATH'))
     parser.add_argument('--only-control-bumper', action='store_true', help='Flag to indicate that only the bumper '\
