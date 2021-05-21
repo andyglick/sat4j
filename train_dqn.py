@@ -210,7 +210,10 @@ class DQN:
                         avg_num_decs_per_eval_ep=float(np.mean(eval_d)),
                         avg_rew_per_eval_ep=float(np.mean(eval_r)),
                         std_rew_per_eval_ep=float(np.std(eval_r)),
-                        eval_eps=eval_eps
+                        eval_eps=eval_eps,
+                        eval_insts=self._eval_env.instances,
+                        reward_per_isnts=eval_r,
+                        steps_per_insts=eval_s
                     )
 
                     with open(os.path.join(out_dir, 'eval_scores.json'), 'a+') as out_fh:
@@ -228,7 +231,10 @@ class DQN:
                             avg_num_decs_per_eval_ep=float(np.mean(eval_d)),
                             avg_rew_per_eval_ep=float(np.mean(eval_r)),
                             std_rew_per_eval_ep=float(np.std(eval_r)),
-                            eval_eps=eval_eps
+                            eval_eps=eval_eps,
+                            eval_insts=self._train_eval_env.instances,
+                            reward_per_isnts=eval_r,
+                            steps_per_insts=eval_s
                         )
 
                         with open(os.path.join(out_dir, 'train_scores.json'), 'a+') as out_fh:
@@ -275,7 +281,10 @@ class DQN:
             avg_num_decs_per_eval_ep=float(np.mean(eval_d)),
             avg_rew_per_eval_ep=float(np.mean(eval_r)),
             std_rew_per_eval_ep=float(np.std(eval_r)),
-            eval_eps=eval_eps
+            eval_eps=eval_eps,
+            eval_insts=self._eval_env.instances,
+            reward_per_isnts=eval_r,
+            steps_per_insts=eval_s
         )
 
         with open(os.path.join(out_dir, 'eval_scores.json'), 'a+') as out_fh:
@@ -292,7 +301,10 @@ class DQN:
                 avg_num_decs_per_eval_ep=float(np.mean(eval_d)),
                 avg_rew_per_eval_ep=float(np.mean(eval_r)),
                 std_rew_per_eval_ep=float(np.std(eval_r)),
-                eval_eps=eval_eps
+                eval_eps=eval_eps,
+                eval_insts=self._train_eval_env.instances,
+                reward_per_isnts=eval_r,
+                steps_per_insts=eval_s
             )
 
             with open(os.path.join(out_dir, 'train_scores.json'), 'a+') as out_fh:
