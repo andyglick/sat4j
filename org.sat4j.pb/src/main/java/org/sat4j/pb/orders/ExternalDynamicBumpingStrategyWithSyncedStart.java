@@ -8,6 +8,7 @@ import java.util.Scanner;
 
 import org.sat4j.OutputPrefix;
 import org.sat4j.minisat.core.ConflictTimerAdapter;
+import org.sat4j.minisat.core.Counter;
 import org.sat4j.minisat.core.ILits;
 import org.sat4j.minisat.core.IOrder;
 import org.sat4j.pb.constraints.pb.PBConstr;
@@ -163,7 +164,30 @@ public class ExternalDynamicBumpingStrategyWithSyncedStart
         stb.append(",\n");
         stb.append("  \"decisionLevel\": ");
         stb.append(dLevel);
+        stb.append(",\n");
+        stb.append("  \"numberOfVariables\": ");
+        stb.append(pbsolver.nVars());
+        stb.append(",\n");
+        stb.append("  \"numberOfOriginalConstraints\": ");
+        stb.append(pbsolver.nConstraints());
+        for (Map.Entry<String, Number> entry : pbsolver.getStats().toMap()
+                .entrySet()) {
+            stb.append(",\n");
+            stb.append("  \"");
+            stb.append(entry.getKey());
+            stb.append("\": ");
+            stb.append(entry.getValue());
+        }
+        for (Map.Entry<String, Counter> entry : pbsolver
+                .getLearntConstraintsInfos().entrySet()) {
+            stb.append(",\n");
+            stb.append("  \"");
+            stb.append(entry.getKey());
+            stb.append("\": ");
+            stb.append(entry.getValue());
+        }
         stb.append("\n}");
+
         lastTimeMs = System.currentTimeMillis();
         lastDecision = pbsolver.getStats().getDecisions();
         return stb.toString();
