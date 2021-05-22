@@ -1976,6 +1976,30 @@ public class Solver<D extends DataStructureFactory>
         if (this.learnts.isEmpty()) {
             return;
         }
+        for (Map.Entry<String, Counter> entry : getLearntConstraintsInfos()
+                .entrySet()) {
+            out.println(prefix + "learnt constraints type " + entry.getKey()
+                    + "\t: " + entry.getValue());
+        }
+    }
+
+    /**
+     * return some statistics about the original constraints in the solver.
+     * 
+     * @return
+     * @since 3.0
+     */
+    public Map<String, Counter> getOriginalConstraintsInfos() {
+        return this.constrTypes;
+    }
+
+    /**
+     * return some statistics about the learned constraints in the solver.
+     * 
+     * @return
+     * @since 3.0
+     */
+    public Map<String, Counter> getLearntConstraintsInfos() {
         Map<String, Counter> learntTypes = new HashMap<String, Counter>();
         for (Iterator<Constr> it = this.learnts.iterator(); it.hasNext();) {
             String type = it.next().getClass().getName();
@@ -1986,10 +2010,7 @@ public class Solver<D extends DataStructureFactory>
                 count.inc();
             }
         }
-        for (Map.Entry<String, Counter> entry : learntTypes.entrySet()) {
-            out.println(prefix + "learnt constraints type " + entry.getKey()
-                    + "\t: " + entry.getValue());
-        }
+        return learntTypes;
     }
 
     public SolverStats getStats() {

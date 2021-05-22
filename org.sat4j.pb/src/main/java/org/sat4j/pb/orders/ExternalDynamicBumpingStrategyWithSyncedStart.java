@@ -170,6 +170,22 @@ public class ExternalDynamicBumpingStrategyWithSyncedStart
         stb.append(",\n");
         stb.append("  \"numberOfOriginalConstraints\": ");
         stb.append(pbsolver.nConstraints());
+        for (Map.Entry<String, Counter> entry : pbsolver
+                .getOriginalConstraintsInfos().entrySet()) {
+            stb.append(",\n");
+            stb.append("  \"");
+            stb.append(entry.getKey() + "Original");
+            stb.append("\": ");
+            stb.append(entry.getValue());
+        }
+        for (Map.Entry<String, Counter> entry : pbsolver
+                .getLearntConstraintsInfos().entrySet()) {
+            stb.append(",\n");
+            stb.append("  \"");
+            stb.append(entry.getKey() + "Learned");
+            stb.append("\": ");
+            stb.append(entry.getValue());
+        }
         for (Map.Entry<String, Number> entry : pbsolver.getStats().toMap()
                 .entrySet()) {
             stb.append(",\n");
@@ -178,16 +194,8 @@ public class ExternalDynamicBumpingStrategyWithSyncedStart
             stb.append("\": ");
             stb.append(entry.getValue());
         }
-        for (Map.Entry<String, Counter> entry : pbsolver
-                .getLearntConstraintsInfos().entrySet()) {
-            stb.append(",\n");
-            stb.append("  \"");
-            stb.append(entry.getKey());
-            stb.append("\": ");
-            stb.append(entry.getValue());
-        }
         stb.append("\n}");
-
+        System.err.println(stb);
         lastTimeMs = System.currentTimeMillis();
         lastDecision = pbsolver.getStats().getDecisions();
         return stb.toString();
