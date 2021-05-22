@@ -26,7 +26,7 @@ All the dependencies will be gathered by Maven.
 Just type:
 
 ```shell
-$ ant [core,pseudo,maxsat,sat]
+$ ant [core,pseudo,maxsat,sat,kth]
 ```
 
 to build the solvers from source.
@@ -54,6 +54,24 @@ to see available options.
 In order to use Dynamic Algorithm Configuration with SAT4J we use Python.
 For this we recommend to use the package manager like [anaconda or minconda](https://docs.anaconda.com/anaconda/install/)
 
+## Setting up Sat4j
+
+It is necessary to compile Sat4j using the kth target, to get an autoexecutable jar
+file dedicated to the experiments of Pseudo-Boolean solvers using strong proof systems
+(generalized resolution, division).
+
+```shell
+$ ant kth
+```
+
+The file `sat4j-kth.jar` should be located in the directory `dist/CUSTOM`.
+
+Set an environment variable `SAT4J_PATH` pointing to that jar file.
+
+```shell
+$ export SAT4J_PATH=$PWD/dist/CUSTOM/sat4j-kth.jar
+```
+
 ## Setting up the python environment using Conda
 If you have conda installed you can follow these steps to setup a clean python environment in which you can install the
 needed packages. If you need to install conda [follow these steps](https://docs.anaconda.com/anaconda/install/).
@@ -69,7 +87,7 @@ Then install the needed packages.
 
 ```bash
 conda install pytorch torchvision torchaudio cpuonly -c pytorch -c=conda-forge
-pip install -r dac_requirements
+pip install -r dac_requirements.txt
 ```
 
 ## Learning a Configuration Policy via DAC
