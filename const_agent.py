@@ -89,9 +89,8 @@ if __name__ == "__main__":
 
     out_dir = prepare_output_dir(args, user_specified_dir=args.out_dir,
                                  subfolder_naming_scheme=args.out_dir_suffix)
-    eval_env = SAT4JEnvSelHeur(host='', port=args.port + 1, time_step_limit=args.env_max_steps,
-                               work_dir=out_dir, jar_path=args.sat4j_jar_path,
-                               instances=args.instances)
+    eval_env = SAT4JEnvSelHeur(host='', port=args.port + 1, time_step_limit=args.env_max_steps, work_dir=out_dir,
+                               jar_path=args.sat4j_jar_path, instances=args.instances)
 
     agent = ConstAgent(eval_env, args.actions)
     max_env_time_steps = args.env_max_steps

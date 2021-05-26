@@ -420,9 +420,9 @@ if __name__ == "__main__":
         os.makedirs(eval_dir, exist_ok=False)
 
     env = SAT4JEnvSelHeur(host='', port=args.port, time_step_limit=args.env_max_steps, work_dir=out_dir,
-                          instances=args.instances, jar_path=args.sat4j_jar_path)
-    eval_env = SAT4JEnvSelHeur(host='', port=args.port + 1, time_step_limit=args.env_max_steps,
-                               work_dir=eval_dir, jar_path=args.sat4j_jar_path,
+                          jar_path=args.sat4j_jar_path, instances=args.instances)
+    eval_env = SAT4JEnvSelHeur(host='', port=args.port + 1, time_step_limit=args.env_max_steps, work_dir=eval_dir,
+                               jar_path=args.sat4j_jar_path,
                                instances=args.instances if args.val_instances is None else args.val_instances)
     # Setup agent
     state_dim = env.observation_space.shape[0]
