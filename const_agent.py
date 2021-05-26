@@ -78,6 +78,8 @@ if __name__ == "__main__":
                         default=os.environ.get('SAT4J_PATH'))
     parser.add_argument('--only-control-bumper', action='store_true', help='Flag to indicate that only the bumper '\
                         'parameter is being controlled.')
+    parser.add_argument('--use-additional-features', action='store_true', help='Flag to indicate that additional '
+                        'features describing the problem instance(s) should be used.')
 
     # setup output dir
     args = parser.parse_args()
@@ -90,7 +92,8 @@ if __name__ == "__main__":
     out_dir = prepare_output_dir(args, user_specified_dir=args.out_dir,
                                  subfolder_naming_scheme=args.out_dir_suffix)
     eval_env = SAT4JEnvSelHeur(host='', port=args.port + 1, time_step_limit=args.env_max_steps, work_dir=out_dir,
-                               jar_path=args.sat4j_jar_path, instances=args.instances)
+                               jar_path=args.sat4j_jar_path, instances=args.instances,
+                               use_expert_feats=args.use_additional_features)
 
     agent = ConstAgent(eval_env, args.actions)
     max_env_time_steps = args.env_max_steps
