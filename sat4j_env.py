@@ -44,7 +44,8 @@ class SAT4JEnvSelHeur(Env):
                                  "org.sat4j.pb.constraints.pb.MinWatchCardPBOriginal",
                                  "org.sat4j.pb.constraints.pb.LearntHTClausePBLearned",
                                  "org.sat4j.pb.constraints.pb.MaxWatchPbLearned",
-                                 "org.sat4j.pb.constraints.pb.MinWatchCardPBLearned"]
+                                 "org.sat4j.pb.constraints.pb.MinWatchCardPBLearned",
+                                 "propagation", "restarts", "reduceddb"]
         if use_expert_feats:
             self._heuristic_state_features += self._expert_features
 
@@ -67,7 +68,7 @@ class SAT4JEnvSelHeur(Env):
         )
 
         self.__skip_transform = [True, True, False, False, False, False]
-        self.__skip_transform_expert_features = [True, True, True, True, False, False, False]
+        self.__skip_transform_expert_features = [True, True, True, True, False, False, False, False, False, True]
         if use_expert_feats:
             self.__skip_transform += self.__skip_transform_expert_features
 
