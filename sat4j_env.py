@@ -32,12 +32,21 @@ class SAT4JEnvSelHeur(Env):
                  port_file_id=None, external: bool = False,
                  time_step_limit: int = -1, work_dir: str='.',
                  instance: str=None, jar_path: str='dist/CUSTOM/sat4j-kth.jar',
-                 instances: list=None):
+                 instances: list=None,
+                 use_expert_feats: bool=True):
         """
         Initialize environment
         """
 
         self._heuristic_state_features = ["bumper", "bumpStrategy", "time", "decisions", "depth", "decisionLevel"]
+        self._expert_features = ["numberOfVariables", "numberOfOriginalConstraints",
+                                 "org.sat4j.pb.constraints.pb.OriginalBinaryClausePBOriginal",
+                                 "org.sat4j.pb.constraints.pb.MinWatchCardPBOriginal",
+                                 "org.sat4j.pb.constraints.pb.LearntHTClausePBLearned",
+                                 "org.sat4j.pb.constraints.pb.MaxWatchPbLearned",
+                                 "org.sat4j.pb.constraints.pb.MinWatchCardPBLearned"]
+        if use_expert_feats:
+            self._heuristic_state_features += self._expert_features
 
         bumpers = ["ANY", "ASSIGNED", "FALSIFIED",
                    "FALSIFIED_AND_PROPAGATED", "EFFECTIVE", "EFFECTIVE_AND_PROPAGATED"]
@@ -58,6 +67,9 @@ class SAT4JEnvSelHeur(Env):
         )
 
         self.__skip_transform = [True, True, False, False, False, False]
+        self.__skip_transform_expert_features = [True, True, True, True, False, False, False]
+        if use_expert_feats:
+            self.__skip_transform += self.__skip_transform_expert_features
 
         self.host = host
         self.port = port
