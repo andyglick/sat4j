@@ -94,7 +94,8 @@ def prepare_output_dir(args, user_specified_dir=None, argv=None,
         os.chdir(cwd)
     except subprocess.CalledProcessError:
         print('Not in a git environment')
-    
+    print('+'*120)
     print('Results stored in {:s}'.format(os.path.abspath(outdir)))
+    print('+'*120)
     return outdir
 

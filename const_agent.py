@@ -11,9 +11,12 @@ class ConstAgent:
     Simple double DQN Agent
     """
 
-    def __init__(self, eval_env: gym.Env, action: list):
+    def __init__(self, eval_env: gym.Env, action: list,
+                 bumpers: list=None, bumperStrategies: list=None):
         self._eval_env = eval_env
         self._action = action
+        self.bump = bumpers
+        self.bumps = bumperStrategies
 
     def __repr__(self):
         return 'Const Agent'
@@ -32,9 +35,14 @@ class ConstAgent:
             ed, es, er = 0, 0, 0
 
             s = this_env.reset()
+            step_index = 0
             for _ in count():
                 a = self._action
                 ed += 1
+                if self.bump is not None and self.bumps is not None:
+                    a = [self.bump[step_index], self.bumps[step_index]]
+                    step_index += 1
+                print(a)
 
                 ns, r, d, _ = this_env.step(a)
                 er += r
@@ -80,6 +88,8 @@ if __name__ == "__main__":
                         'parameter is being controlled.')
     parser.add_argument('--use-additional-features', action='store_true', help='Flag to indicate that additional '
                         'features describing the problem instance(s) should be used.')
+    parser.add_argument('--bumper', nargs='+', type=int, default=None)
+    parser.add_argument('--bumpes', nargs='+', type=int, default=None)
 
     # setup output dir
     args = parser.parse_args()
@@ -89,13 +99,18 @@ if __name__ == "__main__":
               ' the following argument is required: --sat4j-jar-path')
         exit(0)
 
+    if args.bumper is not None and args.bumpes is None:
+        args.bumpes = []
+        for b in args.bumper:
+            args.bumpes.append(0)
+
     out_dir = prepare_output_dir(args, user_specified_dir=args.out_dir,
                                  subfolder_naming_scheme=args.out_dir_suffix)
     eval_env = SAT4JEnvSelHeur(host='', port=args.port + 1, time_step_limit=args.env_max_steps, work_dir=out_dir,
                                jar_path=args.sat4j_jar_path, instances=args.instances,
                                use_expert_feats=args.use_additional_features)
 
-    agent = ConstAgent(eval_env, args.actions)
+    agent = ConstAgent(eval_env, args.actions, args.bumper, args.bumpes)
     max_env_time_steps = args.env_max_steps
 
     print('#'*80)
