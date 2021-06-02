@@ -399,8 +399,10 @@ if __name__ == "__main__":
                         dest='epsilon')
     parser.add_argument('--sat4j-jar-path', type=str, help='Path to sat4j jar',
                         default=os.environ.get('SAT4J_PATH'))
-    parser.add_argument('--only-control-bumper', action='store_true', help='Flag to indicate that only the bumper '\
+    parser.add_argument('--only-control-bumper', action='store_true', help='Flag to indicate that only the bumper '
                         'parameter is being controlled.')
+    parser.add_argument('--use-additional-features', action='store_true', help='Flag to indicate that additional '
+                        'features describing the problem instance(s) should be used.')
 
     # setup output dir
     args = parser.parse_args()
@@ -420,10 +422,12 @@ if __name__ == "__main__":
         os.makedirs(eval_dir, exist_ok=False)
 
     env = SAT4JEnvSelHeur(host='', port=args.port, time_step_limit=args.env_max_steps, work_dir=out_dir,
-                          instances=args.instances, jar_path=args.sat4j_jar_path)
-    eval_env = SAT4JEnvSelHeur(host='', port=args.port + 1, time_step_limit=args.env_max_steps,
-                               work_dir=eval_dir, jar_path=args.sat4j_jar_path,
-                               instances=args.instances if args.val_instances is None else args.val_instances)
+                          jar_path=args.sat4j_jar_path, instances=args.instances,
+                          use_expert_feats=args.use_additional_features)
+    eval_env = SAT4JEnvSelHeur(host='', port=args.port + 1, time_step_limit=args.env_max_steps, work_dir=eval_dir,
+                               jar_path=args.sat4j_jar_path,
+                               instances=args.instances if args.val_instances is None else args.val_instances,
+                               use_expert_feats=args.use_additional_features)
     # Setup agent
     state_dim = env.observation_space.shape[0]
     if not args.only_control_bumper:

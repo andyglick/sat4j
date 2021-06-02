@@ -30,14 +30,24 @@ class SAT4JEnvSelHeur(Env):
                  num_steps=None, state_type: Union[int, StateType] = StateType.DIFF,
                  seed: int = 12345, max_rand_steps: int = 0, config_dir: str = '.',
                  port_file_id=None, external: bool = False,
-                 time_step_limit: int = -1, work_dir: str='.',
-                 instance: str=None, jar_path: str='dist/CUSTOM/sat4j-kth.jar',
-                 instances: list=None):
+                 time_step_limit: int = -1, work_dir: str = '.',
+                 instance: str = None, jar_path: str = 'dist/CUSTOM/sat4j-kth.jar',
+                 instances: list = None,
+                 use_expert_feats: bool = False):
         """
         Initialize environment
         """
 
         self._heuristic_state_features = ["bumper", "bumpStrategy", "time", "decisions", "depth", "decisionLevel"]
+        self._expert_features = ["numberOfVariables", "numberOfOriginalConstraints",
+                                 "org.sat4j.pb.constraints.pb.OriginalBinaryClausePBOriginal",
+                                 "org.sat4j.pb.constraints.pb.MinWatchCardPBOriginal",
+                                 "org.sat4j.pb.constraints.pb.LearntHTClausePBLearned",
+                                 "org.sat4j.pb.constraints.pb.MaxWatchPbLearned",
+                                 "org.sat4j.pb.constraints.pb.MinWatchCardPBLearned",
+                                 "propagation", "restarts", "reduceddb"]
+        if use_expert_feats:
+            self._heuristic_state_features += self._expert_features
 
         bumpers = ["ANY", "ASSIGNED", "FALSIFIED",
                    "FALSIFIED_AND_PROPAGATED", "EFFECTIVE", "EFFECTIVE_AND_PROPAGATED"]
@@ -58,6 +68,9 @@ class SAT4JEnvSelHeur(Env):
         )
 
         self.__skip_transform = [True, True, False, False, False, False]
+        self.__skip_transform_expert_features = [True, True, True, True, False, False, False, False, False, True]
+        if use_expert_feats:
+            self.__skip_transform += self.__skip_transform_expert_features
 
         self.host = host
         self.port = port
@@ -86,7 +99,7 @@ class SAT4JEnvSelHeur(Env):
             self._transformation_func = lambda x, y, z, skip: \
                 SAT4JEnvSelHeur._save_div(x, z) - SAT4JEnvSelHeur._save_div(y, z) if not skip else x
         elif self.__state_type == StateType.NORMABSDIFF:
-            self._transformation_func = lambda x, y, z, skip:\
+            self._transformation_func = lambda x, y, z, skip: \
                 abs(SAT4JEnvSelHeur._save_div(x, z) - SAT4JEnvSelHeur._save_div(y, z)) if not skip else x
 
         self.rng = np.random.RandomState(seed=seed)
@@ -243,7 +256,7 @@ class SAT4JEnvSelHeur(Env):
                 '-sync',
                 f'{self.instance}'
             ]
-            with open(os.path.join(self.wd, 'sat4j.out'), 'a+') as fout,\
+            with open(os.path.join(self.wd, 'sat4j.out'), 'a+') as fout, \
                     open(os.path.join(self.wd, 'sat4j.err'), 'a+') as ferr:
                 self.sat4j = subprocess.Popen(command, stdout=fout, stderr=ferr)
 
@@ -321,6 +334,7 @@ if __name__ == '__main__':
     Only for debugging purposes
     """
     import sys
+
     HOST = ''  # The server's hostname or IP address
     PORT = int(sys.argv[1])  # The port used by the server
     if len(sys.argv) == 4:
@@ -336,7 +350,7 @@ if __name__ == '__main__':
     rs = []
     try:
         for i in range(10):
-            print('-'*100)
+            print('-' * 100)
             s = env.reset()
             # print(s)
             done = False
