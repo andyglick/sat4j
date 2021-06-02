@@ -48,6 +48,8 @@ public class ExternalDynamicBumpingStrategyWithSyncedStart
     private long lastTimeMs = System.currentTimeMillis();
     private long lastDecision = 0L;
 
+    private final long lastInspection = 0L;
+
     public ExternalDynamicBumpingStrategyWithSyncedStart(PBSolverCP solver,
             int bound, int port) {
         super(solver, bound);
@@ -144,6 +146,8 @@ public class ExternalDynamicBumpingStrategyWithSyncedStart
         StringBuilder stb = new StringBuilder();
         long deltatime = System.currentTimeMillis() - lastTimeMs;
         long deltadecision = pbsolver.getStats().getDecisions() - lastDecision;
+        long deltaInspection = pbsolver.getStats().getInspects()
+                - lastInspection;
         long depth = pbsolver.nAssigns();
         long dLevel = pbsolver.decisionLevel();
         stb.append("{\n");
@@ -155,6 +159,9 @@ public class ExternalDynamicBumpingStrategyWithSyncedStart
         stb.append("\",\n");
         stb.append("  \"time\": ");
         stb.append(deltatime);
+        stb.append(",\n");
+        stb.append("  \"timeProxy\": -");
+        stb.append(deltaInspection);
         stb.append(",\n");
         stb.append("  \"decisions\": ");
         stb.append(deltadecision);
