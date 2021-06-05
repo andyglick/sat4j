@@ -62,17 +62,32 @@ public class VERIPBSearchListener implements PBSearchListener<ISolverService> {
     public void adding(int p) {
     }
 
+    private String conversion(IConstr c) {
+        BigInteger[] coefs = ((PBConstr) c).getCoefs();
+        int[] lits = ((PBConstr) c).getLits();
+        String conv = "";
+        for (int i = 0; i < lits.length; i++) {
+            conv += coefs[i] + " ";
+            if (lits[i] % 2 == 1) {
+                conv += "~";
+            }
+            conv += "x" + (lits[i] / 2) + " ";
+        }
+        return conv + ">=" + c.toString().split(">=")[1];
+    }
+
     @Override
     public void learn(IConstr c) {
+        System.out.println("constr = " + c);
+        c.setId(++this.nConstraints);
         try {
             FileWriter fw = new FileWriter(this.filename, true);
             fw.write("p " + this.conflict.toString() + "\n");
+            fw.write("e " + this.nConstraints + " " + conversion(c) + " ;\n");
             fw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.nConstraints++;
-        c.setId(nConstraints);
     }
 
     @Override
@@ -88,6 +103,8 @@ public class VERIPBSearchListener implements PBSearchListener<ISolverService> {
 
     @Override
     public void conflictFound(IConstr confl, int dlevel, int trailLevel) {
+        System.out.println("confl = " + confl.toString() + ", dlevel = "
+                + dlevel + ", trailLevel = " + trailLevel);
     }
 
     @Override
@@ -135,6 +152,7 @@ public class VERIPBSearchListener implements PBSearchListener<ISolverService> {
 
     @Override
     public void learnUnit(int p) {
+        System.out.println("unit = " + p);
         try {
             FileWriter fw = new FileWriter(this.filename, true);
             fw.write("p " + this.conflict.toString() + "\n");
@@ -152,7 +170,9 @@ public class VERIPBSearchListener implements PBSearchListener<ISolverService> {
 
     @Override
     public void withReason(PBConstr constr) {
-        this.reason = new StringBuilder("" + constr.getId());
+        if (constr != null) {
+            this.reason = new StringBuilder("" + constr.getId());
+        }
     }
 
     @Override

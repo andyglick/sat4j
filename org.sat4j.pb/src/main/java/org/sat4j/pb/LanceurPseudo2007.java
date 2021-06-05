@@ -104,7 +104,6 @@ public class LanceurPseudo2007 extends LanceurPseudo2005 {
             return;
         }
         lanceur.addHook();
-        System.out.println(args.toString());
         lanceur.run(args);
         System.exit(lanceur.getExitCode().value());
     }
