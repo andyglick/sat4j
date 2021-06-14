@@ -124,7 +124,7 @@ class DQN:
 
     def __init__(self, state_dim: int, action_dim: int, gamma: float,
                  env: gym.Env, eval_env: gym.Env, train_eval_env: gym.Env = None, vision: bool = False,
-                 factored_action_space: list = None):
+                 factored_action_space: list = None, do_checkpoint: bool = True):
         """
         Initialize the DQN Agent
         :param state_dim: dimensionality of the input states
@@ -151,6 +151,7 @@ class DQN:
         self._eval_env = eval_env
         self._train_eval_env = train_eval_env
         self._facts = [[i, j] for i in range(factored_action_space[0]) for j in range(factored_action_space[1])]
+        self.do_checkpoint = do_checkpoint
 
     def save_rpb(self, path):
         self._replay_buffer.save(path)
@@ -167,6 +168,74 @@ class DQN:
         if r < epsilon:
             return np.random.randint(self._action_dim)
         return u
+
+    def run_and_log_evaluation(self, eval_eps, start_time, total_steps, e, only_checkpoint: bool = True):
+        """
+        Method that takes care of runing evaluation and storing results in easy to read format.
+        :param eval_eps: number of evaluation_episodes
+        :param start_time: time.time() of training start
+        :param total_steps: the total performed steps so far
+        :param e: the current episode at which we evaluate
+        :param only_checkpoint: flag indicating if runs are performed or only the checkpoint path is stored.
+        """
+        print('Begin Evaluation')
+        if not only_checkpoint:
+            eval_s, eval_r, eval_d = self.eval(eval_eps, max_env_time_steps)
+        else:
+            eval_s, eval_r, eval_d = [-1], [-1], [-1]
+            checkpoint_path = os.path.join(out_dir, 'checkpoints', f'{total_steps:05d}')
+            if not os.path.exists(checkpoint_path):
+                os.makedirs(checkpoint_path)
+            self.save_model(checkpoint_path)
+        eval_stats = dict(
+            elapsed_time=time.time() - start_time,
+            training_steps=total_steps,
+            training_eps=e,
+            avg_num_steps_per_eval_ep=float(np.mean(eval_s)),
+            avg_num_decs_per_eval_ep=float(np.mean(eval_d)),
+            avg_rew_per_eval_ep=float(np.mean(eval_r)),
+            std_rew_per_eval_ep=float(np.std(eval_r)),
+            eval_eps=eval_eps,
+            eval_insts=self._eval_env.instances,
+            reward_per_insts=eval_r,
+            steps_per_insts=eval_s
+        )
+        if only_checkpoint:
+            eval_stats['checkpoint_path'] = checkpoint_path
+
+        filename = 'eval_scores.json' if not only_checkpoint else 'eval_checkpoints.json'
+        with open(os.path.join(out_dir, filename), 'a+') as out_fh:
+            json.dump(eval_stats, out_fh)
+            out_fh.write('\n')
+
+        # Do the same thing on the training data if required
+        if self._train_eval_env is not None:
+            if not only_checkpoint:
+                eval_s, eval_r, eval_d = self.eval(eval_eps, max_env_time_steps, train_set=True)
+            else:
+                eval_s, eval_r, eval_d = [-1], [-1], [-1]
+                checkpoint_path = os.path.join(out_dir, 'checkpoints', total_steps)
+            eval_stats = dict(
+                elapsed_time=time.time() - start_time,
+                training_steps=total_steps,
+                training_eps=e,
+                avg_num_steps_per_eval_ep=float(np.mean(eval_s)),
+                avg_num_decs_per_eval_ep=float(np.mean(eval_d)),
+                avg_rew_per_eval_ep=float(np.mean(eval_r)),
+                std_rew_per_eval_ep=float(np.std(eval_r)),
+                eval_eps=eval_eps,
+                eval_insts=self._train_eval_env.instances,
+                reward_per_insts=eval_r,
+                steps_per_insts=eval_s
+            )
+            if only_checkpoint:
+                eval_stats['checkpoint_path'] = checkpoint_path
+
+            filename = 'train_scores.json' if not only_checkpoint else 'train_checkpoints.json'
+            with open(os.path.join(out_dir, filename), 'a+') as out_fh:
+                json.dump(eval_stats, out_fh)
+                out_fh.write('\n')
+        print('End Evaluation')
 
     def train(self, episodes: int, max_env_time_steps: int, epsilon: float, eval_eps: int = 1,
               eval_every_n_steps: int = 1, max_train_time_steps: int = 1_000_000):
@@ -200,55 +269,16 @@ class DQN:
 
                 ########### Begin Evaluation
                 if (total_steps % eval_every_n_steps) == 0:
-                    print('Begin Evaluation')
-                    eval_s, eval_r, eval_d = self.eval(eval_eps, max_env_time_steps)
-                    eval_stats = dict(
-                        elapsed_time=time.time() - start_time,
-                        training_steps=total_steps,
-                        training_eps=e,
-                        avg_num_steps_per_eval_ep=float(np.mean(eval_s)),
-                        avg_num_decs_per_eval_ep=float(np.mean(eval_d)),
-                        avg_rew_per_eval_ep=float(np.mean(eval_r)),
-                        std_rew_per_eval_ep=float(np.std(eval_r)),
-                        eval_eps=eval_eps,
-                        eval_insts=self._eval_env.instances,
-                        reward_per_isnts=eval_r,
-                        steps_per_insts=eval_s
-                    )
-
-                    with open(os.path.join(out_dir, 'eval_scores.json'), 'a+') as out_fh:
-                        json.dump(eval_stats, out_fh)
-                        out_fh.write('\n')
-
-                    # Do the same thing on the training data if required
-                    if self._train_eval_env is not None:
-                        eval_s, eval_r, eval_d = self.eval(eval_eps, max_env_time_steps, train_set=True)
-                        eval_stats = dict(
-                            elapsed_time=time.time() - start_time,
-                            training_steps=total_steps,
-                            training_eps=e,
-                            avg_num_steps_per_eval_ep=float(np.mean(eval_s)),
-                            avg_num_decs_per_eval_ep=float(np.mean(eval_d)),
-                            avg_rew_per_eval_ep=float(np.mean(eval_r)),
-                            std_rew_per_eval_ep=float(np.std(eval_r)),
-                            eval_eps=eval_eps,
-                            eval_insts=self._train_eval_env.instances,
-                            reward_per_isnts=eval_r,
-                            steps_per_insts=eval_s
-                        )
-
-                        with open(os.path.join(out_dir, 'train_scores.json'), 'a+') as out_fh:
-                            json.dump(eval_stats, out_fh)
-                            out_fh.write('\n')
-                    print('End Evaluation')
+                    self.run_and_log_evaluation(eval_eps, start_time, total_steps, e,
+                                                only_checkpoint=self.do_checkpoint)
                 ########### End Evaluation
 
                 # Update replay buffer
                 self._replay_buffer.add_transition(s, a, ns, r, d)
-                batch_states, batch_actions, batch_next_states, batch_rewards, batch_terminal_flags = \
-                    self._replay_buffer.random_next_batch(64)
 
                 ########### Begin double Q-learning update
+                batch_states, batch_actions, batch_next_states, batch_rewards, batch_terminal_flags = \
+                    self._replay_buffer.random_next_batch(64)
                 target = batch_rewards + (1 - batch_terminal_flags) * self._gamma * \
                          self._q_target(batch_next_states)[torch.arange(64).long(), torch.argmax(
                              self._q(batch_next_states), dim=1)]
@@ -272,44 +302,8 @@ class DQN:
                 break
 
         # Final evaluation
-        eval_s, eval_r, eval_d = self.eval(eval_eps, max_env_time_steps)
-        eval_stats = dict(
-            elapsed_time=time.time() - start_time,
-            training_steps=total_steps,
-            training_eps=e,
-            avg_num_steps_per_eval_ep=float(np.mean(eval_s)),
-            avg_num_decs_per_eval_ep=float(np.mean(eval_d)),
-            avg_rew_per_eval_ep=float(np.mean(eval_r)),
-            std_rew_per_eval_ep=float(np.std(eval_r)),
-            eval_eps=eval_eps,
-            eval_insts=self._eval_env.instances,
-            reward_per_isnts=eval_r,
-            steps_per_insts=eval_s
-        )
-
-        with open(os.path.join(out_dir, 'eval_scores.json'), 'a+') as out_fh:
-            json.dump(eval_stats, out_fh)
-            out_fh.write('\n')
-
-        if self._train_eval_env is not None:
-            eval_s, eval_r, eval_d = self.eval(eval_eps, max_env_time_steps, train_set=True)
-            eval_stats = dict(
-                elapsed_time=time.time() - start_time,
-                training_steps=total_steps,
-                training_eps=e,
-                avg_num_steps_per_eval_ep=float(np.mean(eval_s)),
-                avg_num_decs_per_eval_ep=float(np.mean(eval_d)),
-                avg_rew_per_eval_ep=float(np.mean(eval_r)),
-                std_rew_per_eval_ep=float(np.std(eval_r)),
-                eval_eps=eval_eps,
-                eval_insts=self._train_eval_env.instances,
-                reward_per_isnts=eval_r,
-                steps_per_insts=eval_s
-            )
-
-            with open(os.path.join(out_dir, 'train_scores.json'), 'a+') as out_fh:
-                json.dump(eval_stats, out_fh)
-                out_fh.write('\n')
+        self.run_and_log_evaluation(eval_eps, start_time, total_steps, e,
+                                    only_checkpoint=self.do_checkpoint)
 
     def __repr__(self):
         return 'DDQN'
@@ -358,6 +352,7 @@ class DQN:
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser('Online DQN training')
     parser.add_argument('instances', type=str, help="Instances to train on", nargs='*')
     parser.add_argument('--val-instances', type=str, help="Instances to validate on", nargs='*')
@@ -400,9 +395,14 @@ if __name__ == "__main__":
     parser.add_argument('--sat4j-jar-path', type=str, help='Path to sat4j jar',
                         default=os.environ.get('SAT4J_PATH'))
     parser.add_argument('--only-control-bumper', action='store_true', help='Flag to indicate that only the bumper '
-                        'parameter is being controlled.')
+                                                                           'parameter is being controlled.')
     parser.add_argument('--use-additional-features', action='store_true', help='Flag to indicate that additional '
-                        'features describing the problem instance(s) should be used.')
+                                                                               'features describing the problem instance(s) should be used.')
+    parser.add_argument('--reward-type', choices=['time', 'time_proxy', 'control_steps'])
+    parser.add_argument('--direct-evaluation', action='store_true', help='Do evaluate directly during training.')
+    parser.add_argument('--validate', default=None, help='Path to trajectory file to validate', type=str)
+    parser.add_argument('--validate-type', choices=['train', 'eval'], default='eval',
+                        help='Which instances to evaluate', type=str)
 
     # setup output dir
     args = parser.parse_args()
@@ -412,22 +412,25 @@ if __name__ == "__main__":
               ' the following argument is required: --sat4j-jar-path')
         exit(0)
 
-    if not args.load_model:
+    if not args.load_model and not args.validate:
         out_dir = prepare_output_dir(args, user_specified_dir=args.out_dir,
                                      subfolder_naming_scheme=args.out_dir_suffix)
         eval_dir = os.path.join(out_dir, 'eval_envdir')
         os.makedirs(eval_dir, exist_ok=False)
-    else:
+    elif args.load_model:
         out_dir = eval_dir = os.path.join(args.load_model, '..', 'val_envdir')
         os.makedirs(eval_dir, exist_ok=False)
+    else:
+        out_dir = os.path.join(os.path.dirname(args.validate))
+        eval_dir = os.path.join(os.path.dirname(args.validate), 'eval_envdir')
 
     env = SAT4JEnvSelHeur(host='', port=args.port, time_step_limit=args.env_max_steps, work_dir=out_dir,
                           jar_path=args.sat4j_jar_path, instances=args.instances,
-                          use_expert_feats=args.use_additional_features)
+                          use_expert_feats=args.use_additional_features, reward_type=args.reward_type)
     eval_env = SAT4JEnvSelHeur(host='', port=args.port + 1, time_step_limit=args.env_max_steps, work_dir=eval_dir,
                                jar_path=args.sat4j_jar_path,
                                instances=args.instances if args.val_instances is None else args.val_instances,
-                               use_expert_feats=args.use_additional_features)
+                               use_expert_feats=args.use_additional_features, reward_type=args.reward_type)
     # Setup agent
     state_dim = env.observation_space.shape[0]
     if not args.only_control_bumper:
@@ -437,27 +440,68 @@ if __name__ == "__main__":
         action_dim = env.action_space.nvec[0]
         facts = [env.action_space.nvec[0], 1]
 
-    agent = DQN(state_dim, action_dim, gamma=0.99, env=env, eval_env=eval_env,
-                factored_action_space=facts)
+    if args.validate_type == 'train':
+        agent = DQN(state_dim, action_dim, gamma=0.99, env=env, eval_env=eval_env, train_eval_env=env,
+                    factored_action_space=facts, do_checkpoint=not args.direct_evaluation)
+    else:
+        agent = DQN(state_dim, action_dim, gamma=0.99, env=env, eval_env=eval_env,
+                    factored_action_space=facts, do_checkpoint=not args.direct_evaluation)
 
     episodes = args.episodes
     max_env_time_steps = args.env_max_steps
     epsilon = args.epsilon
 
-    if args.load_model is None:
-        print('#'*80)
+    if args.val_instances is not None:
+        num_eval_episodes = len(args.val_instances)
+    else:
+        num_eval_episodes = len(args.instances)
+    if num_eval_episodes == 1: num_eval_episodes = 3
+
+    if args.validate is not None:
+
+        outfile_dir_name = os.path.join(os.path.dirname(args.validate),
+                                        'eval_scores.json' if args.validate_type != 'train' else 'train_scores.json')
+        skip_checkpoints = []
+        if os.path.exists(outfile_dir_name):
+            with open(outfile_dir_name, 'r') as infh:
+                for line in infh:
+                    data = json.loads(line)
+                    skip_checkpoints.append(data['checkpoint_path'])
+        with open(args.validate, 'r') as infh, open(outfile_dir_name, 'a+', buffering=1) as outfh:
+            for line in infh:
+                data = json.loads(line)
+                if data['checkpoint_path'] in skip_checkpoints:
+                    print(f'Already validated {data["checkpoint_path"]} -> skipping')
+                else:
+                    print(f'Validating {data["checkpoint_path"]}')
+                    agent.load(data['checkpoint_path'])
+                    eval_s, eval_r, eval_d = agent.eval(num_eval_episodes, max_env_time_steps,
+                                                        train_set=args.validate_type == 'train')
+                    data['avg_num_steps_per_eval_ep'] = float(np.mean(eval_s))
+                    data['avg_num_decs_per_eval_ep'] = float(np.mean(eval_d))
+                    data['avg_rew_per_eval_ep'] = float(np.mean(eval_r))
+                    data['std_rew_per_eval_ep'] = float(np.mean(eval_r))
+                    data['reward_per_insts'] = eval_r
+                    data['steps_per_insts'] = eval_s
+                    if args.validate_type != 'train':
+                        data['eval_insts'] = agent._eval_env.instances,
+                    else:
+                        data['eval_insts'] = agent._train_eval_env.instances,
+                    json.dump(data, outfh)
+                    outfh.write('\n')
+    elif args.load_model is None:
+        print('#' * 80)
         print(f'Using agent type "{agent}" to learn')
-        print('#'*80)
-        num_eval_episodes = len(args.val_instances) if args.val_instances is not None else len(args.instances)
+        print('#' * 80)
         agent.train(episodes, max_env_time_steps, epsilon, num_eval_episodes, args.eval_after_n_steps,
                     max_train_time_steps=args.training_steps)
         os.mkdir(os.path.join(out_dir, 'final'))
         agent.save_model(os.path.join(out_dir, 'final'))
         agent.save_rpb(os.path.join(out_dir, 'final'))
     else:
-        print('#'*80)
+        print('#' * 80)
         print(f'Loading {agent} from {args.load_model}')
-        print('#'*80)
+        print('#' * 80)
         agent.load(args.load_model)
         steps, rewards, decisions = agent.eval(1, 100000)
         np.save(os.path.join(out_dir, 'eval_results.npy'), [steps, rewards, decisions])
