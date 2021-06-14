@@ -237,7 +237,7 @@ class SAT4JEnvSelHeur(Env):
         self.kill_connection()
         if self.dotracktimeproxy and self.__debug_info != []:
             with open('debug_tim_data.json', 'a+') as fh:
-                json.dump(fh, self.__debug_info)
+                json.dump(self.__debug_info, fh)
                 fh.write('\n')
                 self.__debug_info = []
         if not self.socket:

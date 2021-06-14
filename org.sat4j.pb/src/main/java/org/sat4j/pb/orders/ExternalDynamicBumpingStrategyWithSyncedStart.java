@@ -47,8 +47,7 @@ public class ExternalDynamicBumpingStrategyWithSyncedStart
 
     private long lastTimeMs = System.currentTimeMillis();
     private long lastDecision = 0L;
-
-    private final long lastInspection = 0L;
+    private long lastInspection = 0L;
 
     public ExternalDynamicBumpingStrategyWithSyncedStart(PBSolverCP solver,
             int bound, int port) {
@@ -205,6 +204,7 @@ public class ExternalDynamicBumpingStrategyWithSyncedStart
         System.err.println(stb);
         lastTimeMs = System.currentTimeMillis();
         lastDecision = pbsolver.getStats().getDecisions();
+        lastInspection = pbsolver.getStats().getInspects();
         return stb.toString();
     }
 
