@@ -33,7 +33,8 @@ class SAT4JEnvSelHeur(Env):
                  time_step_limit: int = -1, work_dir: str = '.',
                  instance: str = None, jar_path: str = 'dist/CUSTOM/sat4j-kth.jar',
                  instances: list = None,
-                 use_expert_feats: bool = False):
+                 use_expert_feats: bool = False,
+                 do_track_time_proxy: bool=True):
         """
         Initialize environment
         """
@@ -114,6 +115,8 @@ class SAT4JEnvSelHeur(Env):
         self.jarpath = jar_path
         self.instances = instances
         self._inst_pointer = 0
+        self.__debug_info = []
+        self.dotracktimeproxy = do_track_time_proxy
 
     @staticmethod
     def _save_div(a, b):
@@ -177,6 +180,7 @@ class SAT4JEnvSelHeur(Env):
             msg = self.recv_msg().decode('utf-8')
         data = eval(msg)
         r = self._last_time - time.time()
+        self.__debug_info.append([r, data['time'], data['timeProxy']])
         self._last_time = time.time()
 
         state = []
@@ -231,6 +235,11 @@ class SAT4JEnvSelHeur(Env):
         self.__step = 0
         self.__start_time = time.time()
         self.kill_connection()
+        if self.dotracktimeproxy and self.__debug_info != []:
+            with open('debug_tim_data.json', 'a+') as fh:
+                json.dump(fh, self.__debug_info)
+                fh.write('\n')
+                self.__debug_info = []
         if not self.socket:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
