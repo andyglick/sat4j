@@ -126,6 +126,7 @@ If this flag is not set, DAC will use the following state features to learn a po
 - `decisions`
 - `depth`
 - `decisionLevel`
+
 Setting the '--use-additional-features' will include
 - `numberOfVariables`
 - `numberOfOriginalConstraints`
@@ -162,7 +163,7 @@ If this is not set the same instances are used for validation as for training (c
 #### Separate Validation and Training Runs
 The default behaviour of the implemented DDQN in to checkpoint the latest network weights every `--eval-after-n-steps`
 training steps. In the output folder (specified in the training call via `--out-dir`) a file called `eval_checkpoints.json`
-will be created. This has a similar structure as a finally validate output file (see [below](#contents-of-"eval_scores.json"))
+will be created. This has a similar structure as a finally validate output file (see [below](#contents-of-eval_scoresjson))
 but with the actual performance values missing. Additionally, the entry "checkpoint_path" will point to the network weights
 that need to be loaded for validation.
 To validate the performance of these checkpoints you have to run the same command as for training again with two
