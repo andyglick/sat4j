@@ -111,8 +111,10 @@ Via `--env-max-steps` you can set the maximal number of steps in the environment
 instance within this limit the DAC controller will assume the instance can not be solved and will terminate the run.
 I.e., this argument specifies the maximum number of conflicts DAC4SAT4J is allowed to run before it is assumed to not
 solve the instance.
-The `-p` argument sets the desired port via which the DAC agent and SAT4j communicate.
-Note! The DAC script reserves both the specified port and the next larger port for the validation runs!
+
+The `-p` argument sets the desired port via which the DAC agent and SAT4j communicate.<BR>
+:exclamation: ***Note** The DAC script reserves both the specified port and the next larger port for the validation runs!* :exclamation:<BR>
+:exclamation: ***Note** If you run multiple training runs in parallel make sure you change the port accordingly for each run* :exclamation:
 
 The `--out-dir` argument lets you specify where to save the resulting DAC agent and where to log the training progress.
 If it is not specified a new folder in "/tmp" is created.
