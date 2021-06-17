@@ -188,7 +188,7 @@ Evaluation on the validation set
 ```bash
 python train_dqn.py -e 1000 --eval-after-n-steps 100 --env-max-steps 15 -p 33511 PATH_TO_SET_OF_INSTANCES --val-instances PATH_TO_SET_OF_VALIDATION_INSTANCES --validate PATH_TO_OUTPUT_DIR --validate-type eval
 ```
-***Note*** If you intend to validate checkpoints while the training run has not been completed make sure you change the port in the validation call to not interfere with an open connection.
+:exclamation: ***Note* If you intend to validate checkpoints while the training run has not been completed make sure you change the port in the validation call to not interfere with an open connection.* :exclamation:
 
 #### Direct Evaluation
 If you want to directly validate the policies you can change your training call with the additional `--direct-evaluation`
