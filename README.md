@@ -120,6 +120,30 @@ If it is not specified a new folder in "/tmp" is created.
 If you use the `--only-control-bumper` flag only the bumper is dynamically set. Otherwise DAC will set both bumper and
 bumpstrategy.
 
+To use an extended set of state features you can use the `--use-additional-features` flag.
+If this flag is not set, DAC will use the following state features to learn a policy:
+- `deltatime`
+- `decisions`
+- `depth`
+- `decisionLevel`
+Setting the '--use-additional-features' will include
+- `numberOfVariables`
+- `numberOfOriginalConstraints`
+- `org.sat4j.pb.constraints.pb.OriginalBinaryClausePBOriginal`
+- `org.sat4j.pb.constraints.pb.MinWatchCardPBOriginal`
+- `org.sat4j.pb.constraints.pb.LearntHTClausePBLearned`
+- `org.sat4j.pb.constraints.pb.MaxWatchPbLearned`
+- `org.sat4j.pb.constraints.pb.MinWatchCardPBLearned`
+- `propagation`
+- `restarts`
+- `reduceddb`
+If you want to change features in this selection or add new features read the [instructions at the end of this README](#changing-and-including-new-state-features).
+
+Via the `--reward-type` argument you can specify which reward you can choose from different rewards, namely `time`,
+`time_proxy` or `control_steps`. Whereas both "time" and "time_proxy" allow for learning policies that aim for minimizing
+SAT4Js running-time directly. "control_steps" (which is used per default) on the other hand allows for learning policies
+that require as few conflicts as possible and thereby reducing SAT4Js running time.
+
 ### Across Multiple Problem Instances
 
 To learn a dynamic configuration policy on multiple problem instance you can execute the following command
@@ -133,6 +157,41 @@ you can either specify multiple instances or use wildcards (on Linux) such as `t
 The `--val-instances` argument operates in a similar manner and lets you specify on which problem instances to evaluate the lates policy.
 If this is not set the same instances are used for validation as for training (could lead to overfitting).
 
+### Validating Learned Policies
+
+#### Separate Validation and Training Runs
+The default behaviour of the implemented DDQN in to checkpoint the latest network weights every `--eval-after-n-steps`
+training steps. In the output folder (specified in the training call via `--out-dir`) a file called `eval_checkpoints.json`
+will be created. This has a similar structure as a finally validate output file (see [below](#contents-of-"eval_scores.json"))
+but with the actual performance values missing. Additionally, the entry "checkpoint_path" will point to the network weights
+that need to be loaded for validation.
+To validate the performance of these checkpoints you have to run the same command as for training again with two
+additional arguments (`--validate` and `--validate-type`).
+`--validate` has to point to the checkpoins file you want to read in for validation and `--validate-type` specifies if you
+want to evaluate the current policy on the training (`--validate-type train`), or the validation set (`--validate-type eval`).
+
+#### Example of training and validation calls.
+Training
+```bash
+python train_dqn.py -e 1000 --eval-after-n-steps 100 --env-max-steps 15 -p 33311 PATH_TO_SET_OF_INSTANCES --val-instances PATH_TO_SET_OF_VALIDATION_INSTANCES --out-dir PATH_TO_OUTPUT_DIR
+```
+
+Evaluation on the training set
+```bash
+python train_dqn.py -e 1000 --eval-after-n-steps 100 --env-max-steps 15 -p 33411 PATH_TO_SET_OF_INSTANCES --val-instances PATH_TO_SET_OF_VALIDATION_INSTANCES --validate PATH_TO_OUTPUT_DIR --validate-type train
+```
+
+Evaluation on the validation set
+```bash
+python train_dqn.py -e 1000 --eval-after-n-steps 100 --env-max-steps 15 -p 33511 PATH_TO_SET_OF_INSTANCES --val-instances PATH_TO_SET_OF_VALIDATION_INSTANCES --validate PATH_TO_OUTPUT_DIR --validate-type eval
+```
+***Note*** If you intend to validate checkpoints while the training run has not been completed make sure you change the port in the validation call to not interfere with an open connection.
+
+#### Direct Evaluation
+If you want to directly validate the policies you can change your training call with the additional `--direct-evaluation`
+flag. Note however that this behaviour can slow down training drastically as evaluation is blocking and training will only
+resume once the current policy is fully evaluated!
+
 ## Data Generated During DAC Training
 
 The folder that is specified via the `--out-dir` argument will hold all output generated during the training of a DAC agent.
@@ -142,22 +201,24 @@ The folder that is specified via the `--out-dir` argument will hold all output g
 
 The output directory will hold the following elements:
 
-- `args.txt`             (saves all arguments used to run an experiment for reproducibility)
-- `command.txt`          (a copy of the command line call to run the experiment)
-- `environ.txt`          (Information about all environment variables)
-- `eval_envdir`          (Folder for containing information about evaluation runs)
-  - `sat4j.err`                 (Error messages raised by SAT4J during evaluation)
-  - `sat4j.out`                 (Standard output of SAT4J during evaluation)
-- `eval_scores.json`     (Contains all necessary information about the training progress (i.e. reward and training steps))
-- `final`                (Folder containing the final trained model and it's replay buffer)
-  - `Q`                         (Final model weights)
-  - `rpb.pkl`                   (Final replay buffer)
-- `git-diff.txt`          (Some logs about the current git status)
-- `git-head.txt`          (Some logs about the current git status)
-- `git-log.txt`           (Some logs about the current git status)
-- `git-status.txt`        (Some logs about the current git status)
-- `sat4j.err`             (Errors SAT4J raised during training)
-- `sat4j.out`             (Standard output generated by SAT4J during training)
+- `args.txt`              (saves all arguments used to run an experiment for reproducibility)
+- `command.txt`           (a copy of the command line call to run the experiment)
+- `environ.txt`           (Information about all environment variables)
+- `eval_checkpoints.json` (Contains paths to checkpoints for validation. Only created if training and validation are disjoint)
+- `eval_envdir`           (Folder for containing information about evaluation runs)
+  - `sat4j.err`                  (Error messages raised by SAT4J during evaluation)
+  - `sat4j.out`                  (Standard output of SAT4J during evaluation)
+- `eval_scores.json`      (Contains all necessary information about the training progress (i.e. reward and training steps). Only created if validation of policies on the validation set has been performed)
+- `final`                 (Folder containing the final trained model and it's replay buffer)
+  - `Q`                          (Final model weights)
+  - `rpb.pkl`                    (Final replay buffer)
+- `git-diff.txt`           (Some logs about the current git status)
+- `git-head.txt`           (Some logs about the current git status)
+- `git-log.txt`            (Some logs about the current git status)
+- `git-status.txt`         (Some logs about the current git status)
+- `sat4j.err`              (Errors SAT4J raised during training)
+- `sat4j.out`              (Standard output generated by SAT4J during training)
+- `train_scores.json`      (Contains all necessary information about the training progress (i.e. reward and training steps). Only created if validation of policies on the training set has been performed)
 
 ### Contents of "eval_scores.json"
 
@@ -176,7 +237,8 @@ Every line should look something like
   "eval_eps": 1,
   "eval_insts": ["normalized-ECrand4regsplit-v030-n1.opb.bz2"],
   "reward_per_isnts": [-0.4807097911834717],
-  "steps_per_insts": [1]
+  "steps_per_insts": [1],
+  "checkpoint_path": "PATH_TO_OUT_DIR/checkpoints/100"
 }
 ```
 
@@ -189,3 +251,18 @@ Every line should look something like
 - `eval_insts` shows in which order the evaluation instances have been used and the entries in `reward_per_insts` and `steps_per_insts`
 contain the corresponding reward/number of configuration steps required on that instance.
 - If `steps_per_inst` equals the value set via the argument `--env-max-steps` then an instance was not solved in time.
+
+### Changing and Including New State Features
+
+In case you want to evaluate different state features or include new state features you can modify the [sat4j_env.py](sat4j_env.py).
+The python environment receives a dictionary from SAT4J with possible state features and thus in the `sat4j_env.py` you only need to specify
+which keys need to be read from that dictionary to contstruct the state vector that is passed to the neural network policy.
+In the `__init__` function of `sat4j_env.py` you will find wo lists: (i) `self._heuristic_state_features` and (ii) `self._expert_features`.
+These lists contain the keys of some selected features we could use for training.
+The `_heuristic_state_features` list contains the most basic set of features which we used for initial experimentation and
+`_expert_features` contain a larger selection of informative features. The current default behaviour is to only use the features
+specified in `_heuristic_state_features`. To use both basic and expert features you can set the `--use-additional-features` flag in your training call.
+
+***Note*** when removing or adding new features to either list you have to also modify `self.__skip_transform` and `self.__skip_transform_expert_features` in the `__init__`
+function accordingly. These lists contain booleans that indicate if a feature should never be changed to a delta value in the python code (i.e. `True` in the list) or if it could potentially be transformed
+within the python code. As the transformations mostly already happen in the SAT4J code it is safe to set the values in these lists to `True` for all new features that you add.

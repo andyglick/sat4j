@@ -398,7 +398,7 @@ if __name__ == "__main__":
                                                                            'parameter is being controlled.')
     parser.add_argument('--use-additional-features', action='store_true', help='Flag to indicate that additional '
                                                                                'features describing the problem instance(s) should be used.')
-    parser.add_argument('--reward-type', choices=['time', 'time_proxy', 'control_steps'])
+    parser.add_argument('--reward-type', choices=['time', 'time_proxy', 'control_steps'], default='control_steps')
     parser.add_argument('--direct-evaluation', action='store_true', help='Do evaluate directly during training.')
     parser.add_argument('--validate', default=None, help='Path to trajectory file to validate', type=str)
     parser.add_argument('--validate-type', choices=['train', 'eval'], default='eval',
