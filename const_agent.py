@@ -90,6 +90,7 @@ if __name__ == "__main__":
                         'features describing the problem instance(s) should be used.')
     parser.add_argument('--bumper', nargs='+', type=int, default=None)
     parser.add_argument('--bumpes', nargs='+', type=int, default=None)
+    parser.add_argument('--reward-type', choices=['time', 'time_proxy', 'control_steps'], default='control_steps')
 
     # setup output dir
     args = parser.parse_args()
@@ -108,7 +109,7 @@ if __name__ == "__main__":
                                  subfolder_naming_scheme=args.out_dir_suffix)
     eval_env = SAT4JEnvSelHeur(host='', port=args.port + 1, time_step_limit=args.env_max_steps, work_dir=out_dir,
                                jar_path=args.sat4j_jar_path, instances=args.instances,
-                               use_expert_feats=args.use_additional_features)
+                               use_expert_feats=args.use_additional_features, reward_type=args.reward_type)
 
     agent = ConstAgent(eval_env, args.actions, args.bumper, args.bumpes)
     max_env_time_steps = args.env_max_steps
