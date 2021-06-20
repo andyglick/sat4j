@@ -116,7 +116,7 @@ public class ExternalDynamicBumpingStrategyWithSyncedStart
 
         if (jsonline.equals("END")) {
             System.out.println("Received shutdown signal from RL controller");
-            msg = "CONFIRM";
+            msg = "CONFIRM SHUTDOWN";
             out.println(String.format("%04d", msg.length() + 1) + msg);
             out.flush();
             System.exit(0);

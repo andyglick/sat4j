@@ -484,9 +484,23 @@ if __name__ == "__main__":
                     data['reward_per_insts'] = eval_r
                     data['steps_per_insts'] = eval_s
                     if args.validate_type != 'train':
-                        data['eval_insts'] = agent._eval_env.instances,
+                        insts_looked_at = []
+                        counter = 0
+                        for index in range(len(agent._eval_env.instances)):
+                            while (index + counter) % len(agent._eval_env.instances) in agent._eval_env.too_simple_inst:
+                                counter += 1
+                            actual_index = (index + counter) % len(agent._eval_env.instances)
+                            insts_looked_at.append(agent._eval_env.instances[actual_index])
+                        data['eval_insts'] = insts_looked_at,
                     else:
-                        data['eval_insts'] = agent._train_eval_env.instances,
+                        insts_looked_at = []
+                        counter = 0
+                        for index in range(len(agent._train_eval_env.instances)):
+                            while (index + counter) % len(agent._train_eval_env.instances) in agent._train_eval_env.too_simple_inst:
+                                counter += 1
+                            actual_index = (index + counter) % len(agent._train_eval_env.instances)
+                            insts_looked_at.append(agent._train_eval_env.instances[actual_index])
+                        data['eval_insts'] = insts_looked_at,
                     json.dump(data, outfh)
                     outfh.write('\n')
     elif args.load_model is None:

@@ -116,6 +116,7 @@ class SAT4JEnvSelHeur(Env):
         self.instances = instances
         self._inst_pointer = 0
         self.__reward_type = reward_type
+        self.too_simple_inst = []
 
     @staticmethod
     def _save_div(a, b):
@@ -249,6 +250,8 @@ class SAT4JEnvSelHeur(Env):
         if self.instances is not None:
             self.instance = self.instances[self._inst_pointer]
             self._inst_pointer = (self._inst_pointer + 1) % len(self.instances)
+            while self._inst_pointer in self.too_simple_inst:
+                self._inst_pointer = (self._inst_pointer + 1) % len(self.instances)
             print(f'Using instance {self.instance}')
 
         if not self.__external:
@@ -272,8 +275,12 @@ class SAT4JEnvSelHeur(Env):
         self.conn.sendall("START\n".encode('utf-8'))
         tmp_msg = self.recv_msg().decode('utf-8')
         if tmp_msg.strip() != 'CONFIRM':
-            print(tmp_msg, tmp_msg.strip())
-            raise ConnectionAbortedError('Could not establish start procedure')
+            self.kill_connection()
+            if self._inst_pointer - 1 not in self.too_simple_inst:
+                self.too_simple_inst.append(self._inst_pointer - 1)
+            if len(self.too_simple_inst) == len(self.instances):
+                raise Exception('All instances are solvable with the default within 1000k conflicts')
+            return self.reset()
 
         print('connection established')
         print('Waiting on initial state')
@@ -283,6 +290,12 @@ class SAT4JEnvSelHeur(Env):
         print('Received initial state')
         # do a default first step (if we have instance features we don't need this but without we do
         s, _, _, _ = self.step([0, 0])
+        if self.done:
+            if self._inst_pointer - 1 not in self.too_simple_inst:
+                self.too_simple_inst.append(self._inst_pointer - 1)
+            if len(self.too_simple_inst) == len(self.instances):
+                raise Exception('All instances are solvable with the default within 1000k conflicts')
+            return self.reset()
 
         return s
 
@@ -292,7 +305,7 @@ class SAT4JEnvSelHeur(Env):
         if self.conn:
             tmp_msg = 'NONE'
             try:
-                while tmp_msg.strip() != 'CONFIRM':
+                while tmp_msg.strip() != 'CONFIRM SHUTDOWN':
                     self.conn.sendall("END\n".encode('utf-8'))
                     self.conn.send("\n".encode('utf-8'))
                     tmp_msg = self.recv_msg().decode('utf-8')
