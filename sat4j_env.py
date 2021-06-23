@@ -46,7 +46,7 @@ class SAT4JEnvSelHeur(Env):
                                  "org.sat4j.pb.constraints.pb.LearntHTClausePBLearned",
                                  "org.sat4j.pb.constraints.pb.MaxWatchPbLearned",
                                  "org.sat4j.pb.constraints.pb.MinWatchCardPBLearned",
-                                 "propagation", "restarts", "reduceddb"]
+                                 "propagations", "starts", "reduceddb"]
         if use_expert_feats:
             self._heuristic_state_features += self._expert_features
 
@@ -190,7 +190,11 @@ class SAT4JEnvSelHeur(Env):
         state = []
 
         for feature in self._heuristic_state_features:
-            state.append(data[f"{feature}"])
+            try:
+                state.append(data[f"{feature}"])
+            except:
+                print(f'feature {feature} not found in sent data. Imputing with 0')
+                state.append(0)
 
         state[0] = self.action_index_map[0][state[0]]
         state[1] = self.action_index_map[1][state[1]]
