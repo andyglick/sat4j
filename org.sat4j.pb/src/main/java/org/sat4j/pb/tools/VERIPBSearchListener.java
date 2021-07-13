@@ -75,7 +75,7 @@ public class VERIPBSearchListener implements PBSearchListener<ISolverService> {
             }
             conv += "x" + (lits[i] / 2) + " ";
         }
-        return conv + ">=" + c.toString().split(">=")[1];
+        return conv + ">=" + c.dump().split(">=")[1];
     }
 
     @Override
