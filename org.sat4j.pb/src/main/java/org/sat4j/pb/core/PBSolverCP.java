@@ -218,6 +218,7 @@ public class PBSolverCP extends PBSolver {
         if (confl.isUnsat() || confl.size() == 0 || decisionLevel() == 0
                 || (this.trail.size() == 0
                         && confl.slackConflict().signum() < 0)) {
+            listener().learn(null);
             results.setReason(null);
             results.setBacktrackLevel(-1);
             return;
