@@ -9,4 +9,8 @@ public class VoidPBTracing extends PBSearchListenerAdapter<IPBSolverService> {
      */
     private static final long serialVersionUID = 1L;
 
+    @Override
+    public String toString() {
+        return "none";
+    }
 }

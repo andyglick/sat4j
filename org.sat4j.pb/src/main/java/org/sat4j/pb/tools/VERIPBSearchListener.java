@@ -238,4 +238,8 @@ public class VERIPBSearchListener implements PBSearchListener<ISolverService> {
         this.conflict.append(" " + this.reason).append(" +");
     }
 
+    @Override
+    public String toString() {
+        return "VERIPB";
+    }
 }
