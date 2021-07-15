@@ -69,6 +69,7 @@ public class LanceurPseudo2007 extends LanceurPseudo2005 {
             PBSearchListener<ISolverService> listener = new VERIPBSearchListener(
                     problemname);
             this.solver.setSearchListener(listener);
+            log("using VERIPB proof format");
         }
         if (problemname.endsWith(".cnf"))
             return new DimacsReader(theSolver);
