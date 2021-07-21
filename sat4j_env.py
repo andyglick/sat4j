@@ -268,6 +268,8 @@ class SAT4JEnvSelHeur(Env):
                 '-br',
                 'externaldac',
                 '-sync',
+                '-t',
+                '600',
                 f'{self.instance}'
             ]
             with open(os.path.join(self.wd, 'sat4j.out'), 'a+') as fout, \
