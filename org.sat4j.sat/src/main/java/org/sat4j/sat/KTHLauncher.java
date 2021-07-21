@@ -72,6 +72,8 @@ public class KTHLauncher {
 
     public static Options createCLIOptions() {
         Options options = new Options();
+        options.addOption("t", "timeout", true,
+                "runtime timeout (in seconds)");
         options.addOption("cl", "coeflim", true,
                 "coefficient limit triggering division");
         options.addOption("cls", "coeflim-small", true,
@@ -116,7 +118,9 @@ public class KTHLauncher {
                 "Whether clashing literal should be doubly bumped");
          options.addOption("sync", "synced-start", false,
                 "Whether externaldac uses synced start or not");
-        Option op = options.getOption("coeflim");
+        Option op = options.getOption("timeout");
+        op.setArgName("timeinseconds");
+        op = options.getOption("coeflim");
         op.setArgName("limit");
         op = options.getOption("coeflim-small");
         op.setArgName("limit");
@@ -536,6 +540,11 @@ public class KTHLauncher {
                             + " is not a supported value for option deletion-strategy");
                     return;
                 }
+            }
+            if (line.hasOption("timeout")) {
+                String value = line.getOptionValue("timeout");
+                int seconds = Integer.valueOf(value);
+                cpsolver.setTimeout(seconds);
             }
             System.out.println(pbsolver.toString("c "));
             String[] leftArgs = line.getArgs();
