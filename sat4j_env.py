@@ -117,6 +117,7 @@ class SAT4JEnvSelHeur(Env):
         self._inst_pointer = 0
         self.__reward_type = reward_type
         self.too_simple_inst = []
+        self._last_msg = None
 
     @staticmethod
     def _save_div(a, b):
@@ -221,6 +222,7 @@ class SAT4JEnvSelHeur(Env):
             self.close()
             raise Exception('Connection unexpected closed')
         self.conn.sendall(json.dumps(msg).encode('utf-8') + "\n".encode('utf-8'))
+        self._last_msg = msg
         s, r, d = self._process_data()
         info = {}
         if d:
@@ -238,6 +240,7 @@ class SAT4JEnvSelHeur(Env):
         Initialize SAT4J
         :return:
         """
+        self._last_msg = None
         self.done = False
         self._prev_state = None
         self.__step = 0
